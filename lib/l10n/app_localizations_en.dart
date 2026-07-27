@@ -256,4 +256,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get storageError => 'Could not complete the storage operation.';
+
+  @override
+  String get reportMonth => 'Report month';
+
+  @override
+  String get allDepartments => 'All departments';
+
+  @override
+  String get previewReport => 'Preview report';
+
+  @override
+  String get previewReportDescription =>
+      'Choose report options, then generate an A4 preview.';
+
+  @override
+  String get printReport => 'Print';
+
+  @override
+  String get sharePdf => 'Share PDF';
+
+  @override
+  String get reportGenerationError => 'The PDF report could not be generated.';
 }

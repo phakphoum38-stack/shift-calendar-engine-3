@@ -12,6 +12,12 @@ import '../features/settings/infrastructure/shared_preferences_settings_reposito
 import '../features/shift_templates/infrastructure/shared_preferences_shift_template_repository.dart';
 import '../features/roster/application/roster_controller.dart';
 import '../features/roster/application/roster_editor_controller.dart';
+import '../features/reports/application/monthly_roster_report_mapper.dart';
+import '../features/reports/application/report_controller.dart';
+import '../features/reports/application/report_service.dart';
+import '../features/reports/domain/monthly_roster_report.dart';
+import '../features/reports/infrastructure/monthly_roster_pdf_service.dart';
+import '../features/reports/infrastructure/printing_report_output_gateway.dart';
 import '../features/employees/application/employee_directory_controller.dart';
 import '../features/shift_templates/application/shift_template_controller.dart';
 import '../domain/entities/schedule.dart';
@@ -24,6 +30,9 @@ class AppDependencies {
     SettingsRepository? settingsRepository,
     EmployeeRepository? employeeRepository,
     ShiftTemplateRepository? shiftTemplateRepository,
+    MonthlyRosterReportMapper? monthlyRosterReportMapper,
+    this.reportServiceOverride,
+    ReportOutputGateway? reportOutputGateway,
     this.dashboardSummaryService = const DashboardSummaryService(),
   }) : scheduleRepository = scheduleRepository ?? MemoryScheduleRepository(),
        settingsRepository =
@@ -33,7 +42,11 @@ class AppDependencies {
            employeeRepository ?? SharedPreferencesEmployeeRepository(),
        shiftTemplateRepository =
            shiftTemplateRepository ??
-           SharedPreferencesShiftTemplateRepository();
+           SharedPreferencesShiftTemplateRepository(),
+       monthlyRosterReportMapper =
+           monthlyRosterReportMapper ?? const MonthlyRosterReportMapper(),
+       reportOutputGateway =
+           reportOutputGateway ?? const PrintingReportOutputGateway();
 
   factory AppDependencies.production() {
     return AppDependencies(
@@ -47,6 +60,13 @@ class AppDependencies {
   final EmployeeRepository employeeRepository;
   final ShiftTemplateRepository shiftTemplateRepository;
   final DashboardSummaryService dashboardSummaryService;
+  final MonthlyRosterReportMapper monthlyRosterReportMapper;
+  final ReportOutputGateway reportOutputGateway;
+  final MonthlyRosterReportService? reportServiceOverride;
+
+  MonthlyRosterReportService get monthlyRosterReportService =>
+      reportServiceOverride ??
+      MonthlyRosterPdfService(mapper: monthlyRosterReportMapper);
 
   AppController createAppController() {
     return AppController(
@@ -79,5 +99,17 @@ class AppDependencies {
 
   ShiftTemplateController createShiftTemplateController() {
     return ShiftTemplateController(repository: shiftTemplateRepository);
+  }
+
+  ReportController createReportController(
+    Schedule schedule,
+    MonthlyRosterReportOptions options,
+  ) {
+    return ReportController(
+      schedule: schedule,
+      reportService: monthlyRosterReportService,
+      outputGateway: reportOutputGateway,
+      initialOptions: options,
+    );
   }
 }

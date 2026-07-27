@@ -60,3 +60,21 @@ The Phase 0 repository is deliberately process-local. Phase 2 introduces a
 versioned canonical schedule codec and atomic local repository. Legacy data
 migration is not relevant to this clean repository and must be implemented only
 as an explicit opt-in import adapter.
+
+## Reporting boundary
+
+The reporting flow reads the canonical aggregate without mutating it:
+
+```text
+Schedule
+  -> MonthlyRosterReportMapper
+  -> MonthlyRosterReport
+  -> MonthlyRosterPdfService
+  -> ReportController
+  -> PdfPreview / PrintingReportOutputGateway
+```
+
+The intermediate report model owns deterministic ordering and statistics. PDF
+layout does not traverse or modify the raw schedule graph. `ReportLabels`
+keeps PDF infrastructure independent from `BuildContext`, while the bundled
+OFL Noto Sans Thai font provides reproducible Thai and English rendering.

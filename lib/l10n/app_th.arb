@@ -80,5 +80,12 @@
   "previewChanges": "ตรวจสอบการเปลี่ยนแปลง",
   "catalogRequired": "เพิ่มบุคลากรและแม่แบบเวรที่เปิดใช้งานก่อน",
   "scheduleSaved": "บันทึกตารางเวรแล้ว",
-  "storageError": "ไม่สามารถดำเนินการกับพื้นที่จัดเก็บได้"
+  "storageError": "ไม่สามารถดำเนินการกับพื้นที่จัดเก็บได้",
+  "reportMonth": "เดือนของรายงาน",
+  "allDepartments": "ทุกหน่วยงาน",
+  "previewReport": "ดูตัวอย่างรายงาน",
+  "previewReportDescription": "เลือกตัวเลือกรายงานแล้วสร้างตัวอย่าง A4",
+  "printReport": "พิมพ์",
+  "sharePdf": "แชร์ PDF",
+  "reportGenerationError": "ไม่สามารถสร้างรายงาน PDF ได้"
 }

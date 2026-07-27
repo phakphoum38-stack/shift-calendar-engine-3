@@ -254,4 +254,26 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get storageError => 'ไม่สามารถดำเนินการกับพื้นที่จัดเก็บได้';
+
+  @override
+  String get reportMonth => 'เดือนของรายงาน';
+
+  @override
+  String get allDepartments => 'ทุกหน่วยงาน';
+
+  @override
+  String get previewReport => 'ดูตัวอย่างรายงาน';
+
+  @override
+  String get previewReportDescription =>
+      'เลือกตัวเลือกรายงานแล้วสร้างตัวอย่าง A4';
+
+  @override
+  String get printReport => 'พิมพ์';
+
+  @override
+  String get sharePdf => 'แชร์ PDF';
+
+  @override
+  String get reportGenerationError => 'ไม่สามารถสร้างรายงาน PDF ได้';
 }
