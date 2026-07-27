@@ -74,4 +74,10 @@ class AppController extends ChangeNotifier {
     }
     notifyListeners();
   }
+
+  void adoptSchedule(Schedule schedule) {
+    if (identical(schedule, _schedule)) return;
+    _schedule = schedule;
+    notifyListeners();
+  }
 }

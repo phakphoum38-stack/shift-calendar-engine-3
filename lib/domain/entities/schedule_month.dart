@@ -21,4 +21,26 @@ class ScheduleMonth {
     }
     return null;
   }
+
+  ScheduleMonth replaceDay(ScheduleDay updatedDay) {
+    final exists = days.any(
+      (day) =>
+          day.date.year == updatedDay.date.year &&
+          day.date.month == updatedDay.date.month &&
+          day.date.day == updatedDay.date.day,
+    );
+    return ScheduleMonth(
+      month: month,
+      days: [
+        for (final day in days)
+          if (day.date.year == updatedDay.date.year &&
+              day.date.month == updatedDay.date.month &&
+              day.date.day == updatedDay.date.day)
+            updatedDay
+          else
+            day,
+        if (!exists) updatedDay,
+      ],
+    );
+  }
 }

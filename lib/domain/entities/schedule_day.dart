@@ -12,4 +12,16 @@ class ScheduleDay {
   final DateTime date;
   final List<ShiftAssignment> assignments;
   final String? holidayName;
+
+  ScheduleDay copyWith({
+    DateTime? date,
+    List<ShiftAssignment>? assignments,
+    String? holidayName,
+  }) {
+    return ScheduleDay(
+      date: date ?? this.date,
+      assignments: assignments ?? this.assignments,
+      holidayName: holidayName ?? this.holidayName,
+    );
+  }
 }

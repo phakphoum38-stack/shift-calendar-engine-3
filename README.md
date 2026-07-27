@@ -14,7 +14,7 @@ Supported targets:
 
 ## Current milestone
 
-Phase 0 foundation is operational:
+Phase 0 foundation and the first Phase 2 vertical slice are operational:
 
 - canonical `Schedule` aggregate
 - explicit `AppDependencies` composition root
@@ -24,7 +24,12 @@ Phase 0 foundation is operational:
 - Thai and English localization
 - system/light/dark themes
 - deterministic opt-in Demo mode
+- atomic local persistence for the canonical schedule
+- persistent employee and configurable shift-template catalogs
+- canonical manual roster editing with preview and explicit save
 - format, analysis, test, security, and multi-platform build workflows
+
+The remaining Phase 2 scope is the dedicated printable A4 roster layout.
 
 The repository is intentionally separate from the production
 `phakphum-calendar` migration. No legacy runtime was copied into this project.

@@ -361,6 +361,228 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Canonical roster, explicit dependencies, responsive navigation, localization, and tests are active.'**
   String get phaseStatusDescription;
+
+  /// No description provided for @addEmployee.
+  ///
+  /// In en, this message translates to:
+  /// **'Add employee'**
+  String get addEmployee;
+
+  /// No description provided for @editEmployee.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit employee'**
+  String get editEmployee;
+
+  /// No description provided for @deactivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate'**
+  String get deactivate;
+
+  /// No description provided for @employeeCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Employee code'**
+  String get employeeCode;
+
+  /// No description provided for @firstName.
+  ///
+  /// In en, this message translates to:
+  /// **'First name'**
+  String get firstName;
+
+  /// No description provided for @lastName.
+  ///
+  /// In en, this message translates to:
+  /// **'Last name'**
+  String get lastName;
+
+  /// No description provided for @nickname.
+  ///
+  /// In en, this message translates to:
+  /// **'Nickname'**
+  String get nickname;
+
+  /// No description provided for @position.
+  ///
+  /// In en, this message translates to:
+  /// **'Position'**
+  String get position;
+
+  /// No description provided for @departmentCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Department code'**
+  String get departmentCode;
+
+  /// No description provided for @departmentName.
+  ///
+  /// In en, this message translates to:
+  /// **'Department name'**
+  String get departmentName;
+
+  /// No description provided for @search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get search;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get confirm;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @requiredField.
+  ///
+  /// In en, this message translates to:
+  /// **'This field is required.'**
+  String get requiredField;
+
+  /// No description provided for @shiftTemplates.
+  ///
+  /// In en, this message translates to:
+  /// **'Shift templates'**
+  String get shiftTemplates;
+
+  /// No description provided for @shiftTemplatesDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Configure reusable shift codes, times, colors, hours, and rates.'**
+  String get shiftTemplatesDescription;
+
+  /// No description provided for @addShiftTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'Add shift template'**
+  String get addShiftTemplate;
+
+  /// No description provided for @editShiftTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit shift template'**
+  String get editShiftTemplate;
+
+  /// No description provided for @shiftCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Shift code'**
+  String get shiftCode;
+
+  /// No description provided for @shiftName.
+  ///
+  /// In en, this message translates to:
+  /// **'Shift name'**
+  String get shiftName;
+
+  /// No description provided for @startTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Start time'**
+  String get startTime;
+
+  /// No description provided for @endTime.
+  ///
+  /// In en, this message translates to:
+  /// **'End time'**
+  String get endTime;
+
+  /// No description provided for @workingHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Working hours'**
+  String get workingHours;
+
+  /// No description provided for @rate.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate'**
+  String get rate;
+
+  /// No description provided for @manualRosterEditor.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual roster editor'**
+  String get manualRosterEditor;
+
+  /// No description provided for @addAssignment.
+  ///
+  /// In en, this message translates to:
+  /// **'Add assignment'**
+  String get addAssignment;
+
+  /// No description provided for @selectDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Select date'**
+  String get selectDate;
+
+  /// No description provided for @employee.
+  ///
+  /// In en, this message translates to:
+  /// **'Employee'**
+  String get employee;
+
+  /// No description provided for @shift.
+  ///
+  /// In en, this message translates to:
+  /// **'Shift'**
+  String get shift;
+
+  /// No description provided for @location.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get location;
+
+  /// No description provided for @remark.
+  ///
+  /// In en, this message translates to:
+  /// **'Remark'**
+  String get remark;
+
+  /// No description provided for @previewChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview changes'**
+  String get previewChanges;
+
+  /// No description provided for @catalogRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Add active employees and shift templates first.'**
+  String get catalogRequired;
+
+  /// No description provided for @scheduleSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule saved.'**
+  String get scheduleSaved;
+
+  /// No description provided for @storageError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not complete the storage operation.'**
+  String get storageError;
 }
 
 class _AppLocalizationsDelegate

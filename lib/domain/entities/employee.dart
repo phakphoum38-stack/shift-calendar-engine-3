@@ -27,6 +27,28 @@ class Employee {
   String get displayName =>
       nickname.trim().isEmpty ? fullName : '$fullName ($nickname)';
 
+  Employee copyWith({
+    String? id,
+    String? employeeCode,
+    String? firstName,
+    String? lastName,
+    String? nickname,
+    Department? department,
+    String? position,
+    bool? active,
+  }) {
+    return Employee(
+      id: id ?? this.id,
+      employeeCode: employeeCode ?? this.employeeCode,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      nickname: nickname ?? this.nickname,
+      department: department ?? this.department,
+      position: position ?? this.position,
+      active: active ?? this.active,
+    );
+  }
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||

@@ -30,4 +30,25 @@ class Schedule {
 
   Iterable<ShiftAssignment> get assignments =>
       days.expand((day) => day.assignments);
+
+  Schedule replaceMonth(ScheduleMonth updatedMonth) {
+    final exists = months.any(
+      (month) =>
+          month.month.year == updatedMonth.month.year &&
+          month.month.month == updatedMonth.month.month,
+    );
+    return Schedule(
+      id: id,
+      name: name,
+      months: [
+        for (final month in months)
+          if (month.month.year == updatedMonth.month.year &&
+              month.month.month == updatedMonth.month.month)
+            updatedMonth
+          else
+            month,
+        if (!exists) updatedMonth,
+      ],
+    );
+  }
 }

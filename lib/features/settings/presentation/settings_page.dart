@@ -8,11 +8,13 @@ class SettingsPage extends StatelessWidget {
   const SettingsPage({
     required this.settings,
     required this.onChanged,
+    required this.openShiftTemplates,
     super.key,
   });
 
   final AppSettings settings;
   final ValueChanged<AppSettings> onChanged;
+  final VoidCallback openShiftTemplates;
 
   @override
   Widget build(BuildContext context) => ListView(
@@ -80,6 +82,16 @@ class SettingsPage extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+      const SizedBox(height: 16),
+      Card(
+        child: ListTile(
+          leading: const Icon(Icons.view_timeline_outlined),
+          title: Text(context.l10n.shiftTemplates),
+          subtitle: Text(context.l10n.shiftTemplatesDescription),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: openShiftTemplates,
         ),
       ),
       const SizedBox(height: 16),

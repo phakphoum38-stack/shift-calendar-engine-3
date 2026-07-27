@@ -4,17 +4,23 @@ import 'package:intl/intl.dart';
 import '../../../domain/entities/schedule.dart';
 import '../../../l10n/l10n.dart';
 import '../application/roster_controller.dart';
+import '../application/roster_editor_controller.dart';
+import 'roster_editor_page.dart';
 
 /// Canonical month roster viewer with responsive date cards.
 class RosterPage extends StatefulWidget {
   const RosterPage({
     required this.schedule,
     required this.controllerFactory,
+    required this.editorControllerFactory,
+    required this.onScheduleSaved,
     super.key,
   });
 
   final Schedule schedule;
   final RosterController Function(Schedule) controllerFactory;
+  final RosterEditorController Function(Schedule) editorControllerFactory;
+  final ValueChanged<Schedule> onScheduleSaved;
 
   @override
   State<RosterPage> createState() => _RosterPageState();
@@ -46,14 +52,34 @@ class _RosterPageState extends State<RosterPage> {
       return ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          Row(
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 12,
+            runSpacing: 12,
             children: [
-              Expanded(
-                child: Text(
-                  context.l10n.roster,
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
+              Text(
+                context.l10n.roster,
+                style: Theme.of(context).textTheme.headlineMedium,
               ),
+              FilledButton.icon(
+                onPressed: () => Navigator.of(context).push<void>(
+                  MaterialPageRoute(
+                    builder: (context) => RosterEditorPage(
+                      schedule: widget.schedule,
+                      controllerFactory: widget.editorControllerFactory,
+                      onSaved: widget.onScheduleSaved,
+                    ),
+                  ),
+                ),
+                icon: const Icon(Icons.edit_calendar_outlined),
+                label: Text(context.l10n.manualRosterEditor),
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
               IconButton(
                 tooltip: context.l10n.previousMonth,
                 onPressed: controller.previousMonth,

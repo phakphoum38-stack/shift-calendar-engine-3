@@ -142,4 +142,116 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get phaseStatusDescription =>
       'เปิดใช้ตารางเวรหลัก การประกอบ dependency แบบชัดเจน navigation responsive ระบบภาษา และการทดสอบแล้ว';
+
+  @override
+  String get addEmployee => 'เพิ่มบุคลากร';
+
+  @override
+  String get editEmployee => 'แก้ไขบุคลากร';
+
+  @override
+  String get deactivate => 'ปิดใช้งาน';
+
+  @override
+  String get employeeCode => 'รหัสพนักงาน';
+
+  @override
+  String get firstName => 'ชื่อ';
+
+  @override
+  String get lastName => 'นามสกุล';
+
+  @override
+  String get nickname => 'ชื่อเล่น';
+
+  @override
+  String get position => 'ตำแหน่ง';
+
+  @override
+  String get departmentCode => 'รหัสหน่วยงาน';
+
+  @override
+  String get departmentName => 'ชื่อหน่วยงาน';
+
+  @override
+  String get search => 'ค้นหา';
+
+  @override
+  String get save => 'บันทึก';
+
+  @override
+  String get cancel => 'ยกเลิก';
+
+  @override
+  String get confirm => 'ยืนยัน';
+
+  @override
+  String get delete => 'ลบ';
+
+  @override
+  String get requiredField => 'จำเป็นต้องกรอกข้อมูลนี้';
+
+  @override
+  String get shiftTemplates => 'แม่แบบเวร';
+
+  @override
+  String get shiftTemplatesDescription =>
+      'กำหนดรหัส เวลา สี ชั่วโมงทำงาน และอัตราของเวรที่นำกลับมาใช้ได้';
+
+  @override
+  String get addShiftTemplate => 'เพิ่มแม่แบบเวร';
+
+  @override
+  String get editShiftTemplate => 'แก้ไขแม่แบบเวร';
+
+  @override
+  String get shiftCode => 'รหัสเวร';
+
+  @override
+  String get shiftName => 'ชื่อเวร';
+
+  @override
+  String get startTime => 'เวลาเริ่ม';
+
+  @override
+  String get endTime => 'เวลาสิ้นสุด';
+
+  @override
+  String get workingHours => 'ชั่วโมงทำงาน';
+
+  @override
+  String get rate => 'อัตรา';
+
+  @override
+  String get manualRosterEditor => 'จัดตารางเวรด้วยตนเอง';
+
+  @override
+  String get addAssignment => 'เพิ่มรายการเวร';
+
+  @override
+  String get selectDate => 'เลือกวันที่';
+
+  @override
+  String get employee => 'บุคลากร';
+
+  @override
+  String get shift => 'เวร';
+
+  @override
+  String get location => 'สถานที่';
+
+  @override
+  String get remark => 'หมายเหตุ';
+
+  @override
+  String get previewChanges => 'ตรวจสอบการเปลี่ยนแปลง';
+
+  @override
+  String get catalogRequired => 'เพิ่มบุคลากรและแม่แบบเวรที่เปิดใช้งานก่อน';
+
+  @override
+  String get scheduleSaved => 'บันทึกตารางเวรแล้ว';
+
+  @override
+  String get storageError => 'ไม่สามารถดำเนินการกับพื้นที่จัดเก็บได้';
 }

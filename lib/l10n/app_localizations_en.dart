@@ -143,4 +143,117 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get phaseStatusDescription =>
       'Canonical roster, explicit dependencies, responsive navigation, localization, and tests are active.';
+
+  @override
+  String get addEmployee => 'Add employee';
+
+  @override
+  String get editEmployee => 'Edit employee';
+
+  @override
+  String get deactivate => 'Deactivate';
+
+  @override
+  String get employeeCode => 'Employee code';
+
+  @override
+  String get firstName => 'First name';
+
+  @override
+  String get lastName => 'Last name';
+
+  @override
+  String get nickname => 'Nickname';
+
+  @override
+  String get position => 'Position';
+
+  @override
+  String get departmentCode => 'Department code';
+
+  @override
+  String get departmentName => 'Department name';
+
+  @override
+  String get search => 'Search';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get confirm => 'Confirm';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get requiredField => 'This field is required.';
+
+  @override
+  String get shiftTemplates => 'Shift templates';
+
+  @override
+  String get shiftTemplatesDescription =>
+      'Configure reusable shift codes, times, colors, hours, and rates.';
+
+  @override
+  String get addShiftTemplate => 'Add shift template';
+
+  @override
+  String get editShiftTemplate => 'Edit shift template';
+
+  @override
+  String get shiftCode => 'Shift code';
+
+  @override
+  String get shiftName => 'Shift name';
+
+  @override
+  String get startTime => 'Start time';
+
+  @override
+  String get endTime => 'End time';
+
+  @override
+  String get workingHours => 'Working hours';
+
+  @override
+  String get rate => 'Rate';
+
+  @override
+  String get manualRosterEditor => 'Manual roster editor';
+
+  @override
+  String get addAssignment => 'Add assignment';
+
+  @override
+  String get selectDate => 'Select date';
+
+  @override
+  String get employee => 'Employee';
+
+  @override
+  String get shift => 'Shift';
+
+  @override
+  String get location => 'Location';
+
+  @override
+  String get remark => 'Remark';
+
+  @override
+  String get previewChanges => 'Preview changes';
+
+  @override
+  String get catalogRequired =>
+      'Add active employees and shift templates first.';
+
+  @override
+  String get scheduleSaved => 'Schedule saved.';
+
+  @override
+  String get storageError => 'Could not complete the storage operation.';
 }
