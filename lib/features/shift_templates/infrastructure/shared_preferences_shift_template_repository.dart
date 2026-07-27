@@ -10,7 +10,7 @@ class SharedPreferencesShiftTemplateRepository
   SharedPreferencesShiftTemplateRepository({
     AtomicStringStore? store,
     this.codec = const CanonicalJsonCodec(),
-  }) : store = store ?? AtomicStringStore(keyPrefix: 'sce3.shift_templates.v1');
+  }) : store = store ?? AtomicStringStore(namespace: 'sce3.shift_templates.v1');
 
   final AtomicStringStore store;
   final CanonicalJsonCodec codec;

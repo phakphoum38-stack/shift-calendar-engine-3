@@ -35,7 +35,7 @@ void main() {
   test('atomic repository saves and restores canonical schedule', () async {
     final memory = _MemoryStringStore();
     final repository = SharedPreferencesScheduleRepository(
-      store: AtomicStringStore(keyPrefix: 'test.schedule', store: memory),
+      store: AtomicStringStore(namespace: 'test.schedule', store: memory),
     );
     final schedule = canonicalScheduleFixture();
 
@@ -51,7 +51,7 @@ void main() {
   test('failed staged write preserves the last valid schedule', () async {
     final memory = _FailingStringStore();
     final repository = SharedPreferencesScheduleRepository(
-      store: AtomicStringStore(keyPrefix: 'test.schedule', store: memory),
+      store: AtomicStringStore(namespace: 'test.schedule', store: memory),
     );
     final original = canonicalScheduleFixture();
 
@@ -74,13 +74,13 @@ void main() {
   test('employee and shift repositories enforce unique codes', () async {
     final employeeRepository = SharedPreferencesEmployeeRepository(
       store: AtomicStringStore(
-        keyPrefix: 'test.employees',
+        namespace: 'test.employees',
         store: _MemoryStringStore(),
       ),
     );
     final shiftRepository = SharedPreferencesShiftTemplateRepository(
       store: AtomicStringStore(
-        keyPrefix: 'test.shifts',
+        namespace: 'test.shifts',
         store: _MemoryStringStore(),
       ),
     );

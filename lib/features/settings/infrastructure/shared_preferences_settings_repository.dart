@@ -9,7 +9,7 @@ import '../../../domain/repositories/settings_repository.dart';
 class SharedPreferencesSettingsRepository implements SettingsRepository {
   SharedPreferencesSettingsRepository({AtomicStringStore? store})
     : store =
-          store ?? AtomicStringStore(keyPrefix: 'sce3.application_settings.v1');
+          store ?? AtomicStringStore(namespace: 'sce3.application_settings.v1');
 
   final AtomicStringStore store;
 

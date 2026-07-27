@@ -10,7 +10,7 @@ class SharedPreferencesScheduleRepository implements ScheduleRepository {
     AtomicStringStore? store,
     this.codec = const CanonicalJsonCodec(),
   }) : store =
-           store ?? AtomicStringStore(keyPrefix: 'sce3.canonical_schedule.v1');
+           store ?? AtomicStringStore(namespace: 'sce3.canonical_schedule.v1');
 
   final AtomicStringStore store;
   final CanonicalJsonCodec codec;

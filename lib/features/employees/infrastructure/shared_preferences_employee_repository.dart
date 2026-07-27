@@ -10,7 +10,7 @@ class SharedPreferencesEmployeeRepository implements EmployeeRepository {
     AtomicStringStore? store,
     this.codec = const CanonicalJsonCodec(),
   }) : store =
-           store ?? AtomicStringStore(keyPrefix: 'sce3.canonical_employees.v1');
+           store ?? AtomicStringStore(namespace: 'sce3.canonical_employees.v1');
 
   final AtomicStringStore store;
   final CanonicalJsonCodec codec;

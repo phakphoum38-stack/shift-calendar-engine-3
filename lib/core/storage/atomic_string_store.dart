@@ -34,14 +34,14 @@ class AtomicStorageException implements Exception {
 
 /// Two-slot payload store that keeps the last active value until verification.
 class AtomicStringStore {
-  AtomicStringStore({required this.keyPrefix, StringStore? store})
+  AtomicStringStore({required this.namespace, StringStore? store})
     : store = store ?? SharedPreferencesStringStore();
 
-  final String keyPrefix;
+  final String namespace;
   final StringStore store;
 
-  String get _activeKey => '$keyPrefix.active';
-  String _slotKey(String slot) => '$keyPrefix.slot.$slot';
+  String get _activeKey => '$namespace.active';
+  String _slotKey(String slot) => '$namespace.slot.$slot';
 
   Future<String?> read() async {
     final active = await store.getString(_activeKey);
