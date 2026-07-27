@@ -1,0 +1,9 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Canonical local-storage namespaces are public identifiers."
+regexTarget = "secret"
+regexes = [
+  '''sce3\.canonical_(?:schedule|employees)\.v1''',
+]

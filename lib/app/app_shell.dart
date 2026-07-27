@@ -8,7 +8,11 @@ import '../features/employees/presentation/employees_page.dart';
 import '../features/exchange/presentation/exchange_page.dart';
 import '../features/reports/presentation/reports_page.dart';
 import '../features/roster/application/roster_controller.dart';
+import '../features/roster/application/roster_editor_controller.dart';
 import '../features/roster/presentation/roster_page.dart';
+import '../features/employees/application/employee_directory_controller.dart';
+import '../features/shift_templates/application/shift_template_controller.dart';
+import '../features/shift_templates/presentation/shift_templates_page.dart';
 import '../features/settings/presentation/settings_page.dart';
 import '../l10n/l10n.dart';
 import '../domain/entities/schedule.dart';
@@ -20,12 +24,20 @@ class AppShell extends StatefulWidget {
     required this.controller,
     required this.dashboardSummaryService,
     required this.rosterControllerFactory,
+    required this.rosterEditorControllerFactory,
+    required this.employeeDirectoryControllerFactory,
+    required this.shiftTemplateControllerFactory,
     super.key,
   });
 
   final AppController controller;
   final DashboardSummaryService dashboardSummaryService;
   final RosterController Function(Schedule schedule) rosterControllerFactory;
+  final RosterEditorController Function(Schedule schedule)
+  rosterEditorControllerFactory;
+  final EmployeeDirectoryController Function(Schedule schedule)
+  employeeDirectoryControllerFactory;
+  final ShiftTemplateController Function() shiftTemplateControllerFactory;
 
   @override
   State<AppShell> createState() => _AppShellState();
@@ -71,14 +83,20 @@ class _AppShellState extends State<AppShell> {
       RosterPage(
         schedule: widget.controller.schedule,
         controllerFactory: widget.rosterControllerFactory,
+        editorControllerFactory: widget.rosterEditorControllerFactory,
+        onScheduleSaved: widget.controller.adoptSchedule,
       ),
-      EmployeesPage(schedule: widget.controller.schedule),
+      EmployeesPage(
+        schedule: widget.controller.schedule,
+        controllerFactory: widget.employeeDirectoryControllerFactory,
+      ),
       const ExchangePage(),
       const ReportsPage(),
       SettingsPage(
         settings: widget.controller.settings,
         onChanged: (value) =>
             unawaited(widget.controller.updateSettings(value)),
+        openShiftTemplates: _openShiftTemplates,
       ),
     ];
     return LayoutBuilder(
@@ -118,6 +136,18 @@ class _AppShellState extends State<AppShell> {
                 ),
         );
       },
+    );
+  }
+
+  void _openShiftTemplates() {
+    unawaited(
+      Navigator.of(context).push<void>(
+        MaterialPageRoute(
+          builder: (context) => ShiftTemplatesPage(
+            controllerFactory: widget.shiftTemplateControllerFactory,
+          ),
+        ),
+      ),
     );
   }
 }

@@ -24,6 +24,30 @@ class ShiftTemplate {
 
   bool get overnight => endTime <= startTime;
 
+  ShiftTemplate copyWith({
+    String? id,
+    String? code,
+    String? name,
+    Duration? startTime,
+    Duration? endTime,
+    int? colorValue,
+    double? workingHours,
+    double? rate,
+    bool? active,
+  }) {
+    return ShiftTemplate(
+      id: id ?? this.id,
+      code: code ?? this.code,
+      name: name ?? this.name,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
+      colorValue: colorValue ?? this.colorValue,
+      workingHours: workingHours ?? this.workingHours,
+      rate: rate ?? this.rate,
+      active: active ?? this.active,
+    );
+  }
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||

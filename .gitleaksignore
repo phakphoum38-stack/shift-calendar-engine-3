@@ -1,0 +1,3 @@
+# Public local-storage namespace literals from the initial Phase 2 commit.
+f99812da7ce7bf23997f1a67273022784010a243:lib/features/foundation/infrastructure/shared_preferences_schedule_repository.dart:generic-api-key:13
+f99812da7ce7bf23997f1a67273022784010a243:lib/features/employees/infrastructure/shared_preferences_employee_repository.dart:generic-api-key:13

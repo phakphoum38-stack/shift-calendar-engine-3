@@ -79,6 +79,8 @@ void main() {
 
     await tester.tap(find.byIcon(Icons.settings_outlined));
     await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byType(SwitchListTile));
+    await tester.pumpAndSettle();
     await tester.tap(find.byType(SwitchListTile));
     await tester.pumpAndSettle();
     expect(controller.settings.demoMode, isTrue);
