@@ -52,6 +52,11 @@ void main() {
     expect(find.text('Dashboard'), findsWidgets);
     expect(find.byType(NavigationRail), findsOneWidget);
     expect(find.byType(NavigationBar), findsNothing);
+
+    await tester.tap(find.byIcon(Icons.assessment_outlined));
+    await tester.pumpAndSettle();
+    expect(find.text('Report center'), findsOneWidget);
+    expect(find.text('Preview report'), findsOneWidget);
   });
 
   testWidgets('settings can enable deterministic demo schedule', (

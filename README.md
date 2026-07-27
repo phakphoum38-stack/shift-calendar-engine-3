@@ -29,7 +29,8 @@ Phase 0 foundation and the first Phase 2 vertical slice are operational:
 - canonical manual roster editing with preview and explicit save
 - format, analysis, test, security, and multi-platform build workflows
 
-The remaining Phase 2 scope is the dedicated printable A4 roster layout.
+Phase 2 is complete with a canonical monthly A4 report, Thai/English PDF
+rendering, preview, printing, and sharing.
 
 The repository is intentionally separate from the production
 `phakphum-calendar` migration. No legacy runtime was copied into this project.
@@ -73,6 +74,8 @@ See:
 - [Roadmap](docs/ROADMAP.md)
 - [Contributing](CONTRIBUTING.md)
 - [Testing](docs/TESTING.md)
+- [Installation](docs/INSTALLATION.md)
+- [User guide](docs/USER_GUIDE.md)
 - [Security](SECURITY.md)
 
 ## Repository safety

@@ -4,7 +4,7 @@
 |---|---|---|
 | 0 | Foundation, canonical schedule, DI, responsive shell, l10n, CI | Complete |
 | 1 | Navigation surfaces, Dashboard, roster, employees, exchange, reports, settings | In progress |
-| 2 | Employee directory, shift templates, manual roster builder, persistence, A4 grid | In progress |
+| 2 | Employee directory, shift templates, manual roster builder, persistence, A4 grid | Complete |
 | 3 | Rule, conflict, policy, and preview engines | Planned |
 | 4 | Shift exchange, approval, audit history, notifications | Planned |
 | 5 | Payroll, OT, allowances, monthly summaries, exports | Planned |
@@ -28,7 +28,9 @@ full CI matrix is green.
 - configurable shift-template management
 - manual canonical roster editing with preview and explicit persistence
 
-The printable A4 grid remains before Phase 2 can be marked complete.
+The monthly report now maps the canonical schedule into a deterministic A4
+landscape grid with Thai/English labels, statistics, legend, preview, printing,
+and PDF sharing.
 
 ## Parallel production migration
 

@@ -583,6 +583,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not complete the storage operation.'**
   String get storageError;
+
+  /// No description provided for @reportMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Report month'**
+  String get reportMonth;
+
+  /// No description provided for @allDepartments.
+  ///
+  /// In en, this message translates to:
+  /// **'All departments'**
+  String get allDepartments;
+
+  /// No description provided for @previewReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview report'**
+  String get previewReport;
+
+  /// No description provided for @previewReportDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose report options, then generate an A4 preview.'**
+  String get previewReportDescription;
+
+  /// No description provided for @printReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Print'**
+  String get printReport;
+
+  /// No description provided for @sharePdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Share PDF'**
+  String get sharePdf;
+
+  /// No description provided for @reportGenerationError.
+  ///
+  /// In en, this message translates to:
+  /// **'The PDF report could not be generated.'**
+  String get reportGenerationError;
 }
 
 class _AppLocalizationsDelegate

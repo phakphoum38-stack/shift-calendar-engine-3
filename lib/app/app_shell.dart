@@ -7,6 +7,8 @@ import '../features/dashboard/presentation/dashboard_page.dart';
 import '../features/employees/presentation/employees_page.dart';
 import '../features/exchange/presentation/exchange_page.dart';
 import '../features/reports/presentation/reports_page.dart';
+import '../features/reports/application/report_controller.dart';
+import '../features/reports/domain/monthly_roster_report.dart';
 import '../features/roster/application/roster_controller.dart';
 import '../features/roster/application/roster_editor_controller.dart';
 import '../features/roster/presentation/roster_page.dart';
@@ -27,6 +29,7 @@ class AppShell extends StatefulWidget {
     required this.rosterEditorControllerFactory,
     required this.employeeDirectoryControllerFactory,
     required this.shiftTemplateControllerFactory,
+    required this.reportControllerFactory,
     super.key,
   });
 
@@ -38,6 +41,11 @@ class AppShell extends StatefulWidget {
   final EmployeeDirectoryController Function(Schedule schedule)
   employeeDirectoryControllerFactory;
   final ShiftTemplateController Function() shiftTemplateControllerFactory;
+  final ReportController Function(
+    Schedule schedule,
+    MonthlyRosterReportOptions options,
+  )
+  reportControllerFactory;
 
   @override
   State<AppShell> createState() => _AppShellState();
@@ -91,7 +99,10 @@ class _AppShellState extends State<AppShell> {
         controllerFactory: widget.employeeDirectoryControllerFactory,
       ),
       const ExchangePage(),
-      const ReportsPage(),
+      ReportsPage(
+        schedule: widget.controller.schedule,
+        controllerFactory: widget.reportControllerFactory,
+      ),
       SettingsPage(
         settings: widget.controller.settings,
         onChanged: (value) =>
