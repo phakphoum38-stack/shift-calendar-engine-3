@@ -87,5 +87,16 @@
   "previewReportDescription": "Choose report options, then generate an A4 preview.",
   "printReport": "Print",
   "sharePdf": "Share PDF",
-  "reportGenerationError": "The PDF report could not be generated."
+  "reportGenerationError": "The PDF report could not be generated.",
+  "googleDrive": "Google Drive",
+  "googleDriveDescription": "Choose the roster source to load from Google Drive.",
+  "openGoogleDrive": "Google Drive",
+  "recentlyModified": "Recently Modified",
+  "lastImported": "Last Imported",
+  "loadCurrentSource": "Load Current Source",
+  "noDriveRosterFiles": "No roster files have been loaded from Google Drive.",
+  "noLastImportedSource": "No source has been imported yet.",
+  "googleDriveNotConfigured": "Google Drive is not configured. Add an OAuth-backed Drive gateway to connect an account.",
+  "googleDriveLoadFailed": "Could not load the Google Drive source.",
+  "driveSourceLoaded": "The current source was loaded."
 }

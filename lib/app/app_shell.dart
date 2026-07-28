@@ -11,6 +11,7 @@ import '../features/reports/application/report_controller.dart';
 import '../features/reports/domain/monthly_roster_report.dart';
 import '../features/roster/application/roster_controller.dart';
 import '../features/roster/application/roster_editor_controller.dart';
+import '../features/roster/application/drive_roster_source_controller.dart';
 import '../features/roster/presentation/roster_page.dart';
 import '../features/employees/application/employee_directory_controller.dart';
 import '../features/shift_templates/application/shift_template_controller.dart';
@@ -27,6 +28,7 @@ class AppShell extends StatefulWidget {
     required this.dashboardSummaryService,
     required this.rosterControllerFactory,
     required this.rosterEditorControllerFactory,
+    required this.driveRosterSourceControllerFactory,
     required this.employeeDirectoryControllerFactory,
     required this.shiftTemplateControllerFactory,
     required this.reportControllerFactory,
@@ -38,6 +40,8 @@ class AppShell extends StatefulWidget {
   final RosterController Function(Schedule schedule) rosterControllerFactory;
   final RosterEditorController Function(Schedule schedule)
   rosterEditorControllerFactory;
+  final DriveRosterSourceController Function()
+  driveRosterSourceControllerFactory;
   final EmployeeDirectoryController Function(Schedule schedule)
   employeeDirectoryControllerFactory;
   final ShiftTemplateController Function() shiftTemplateControllerFactory;
@@ -92,6 +96,7 @@ class _AppShellState extends State<AppShell> {
         schedule: widget.controller.schedule,
         controllerFactory: widget.rosterControllerFactory,
         editorControllerFactory: widget.rosterEditorControllerFactory,
+        driveSourceControllerFactory: widget.driveRosterSourceControllerFactory,
         onScheduleSaved: widget.controller.adoptSchedule,
       ),
       EmployeesPage(

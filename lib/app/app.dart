@@ -70,6 +70,8 @@ class _ShiftCalendarEngineAppState extends State<ShiftCalendarEngineApp> {
                     widget.dependencies.createRosterController,
                 rosterEditorControllerFactory:
                     widget.dependencies.createRosterEditorController,
+                driveRosterSourceControllerFactory:
+                    widget.dependencies.createDriveRosterSourceController,
                 employeeDirectoryControllerFactory:
                     widget.dependencies.createEmployeeDirectoryController,
                 shiftTemplateControllerFactory:

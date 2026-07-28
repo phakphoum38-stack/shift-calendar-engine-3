@@ -3,8 +3,11 @@ import 'package:intl/intl.dart';
 
 import '../../../domain/entities/schedule.dart';
 import '../../../l10n/l10n.dart';
+import '../../../l10n/localized_date_format.dart';
 import '../application/roster_controller.dart';
 import '../application/roster_editor_controller.dart';
+import '../application/drive_roster_source_controller.dart';
+import 'google_drive_source_panel.dart';
 import 'roster_editor_page.dart';
 
 /// Canonical month roster viewer with responsive date cards.
@@ -13,6 +16,7 @@ class RosterPage extends StatefulWidget {
     required this.schedule,
     required this.controllerFactory,
     required this.editorControllerFactory,
+    required this.driveSourceControllerFactory,
     required this.onScheduleSaved,
     super.key,
   });
@@ -20,6 +24,7 @@ class RosterPage extends StatefulWidget {
   final Schedule schedule;
   final RosterController Function(Schedule) controllerFactory;
   final RosterEditorController Function(Schedule) editorControllerFactory;
+  final DriveRosterSourceController Function() driveSourceControllerFactory;
   final ValueChanged<Schedule> onScheduleSaved;
 
   @override
@@ -30,6 +35,8 @@ class _RosterPageState extends State<RosterPage> {
   late final RosterController controller = widget.controllerFactory(
     widget.schedule,
   );
+  late final DriveRosterSourceController driveSourceController = widget
+      .driveSourceControllerFactory();
 
   @override
   void didUpdateWidget(covariant RosterPage oldWidget) {
@@ -40,6 +47,7 @@ class _RosterPageState extends State<RosterPage> {
   @override
   void dispose() {
     controller.dispose();
+    driveSourceController.dispose();
     super.dispose();
   }
 
@@ -86,7 +94,11 @@ class _RosterPageState extends State<RosterPage> {
                 icon: const Icon(Icons.chevron_left),
               ),
               Text(
-                DateFormat.yMMMM(locale).format(controller.visibleMonth),
+                formatLocalizedDate(
+                  DateFormat.yMMMM(locale),
+                  controller.visibleMonth,
+                  locale: locale,
+                ),
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               IconButton(
@@ -110,7 +122,13 @@ class _RosterPageState extends State<RosterPage> {
                   child: ExpansionTile(
                     initiallyExpanded: true,
                     leading: CircleAvatar(child: Text('${day.date.day}')),
-                    title: Text(DateFormat.yMMMMEEEEd(locale).format(day.date)),
+                    title: Text(
+                      formatLocalizedDate(
+                        DateFormat.yMMMMEEEEd(locale),
+                        day.date,
+                        locale: locale,
+                      ),
+                    ),
                     subtitle: Text(
                       '${day.assignments.length} ${context.l10n.monthlyAssignments.toLowerCase()}',
                     ),
@@ -134,6 +152,8 @@ class _RosterPageState extends State<RosterPage> {
                   ),
                 ),
               ),
+          const SizedBox(height: 20),
+          GoogleDriveSourcePanel(controller: driveSourceController),
         ],
       );
     },

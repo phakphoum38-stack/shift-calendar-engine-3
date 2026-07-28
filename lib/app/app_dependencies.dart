@@ -12,6 +12,8 @@ import '../features/settings/infrastructure/shared_preferences_settings_reposito
 import '../features/shift_templates/infrastructure/shared_preferences_shift_template_repository.dart';
 import '../features/roster/application/roster_controller.dart';
 import '../features/roster/application/roster_editor_controller.dart';
+import '../features/roster/application/drive_roster_source_controller.dart';
+import '../features/roster/application/drive_roster_source_gateway.dart';
 import '../features/reports/application/monthly_roster_report_mapper.dart';
 import '../features/reports/application/report_controller.dart';
 import '../features/reports/application/report_service.dart';
@@ -33,6 +35,7 @@ class AppDependencies {
     MonthlyRosterReportMapper? monthlyRosterReportMapper,
     this.reportServiceOverride,
     ReportOutputGateway? reportOutputGateway,
+    DriveRosterSourceGateway? driveRosterSourceGateway,
     this.dashboardSummaryService = const DashboardSummaryService(),
   }) : scheduleRepository = scheduleRepository ?? MemoryScheduleRepository(),
        settingsRepository =
@@ -46,7 +49,10 @@ class AppDependencies {
        monthlyRosterReportMapper =
            monthlyRosterReportMapper ?? const MonthlyRosterReportMapper(),
        reportOutputGateway =
-           reportOutputGateway ?? const PrintingReportOutputGateway();
+           reportOutputGateway ?? const PrintingReportOutputGateway(),
+       driveRosterSourceGateway =
+           driveRosterSourceGateway ??
+           const UnconfiguredDriveRosterSourceGateway();
 
   factory AppDependencies.production() {
     return AppDependencies(
@@ -62,6 +68,7 @@ class AppDependencies {
   final DashboardSummaryService dashboardSummaryService;
   final MonthlyRosterReportMapper monthlyRosterReportMapper;
   final ReportOutputGateway reportOutputGateway;
+  final DriveRosterSourceGateway driveRosterSourceGateway;
   final MonthlyRosterReportService? reportServiceOverride;
 
   MonthlyRosterReportService get monthlyRosterReportService =>
@@ -86,6 +93,10 @@ class AppDependencies {
       shiftTemplateRepository: shiftTemplateRepository,
       schedule: schedule,
     );
+  }
+
+  DriveRosterSourceController createDriveRosterSourceController() {
+    return DriveRosterSourceController(gateway: driveRosterSourceGateway);
   }
 
   EmployeeDirectoryController createEmployeeDirectoryController(
