@@ -108,6 +108,7 @@ class _EmployeeFormDialogState extends State<EmployeeFormDialog> {
       parentDepartmentId: current?.department.parentDepartmentId ?? '',
       active: current?.department.active ?? true,
     );
+    final defaults = const EmployeePlaceholderData();
     final employee = Employee(
       id: current?.id ?? 'employee-${DateTime.now().microsecondsSinceEpoch}',
       employeeCode: _employeeCode.text.trim(),
@@ -121,11 +122,9 @@ class _EmployeeFormDialogState extends State<EmployeeFormDialog> {
       position: _position.text.trim(),
       email: _email.text.trim(),
       phone: _phone.text.trim(),
-      employment: current?.employment ?? const EmployeePlaceholderData().employment,
-      calendarProfile:
-          current?.calendarProfile ?? const EmployeePlaceholderData().calendarProfile,
-      sourceProfile:
-          current?.sourceProfile ?? const EmployeePlaceholderData().sourceProfile,
+      employment: current?.employment ?? defaults.employment,
+      calendarProfile: current?.calendarProfile ?? defaults.calendarProfile,
+      sourceProfile: current?.sourceProfile ?? defaults.sourceProfile,
       active: _active,
     );
 
@@ -150,90 +149,27 @@ class _EmployeeFormDialogState extends State<EmployeeFormDialog> {
               children: [
                 _sectionTitle('Identity'),
                 _responsiveFields([
-                  _field(
-                    controller: _employeeCode,
-                    label: 'Employee code',
-                    field: 'employeeCode',
-                    required: true,
-                  ),
-                  _field(
-                    controller: _firstName,
-                    label: 'First name',
-                    field: 'firstName',
-                    required: true,
-                  ),
-                  _field(
-                    controller: _lastName,
-                    label: 'Last name',
-                    field: 'lastName',
-                    required: true,
-                  ),
-                  _field(
-                    controller: _nickname,
-                    label: 'Nickname',
-                    field: 'nickname',
-                  ),
+                  _field(controller: _employeeCode, label: 'Employee code', field: 'employeeCode', requiredField: true),
+                  _field(controller: _firstName, label: 'First name', field: 'firstName', requiredField: true),
+                  _field(controller: _lastName, label: 'Last name', field: 'lastName', requiredField: true),
+                  _field(controller: _nickname, label: 'Nickname', field: 'nickname'),
                 ]),
                 const SizedBox(height: 16),
                 _sectionTitle('Organization'),
                 _responsiveFields([
-                  _field(
-                    controller: _organizationId,
-                    label: 'Organization ID',
-                    field: 'organizationId',
-                    required: true,
-                  ),
-                  _field(
-                    controller: _branchId,
-                    label: 'Branch ID',
-                    field: 'branchId',
-                    required: true,
-                  ),
-                  _field(
-                    controller: _departmentId,
-                    label: 'Department ID',
-                    field: 'departmentId',
-                    required: true,
-                  ),
-                  _field(
-                    controller: _departmentCode,
-                    label: 'Department code',
-                    field: 'departmentCode',
-                    required: true,
-                  ),
-                  _field(
-                    controller: _departmentName,
-                    label: 'Department name',
-                    field: 'departmentName',
-                    required: true,
-                  ),
-                  _field(
-                    controller: _teamId,
-                    label: 'Team ID',
-                    field: 'teamId',
-                  ),
+                  _field(controller: _organizationId, label: 'Organization ID', field: 'organizationId', requiredField: true),
+                  _field(controller: _branchId, label: 'Branch ID', field: 'branchId', requiredField: true),
+                  _field(controller: _departmentId, label: 'Department ID', field: 'departmentId', requiredField: true),
+                  _field(controller: _departmentCode, label: 'Department code', field: 'departmentCode', requiredField: true),
+                  _field(controller: _departmentName, label: 'Department name', field: 'departmentName', requiredField: true),
+                  _field(controller: _teamId, label: 'Team ID', field: 'teamId'),
                 ]),
                 const SizedBox(height: 16),
                 _sectionTitle('Work and contact'),
                 _responsiveFields([
-                  _field(
-                    controller: _position,
-                    label: 'Position',
-                    field: 'position',
-                    required: true,
-                  ),
-                  _field(
-                    controller: _email,
-                    label: 'Email',
-                    field: 'email',
-                    keyboardType: TextInputType.emailAddress,
-                  ),
-                  _field(
-                    controller: _phone,
-                    label: 'Phone',
-                    field: 'phone',
-                    keyboardType: TextInputType.phone,
-                  ),
+                  _field(controller: _position, label: 'Position', field: 'position', requiredField: true),
+                  _field(controller: _email, label: 'Email', field: 'email', keyboardType: TextInputType.emailAddress),
+                  _field(controller: _phone, label: 'Phone', field: 'phone', keyboardType: TextInputType.phone),
                 ]),
                 const SizedBox(height: 8),
                 SwitchListTile(
@@ -292,7 +228,7 @@ class _EmployeeFormDialogState extends State<EmployeeFormDialog> {
     required TextEditingController controller,
     required String label,
     required String field,
-    bool required = false,
+    bool requiredField = false,
     TextInputType? keyboardType,
   }) {
     return TextFormField(
@@ -304,7 +240,7 @@ class _EmployeeFormDialogState extends State<EmployeeFormDialog> {
         border: const OutlineInputBorder(),
         errorText: _optionalError(field),
       ),
-      validator: required
+      validator: requiredField
           ? (value) => _required(field, label, value)
           : (_) => _optionalError(field),
     );
