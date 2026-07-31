@@ -16,14 +16,17 @@ class EmployeeController extends ChangeNotifier {
   final EmployeeApplicationService service;
   EmployeeState _state;
   bool _disposed = false;
+  int _requestVersion = 0;
 
   EmployeeState get state => _state;
 
   Future<void> load() async {
-    if (_state.loading) return;
+    final requestVersion = ++_requestVersion;
     _setState(_state.copyWith(loading: true, clearError: true));
 
     final result = await service.search(_state.query);
+    if (_disposed || requestVersion != _requestVersion) return;
+
     switch (result) {
       case Success<EmployeePage<Employee>>(value: final page):
         _setState(
@@ -48,81 +51,80 @@ class EmployeeController extends ChangeNotifier {
     }
   }
 
+  Future<void> refresh() => load();
+
   Future<void> search(String value) {
     final normalized = value.trim();
     if (_state.query.searchText == normalized && _state.query.page == 1) {
       return Future<void>.value();
     }
-    _replaceQuery(
+    return _applyQuery(
       _state.query.copyWith(searchText: normalized, page: 1),
-      notify: false,
     );
-    return load();
   }
 
   Future<void> setActiveOnly(bool value) {
     if (_state.query.activeOnly == value) return Future<void>.value();
-    _replaceQuery(_state.query.copyWith(activeOnly: value, page: 1), notify: false);
-    return load();
+    return _applyQuery(
+      _state.query.copyWith(activeOnly: value, page: 1),
+    );
   }
 
   Future<void> setOrganization(String? organizationId) {
-    _replaceQuery(
-      _queryWith(
+    return _applyQuery(
+      _state.query.copyWith(
         organizationId: organizationId,
         branchId: null,
         departmentId: null,
         teamId: null,
         page: 1,
       ),
-      notify: false,
     );
-    return load();
   }
 
   Future<void> setBranch(String? branchId) {
-    _replaceQuery(
-      _queryWith(
+    return _applyQuery(
+      _state.query.copyWith(
         branchId: branchId,
         departmentId: null,
         teamId: null,
         page: 1,
       ),
-      notify: false,
     );
-    return load();
   }
 
   Future<void> setDepartment(String? departmentId) {
-    _replaceQuery(
-      _queryWith(departmentId: departmentId, teamId: null, page: 1),
-      notify: false,
+    return _applyQuery(
+      _state.query.copyWith(
+        departmentId: departmentId,
+        teamId: null,
+        page: 1,
+      ),
     );
-    return load();
   }
 
   Future<void> setTeam(String? teamId) {
-    _replaceQuery(_queryWith(teamId: teamId, page: 1), notify: false);
-    return load();
+    return _applyQuery(_state.query.copyWith(teamId: teamId, page: 1));
+  }
+
+  Future<void> clearHierarchyFilters() {
+    return _applyQuery(_state.query.clearHierarchy());
   }
 
   Future<void> setPageSize(int pageSize) {
     if (pageSize <= 0 || _state.query.pageSize == pageSize) {
       return Future<void>.value();
     }
-    _replaceQuery(
+    return _applyQuery(
       _state.query.copyWith(pageSize: pageSize, page: 1),
-      notify: false,
     );
-    return load();
   }
 
   Future<void> goToPage(int page) {
     final maximum = _state.totalPages == 0 ? 1 : _state.totalPages;
     final target = page.clamp(1, maximum);
     if (_state.query.page == target) return Future<void>.value();
-    _replaceQuery(_state.query.copyWith(page: target), notify: false);
-    return load();
+    return _applyQuery(_state.query.copyWith(page: target));
   }
 
   Future<void> nextPage() => goToPage(_state.query.page + 1);
@@ -186,29 +188,9 @@ class EmployeeController extends ChangeNotifier {
     _setState(_state.copyWith(clearError: true));
   }
 
-  EmployeeQuery _queryWith({
-    String? organizationId,
-    String? branchId,
-    String? departmentId,
-    String? teamId,
-    int? page,
-  }) {
-    final current = _state.query;
-    return EmployeeQuery(
-      searchText: current.searchText,
-      organizationId: organizationId ?? current.organizationId,
-      branchId: branchId ?? current.branchId,
-      departmentId: departmentId ?? current.departmentId,
-      teamId: teamId ?? current.teamId,
-      activeOnly: current.activeOnly,
-      page: page ?? current.page,
-      pageSize: current.pageSize,
-    );
-  }
-
-  void _replaceQuery(EmployeeQuery query, {bool notify = true}) {
+  Future<void> _applyQuery(EmployeeQuery query) {
     _state = _state.copyWith(query: query, clearError: true);
-    if (notify) notifyListeners();
+    return load();
   }
 
   void _setState(EmployeeState value) {
@@ -220,6 +202,7 @@ class EmployeeController extends ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
+    _requestVersion++;
     super.dispose();
   }
 }
