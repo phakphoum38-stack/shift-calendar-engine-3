@@ -7,6 +7,7 @@ import '../features/dashboard/application/dashboard_summary_service.dart';
 import '../features/foundation/infrastructure/memory_schedule_repository.dart';
 import '../features/foundation/infrastructure/memory_settings_repository.dart';
 import '../features/foundation/infrastructure/shared_preferences_schedule_repository.dart';
+import '../features/employees/application/employee_application_service.dart';
 import '../features/employees/infrastructure/shared_preferences_employee_repository.dart';
 import '../features/settings/infrastructure/shared_preferences_settings_repository.dart';
 import '../features/shift_templates/infrastructure/shared_preferences_shift_template_repository.dart';
@@ -68,6 +69,9 @@ class AppDependencies {
       reportServiceOverride ??
       MonthlyRosterPdfService(mapper: monthlyRosterReportMapper);
 
+  EmployeeApplicationService get employeeApplicationService =>
+      EmployeeApplicationService(repository: employeeRepository);
+
   AppController createAppController() {
     return AppController(
       scheduleRepository: scheduleRepository,
@@ -95,6 +99,10 @@ class AppDependencies {
       repository: employeeRepository,
       schedule: schedule,
     );
+  }
+
+  EmployeeApplicationService createEmployeeApplicationService() {
+    return EmployeeApplicationService(repository: employeeRepository);
   }
 
   ShiftTemplateController createShiftTemplateController() {
