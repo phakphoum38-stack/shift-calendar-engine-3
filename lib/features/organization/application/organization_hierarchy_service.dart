@@ -54,19 +54,9 @@ class OrganizationHierarchyService {
     }
 
     for (final team in teams) {
-      final department = departmentById[team.departmentId];
-      if (department == null) {
+      if (!departmentById.containsKey(team.departmentId)) {
         errors['team.${team.id}.departmentId'] =
             'Department ${team.departmentId} does not exist.';
-      }
-      if (team.organizationId.isNotEmpty &&
-          !organizationIds.contains(team.organizationId)) {
-        errors['team.${team.id}.organizationId'] =
-            'Organization ${team.organizationId} does not exist.';
-      }
-      if (team.branchId.isNotEmpty && !branchById.containsKey(team.branchId)) {
-        errors['team.${team.id}.branchId'] =
-            'Branch ${team.branchId} does not exist.';
       }
     }
 
@@ -85,9 +75,15 @@ class OrganizationHierarchyService {
         errors['employee.${employee.id}.department'] =
             'Department ${employee.department.id} does not exist.';
       }
-      if (employee.teamId.isNotEmpty && !teamById.containsKey(employee.teamId)) {
-        errors['employee.${employee.id}.teamId'] =
-            'Team ${employee.teamId} does not exist.';
+      if (employee.teamId.isNotEmpty) {
+        final team = teamById[employee.teamId];
+        if (team == null) {
+          errors['employee.${employee.id}.teamId'] =
+              'Team ${employee.teamId} does not exist.';
+        } else if (team.departmentId != employee.department.id) {
+          errors['employee.${employee.id}.teamId'] =
+              'Team belongs to another department.';
+        }
       }
     }
 
