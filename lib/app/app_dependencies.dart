@@ -1,3 +1,10 @@
+import 'package:workforce_core/workforce_core.dart'
+    show
+        BranchRepository,
+        DepartmentRepository,
+        OrganizationRepository,
+        TeamRepository;
+
 import '../domain/entities/app_settings.dart';
 import '../domain/repositories/schedule_repository.dart';
 import '../domain/repositories/settings_repository.dart';
@@ -8,6 +15,10 @@ import '../features/foundation/infrastructure/memory_schedule_repository.dart';
 import '../features/foundation/infrastructure/memory_settings_repository.dart';
 import '../features/foundation/infrastructure/shared_preferences_schedule_repository.dart';
 import '../features/employees/infrastructure/shared_preferences_employee_repository.dart';
+import '../features/organization/infrastructure/shared_preferences_branch_repository.dart';
+import '../features/organization/infrastructure/shared_preferences_department_repository.dart';
+import '../features/organization/infrastructure/shared_preferences_organization_repository.dart';
+import '../features/organization/infrastructure/shared_preferences_team_repository.dart';
 import '../features/settings/infrastructure/shared_preferences_settings_repository.dart';
 import '../features/shift_templates/infrastructure/shared_preferences_shift_template_repository.dart';
 import '../features/roster/application/roster_controller.dart';
@@ -30,6 +41,10 @@ class AppDependencies {
     SettingsRepository? settingsRepository,
     EmployeeRepository? employeeRepository,
     ShiftTemplateRepository? shiftTemplateRepository,
+    OrganizationRepository? organizationRepository,
+    BranchRepository? branchRepository,
+    DepartmentRepository? departmentRepository,
+    TeamRepository? teamRepository,
     MonthlyRosterReportMapper? monthlyRosterReportMapper,
     this.reportServiceOverride,
     ReportOutputGateway? reportOutputGateway,
@@ -43,6 +58,13 @@ class AppDependencies {
        shiftTemplateRepository =
            shiftTemplateRepository ??
            SharedPreferencesShiftTemplateRepository(),
+       organizationRepository =
+           organizationRepository ?? SharedPreferencesOrganizationRepository(),
+       branchRepository =
+           branchRepository ?? SharedPreferencesBranchRepository(),
+       departmentRepository =
+           departmentRepository ?? SharedPreferencesDepartmentRepository(),
+       teamRepository = teamRepository ?? SharedPreferencesTeamRepository(),
        monthlyRosterReportMapper =
            monthlyRosterReportMapper ?? const MonthlyRosterReportMapper(),
        reportOutputGateway =
@@ -59,6 +81,10 @@ class AppDependencies {
   final SettingsRepository settingsRepository;
   final EmployeeRepository employeeRepository;
   final ShiftTemplateRepository shiftTemplateRepository;
+  final OrganizationRepository organizationRepository;
+  final BranchRepository branchRepository;
+  final DepartmentRepository departmentRepository;
+  final TeamRepository teamRepository;
   final DashboardSummaryService dashboardSummaryService;
   final MonthlyRosterReportMapper monthlyRosterReportMapper;
   final ReportOutputGateway reportOutputGateway;
