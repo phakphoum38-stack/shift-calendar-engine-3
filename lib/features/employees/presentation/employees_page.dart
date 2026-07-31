@@ -28,6 +28,10 @@ class _EmployeesPageState extends State<EmployeesPage> {
     widget.schedule,
   );
 
+  _EmployeeStatusFilter statusFilter = _EmployeeStatusFilter.all;
+  _EmployeeSort employeeSort = _EmployeeSort.nameAscending;
+  String? departmentId;
+
   @override
   void initState() {
     super.initState();
@@ -53,11 +57,13 @@ class _EmployeesPageState extends State<EmployeesPage> {
       final employees = controller.employees;
       final activeCount = employees.where((employee) => employee.active).length;
       final inactiveCount = employees.length - activeCount;
-      final departmentCount = employees
-          .map((employee) => employee.department.id)
-          .where((id) => id.isNotEmpty)
-          .toSet()
-          .length;
+      final departments = _departmentsFrom(employees);
+      final visibleEmployees = _visibleEmployees(employees);
+
+      if (departmentId != null &&
+          !departments.any((department) => department.id == departmentId)) {
+        departmentId = null;
+      }
 
       return ListView(
         padding: const EdgeInsets.all(20),
@@ -101,7 +107,7 @@ class _EmployeesPageState extends State<EmployeesPage> {
                   ),
                   _SummaryCard(
                     icon: Icons.apartment_outlined,
-                    value: departmentCount,
+                    value: departments.length,
                     label: context.l10n.departmentName,
                   ),
                 ],
@@ -113,6 +119,16 @@ class _EmployeesPageState extends State<EmployeesPage> {
             onChanged: controller.search,
             leading: const Icon(Icons.search),
             hintText: context.l10n.search,
+          ),
+          const SizedBox(height: 12),
+          _DirectoryControls(
+            statusFilter: statusFilter,
+            employeeSort: employeeSort,
+            departmentId: departmentId,
+            departments: departments,
+            onStatusChanged: (value) => setState(() => statusFilter = value),
+            onSortChanged: (value) => setState(() => employeeSort = value),
+            onDepartmentChanged: (value) => setState(() => departmentId = value),
           ),
           if (controller.loading) ...[
             const SizedBox(height: 12),
@@ -126,7 +142,7 @@ class _EmployeesPageState extends State<EmployeesPage> {
             ),
           ],
           const SizedBox(height: 16),
-          if (employees.isEmpty)
+          if (visibleEmployees.isEmpty)
             _EmptyState(
               onAdd: controller.loading ? null : _edit,
             )
@@ -135,13 +151,17 @@ class _EmployeesPageState extends State<EmployeesPage> {
               clipBehavior: Clip.antiAlias,
               child: Column(
                 children: [
-                  for (var index = 0; index < employees.length; index++) ...[
+                  for (
+                    var index = 0;
+                    index < visibleEmployees.length;
+                    index++
+                  ) ...[
                     _EmployeeTile(
-                      employee: employees[index],
-                      onEdit: () => _edit(employees[index]),
-                      onDeactivate: () => _deactivate(employees[index]),
+                      employee: visibleEmployees[index],
+                      onEdit: () => _edit(visibleEmployees[index]),
+                      onDeactivate: () => _deactivate(visibleEmployees[index]),
                     ),
-                    if (index != employees.length - 1)
+                    if (index != visibleEmployees.length - 1)
                       const Divider(height: 1),
                   ],
                 ],
@@ -151,6 +171,48 @@ class _EmployeesPageState extends State<EmployeesPage> {
       );
     },
   );
+
+  List<Department> _departmentsFrom(List<Employee> employees) {
+    final departments = <String, Department>{};
+    for (final employee in employees) {
+      final department = employee.department;
+      if (department.id.isNotEmpty) departments[department.id] = department;
+    }
+    final result = departments.values.toList();
+    result.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+    return result;
+  }
+
+  List<Employee> _visibleEmployees(List<Employee> employees) {
+    final result = employees.where((employee) {
+      final matchesStatus = switch (statusFilter) {
+        _EmployeeStatusFilter.all => true,
+        _EmployeeStatusFilter.active => employee.active,
+        _EmployeeStatusFilter.inactive => !employee.active,
+      };
+      final matchesDepartment =
+          departmentId == null || employee.department.id == departmentId;
+      return matchesStatus && matchesDepartment;
+    }).toList();
+
+    result.sort((a, b) {
+      switch (employeeSort) {
+        case _EmployeeSort.nameAscending:
+          return a.displayName.toLowerCase().compareTo(
+            b.displayName.toLowerCase(),
+          );
+        case _EmployeeSort.nameDescending:
+          return b.displayName.toLowerCase().compareTo(
+            a.displayName.toLowerCase(),
+          );
+        case _EmployeeSort.employeeCode:
+          return a.employeeCode.toLowerCase().compareTo(
+            b.employeeCode.toLowerCase(),
+          );
+      }
+    });
+    return result;
+  }
 
   Future<void> _edit([Employee? employee]) async {
     final value = await showDialog<Employee>(
@@ -275,6 +337,111 @@ class _SummaryCard extends StatelessWidget {
   );
 }
 
+class _DirectoryControls extends StatelessWidget {
+  const _DirectoryControls({
+    required this.statusFilter,
+    required this.employeeSort,
+    required this.departmentId,
+    required this.departments,
+    required this.onStatusChanged,
+    required this.onSortChanged,
+    required this.onDepartmentChanged,
+  });
+
+  final _EmployeeStatusFilter statusFilter;
+  final _EmployeeSort employeeSort;
+  final String? departmentId;
+  final List<Department> departments;
+  final ValueChanged<_EmployeeStatusFilter> onStatusChanged;
+  final ValueChanged<_EmployeeSort> onSortChanged;
+  final ValueChanged<String?> onDepartmentChanged;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      final compact = constraints.maxWidth < 760;
+      final controls = [
+        DropdownMenu<_EmployeeStatusFilter>(
+          initialSelection: statusFilter,
+          leadingIcon: const Icon(Icons.person_search_outlined),
+          label: Text(context.l10n.active),
+          dropdownMenuEntries: [
+            DropdownMenuEntry(
+              value: _EmployeeStatusFilter.all,
+              label: context.l10n.employeeDirectory,
+            ),
+            DropdownMenuEntry(
+              value: _EmployeeStatusFilter.active,
+              label: context.l10n.active,
+            ),
+            DropdownMenuEntry(
+              value: _EmployeeStatusFilter.inactive,
+              label: context.l10n.inactive,
+            ),
+          ],
+          onSelected: (value) {
+            if (value != null) onStatusChanged(value);
+          },
+        ),
+        DropdownMenu<String?>(
+          initialSelection: departmentId,
+          leadingIcon: const Icon(Icons.apartment_outlined),
+          label: Text(context.l10n.departmentName),
+          dropdownMenuEntries: [
+            DropdownMenuEntry<String?>(
+              value: null,
+              label: context.l10n.departmentName,
+            ),
+            for (final department in departments)
+              DropdownMenuEntry<String?>(
+                value: department.id,
+                label: department.name.isEmpty
+                    ? department.code
+                    : department.name,
+              ),
+          ],
+          onSelected: onDepartmentChanged,
+        ),
+        DropdownMenu<_EmployeeSort>(
+          initialSelection: employeeSort,
+          leadingIcon: const Icon(Icons.sort_outlined),
+          label: Text(context.l10n.search),
+          dropdownMenuEntries: [
+            DropdownMenuEntry(
+              value: _EmployeeSort.nameAscending,
+              label: '${context.l10n.firstName} A–Z',
+            ),
+            DropdownMenuEntry(
+              value: _EmployeeSort.nameDescending,
+              label: '${context.l10n.firstName} Z–A',
+            ),
+            DropdownMenuEntry(
+              value: _EmployeeSort.employeeCode,
+              label: context.l10n.employeeCode,
+            ),
+          ],
+          onSelected: (value) {
+            if (value != null) onSortChanged(value);
+          },
+        ),
+      ];
+
+      if (compact) {
+        return Wrap(spacing: 12, runSpacing: 12, children: controls);
+      }
+
+      return Row(
+        children: [
+          for (var index = 0; index < controls.length; index++) ...[
+            Expanded(child: controls[index]),
+            if (index != controls.length - 1) const SizedBox(width: 12),
+          ],
+        ],
+      );
+    },
+  );
+}
+
 class _EmptyState extends StatelessWidget {
   const _EmptyState({required this.onAdd});
 
@@ -325,7 +492,11 @@ class _EmployeeTile extends StatelessWidget {
       leading: CircleAvatar(child: Text(avatarText)),
       title: Row(
         children: [
-          Expanded(child: Text(displayName.isEmpty ? employee.employeeCode : displayName)),
+          Expanded(
+            child: Text(
+              displayName.isEmpty ? employee.employeeCode : displayName,
+            ),
+          ),
           const SizedBox(width: 8),
           Chip(
             label: Text(
@@ -374,6 +545,10 @@ class _EmployeeTile extends StatelessWidget {
 }
 
 enum _EmployeeAction { edit, deactivate }
+
+enum _EmployeeStatusFilter { all, active, inactive }
+
+enum _EmployeeSort { nameAscending, nameDescending, employeeCode }
 
 class _EmployeeDialog extends StatefulWidget {
   const _EmployeeDialog({this.employee});
