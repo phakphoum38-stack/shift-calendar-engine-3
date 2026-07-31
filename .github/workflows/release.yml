@@ -1,0 +1,95 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+-*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate-build-release:
+    name: Validate, build, and release
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Verify tag matches pubspec version
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag_version="${GITHUB_REF_NAME#v}"
+          tag_base_version="${tag_version%%-*}"
+          pubspec_version="$(sed -n 's/^version:[[:space:]]*\([^+[:space:]]*\).*/\1/p' pubspec.yaml)"
+
+          if [[ -z "$pubspec_version" ]]; then
+            echo "Unable to read version from pubspec.yaml" >&2
+            exit 1
+          fi
+
+          if [[ "$tag_base_version" != "$pubspec_version" ]]; then
+            echo "Tag version $tag_base_version does not match pubspec version $pubspec_version" >&2
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate localization
+        run: flutter gen-l10n
+
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
+
+      - name: Build Flutter web
+        run: flutter build web --release
+
+      - name: Package web build
+        shell: bash
+        run: |
+          set -euo pipefail
+          artifact="shift-calendar-engine-${GITHUB_REF_NAME}-web.zip"
+          cd build/web
+          zip -r "../../$artifact" .
+          cd ../..
+          sha256sum "$artifact" > "$artifact.sha256"
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          artifact="shift-calendar-engine-${GITHUB_REF_NAME}-web.zip"
+          prerelease_flag=""
+          if [[ "$GITHUB_REF_NAME" == *-* ]]; then
+            prerelease_flag="--prerelease"
+          fi
+
+          gh release create "$GITHUB_REF_NAME" \
+            "$artifact" \
+            "$artifact.sha256" \
+            --title "Shift Calendar Engine $GITHUB_REF_NAME" \
+            --generate-notes \
+            $prerelease_flag
