@@ -32,12 +32,12 @@ class Branch {
 
   @override
   int get hashCode => Object.hash(
-        id,
-        organizationId,
-        code,
-        name,
-        address,
-        timeZone,
-        active,
-      );
+    id,
+    organizationId,
+    code,
+    name,
+    address,
+    timeZone,
+    active,
+  );
 }
