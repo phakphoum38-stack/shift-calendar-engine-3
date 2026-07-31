@@ -5,7 +5,8 @@ import 'package:workforce_core/workforce_core.dart';
 void main() {
   final createdAt = DateTime.utc(2026, 1, 1);
 
-  Organization organization(String id, String code, String name) => Organization(
+  Organization organization(String id, String code, String name) =>
+      Organization(
         id: id,
         code: code,
         name: name,
@@ -32,17 +33,16 @@ void main() {
     String branchId,
     String code,
     String name,
-  ) =>
-      Department(
-        id: id,
-        organizationId: organizationId,
-        branchId: branchId,
-        code: code,
-        name: name,
-        version: 1,
-        createdAt: createdAt,
-        updatedAt: createdAt,
-      );
+  ) => Department(
+    id: id,
+    organizationId: organizationId,
+    branchId: branchId,
+    code: code,
+    name: name,
+    version: 1,
+    createdAt: createdAt,
+    updatedAt: createdAt,
+  );
 
   Team team(
     String id,
@@ -51,23 +51,28 @@ void main() {
     String departmentId,
     String code,
     String name,
-  ) =>
-      Team(
-        id: id,
-        organizationId: organizationId,
-        branchId: branchId,
-        departmentId: departmentId,
-        code: code,
-        name: name,
-        version: 1,
-        createdAt: createdAt,
-        updatedAt: createdAt,
-      );
+  ) => Team(
+    id: id,
+    organizationId: organizationId,
+    branchId: branchId,
+    departmentId: departmentId,
+    code: code,
+    name: name,
+    version: 1,
+    createdAt: createdAt,
+    updatedAt: createdAt,
+  );
 
   test('loads organizations and walks the hierarchy selection', () async {
     final org = organization('org-1', 'HOSP', 'Hospital');
     final site = branch('branch-1', org.id, 'MAIN', 'Main branch');
-    final unit = department('department-1', org.id, site.id, 'RAD', 'Radiology');
+    final unit = department(
+      'department-1',
+      org.id,
+      site.id,
+      'RAD',
+      'Radiology',
+    );
     final group = team('team-1', org.id, site.id, unit.id, 'CT', 'CT Team');
 
     final controller = OrganizationManagementController(
@@ -101,7 +106,13 @@ void main() {
     final first = organization('org-1', 'ONE', 'One');
     final second = organization('org-2', 'TWO', 'Two');
     final site = branch('branch-1', first.id, 'MAIN', 'Main');
-    final unit = department('department-1', first.id, site.id, 'RAD', 'Radiology');
+    final unit = department(
+      'department-1',
+      first.id,
+      site.id,
+      'RAD',
+      'Radiology',
+    );
     final group = team('team-1', first.id, site.id, unit.id, 'CT', 'CT');
 
     final controller = OrganizationManagementController(
@@ -164,24 +175,25 @@ void main() {
 
 final class _OrganizationRepository implements OrganizationRepository {
   _OrganizationRepository(List<Organization> values, {this.failFind = false})
-      : items = List.of(values);
+    : items = List.of(values);
 
   final List<Organization> items;
   final bool failFind;
 
   @override
-  Future<Organization?> findById(String id) async =>
-      items.cast<Organization?>().firstWhere(
-            (value) => value?.id == id,
-            orElse: () => null,
-          );
+  Future<Organization?> findById(String id) async => items
+      .cast<Organization?>()
+      .firstWhere((value) => value?.id == id, orElse: () => null);
 
   @override
   Future<OrganizationPage> find(OrganizationQuery query) async {
     if (failFind) {
       throw StateError('find failed');
     }
-    return OrganizationPage(items: List.unmodifiable(items), total: items.length);
+    return OrganizationPage(
+      items: List.unmodifiable(items),
+      total: items.length,
+    );
   }
 
   @override
@@ -221,9 +233,9 @@ final class _BranchRepository implements BranchRepository {
 
   @override
   Future<Branch?> findById(String id) async => items.cast<Branch?>().firstWhere(
-        (value) => value?.id == id,
-        orElse: () => null,
-      );
+    (value) => value?.id == id,
+    orElse: () => null,
+  );
 
   @override
   Future<Branch> save(Branch branch, {required int expectedVersion}) async {
@@ -252,11 +264,9 @@ final class _DepartmentRepository implements DepartmentRepository {
       List.unmodifiable(items.where((value) => value.branchId == branchId));
 
   @override
-  Future<Department?> findById(String id) async =>
-      items.cast<Department?>().firstWhere(
-            (value) => value?.id == id,
-            orElse: () => null,
-          );
+  Future<Department?> findById(String id) async => items
+      .cast<Department?>()
+      .firstWhere((value) => value?.id == id, orElse: () => null);
 
   @override
   Future<Department> save(
@@ -291,9 +301,9 @@ final class _TeamRepository implements TeamRepository {
 
   @override
   Future<Team?> findById(String id) async => items.cast<Team?>().firstWhere(
-        (value) => value?.id == id,
-        orElse: () => null,
-      );
+    (value) => value?.id == id,
+    orElse: () => null,
+  );
 
   @override
   Future<Team> save(Team team, {required int expectedVersion}) async {

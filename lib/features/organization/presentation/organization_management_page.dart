@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:workforce_core/workforce_core.dart';
@@ -21,8 +21,8 @@ class OrganizationManagementPage extends StatefulWidget {
 
 class _OrganizationManagementPageState
     extends State<OrganizationManagementPage> {
-  late final OrganizationManagementController controller =
-      widget.controllerFactory();
+  late final OrganizationManagementController controller = widget
+      .controllerFactory();
 
   @override
   void initState() {
@@ -361,7 +361,7 @@ class _EntityDetails extends StatelessWidget {
       contentPadding: EdgeInsets.zero,
       leading: Icon(icon),
       title: Text(name!),
-      subtitle: Text('$label · $code'),
+      subtitle: Text('$label ยท $code'),
     );
   }
 }
@@ -394,7 +394,7 @@ class _ChoiceSection<T> extends StatelessWidget {
           Text(context.l10n.noData)
         else
           DropdownButtonFormField<T>(
-            value: selected,
+            initialValue: selected,
             isExpanded: true,
             decoration: InputDecoration(
               border: const OutlineInputBorder(),

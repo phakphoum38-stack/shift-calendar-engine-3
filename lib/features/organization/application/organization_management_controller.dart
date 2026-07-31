@@ -48,25 +48,25 @@ final class OrganizationManagementController extends ChangeNotifier {
     if (organization != null) {
       await selectOrganization(
         _state.organizations.cast<Organization?>().firstWhere(
-              (value) => value?.id == organization.id,
-              orElse: () => null,
-            ),
+          (value) => value?.id == organization.id,
+          orElse: () => null,
+        ),
       );
     }
     if (branch != null) {
       await selectBranch(
         _state.branches.cast<Branch?>().firstWhere(
-              (value) => value?.id == branch.id,
-              orElse: () => null,
-            ),
+          (value) => value?.id == branch.id,
+          orElse: () => null,
+        ),
       );
     }
     if (department != null) {
       await selectDepartment(
         _state.departments.cast<Department?>().firstWhere(
-              (value) => value?.id == department.id,
-              orElse: () => null,
-            ),
+          (value) => value?.id == department.id,
+          orElse: () => null,
+        ),
       );
     }
   }
@@ -183,20 +183,14 @@ final class OrganizationManagementController extends ChangeNotifier {
     });
   }
 
-  Future<void> saveBranch(
-    Branch branch, {
-    required int expectedVersion,
-  }) async {
+  Future<void> saveBranch(Branch branch, {required int expectedVersion}) async {
     await _run(() async {
       await branchRepository.save(branch, expectedVersion: expectedVersion);
       await _reloadBranches(selectedId: branch.id);
     });
   }
 
-  Future<void> deleteBranch(
-    String id, {
-    required int expectedVersion,
-  }) async {
+  Future<void> deleteBranch(String id, {required int expectedVersion}) async {
     await _run(() async {
       await branchRepository.delete(id, expectedVersion: expectedVersion);
       await _reloadBranches();
@@ -226,20 +220,14 @@ final class OrganizationManagementController extends ChangeNotifier {
     });
   }
 
-  Future<void> saveTeam(
-    Team team, {
-    required int expectedVersion,
-  }) async {
+  Future<void> saveTeam(Team team, {required int expectedVersion}) async {
     await _run(() async {
       await teamRepository.save(team, expectedVersion: expectedVersion);
       await _reloadTeams(selectedId: team.id);
     });
   }
 
-  Future<void> deleteTeam(
-    String id, {
-    required int expectedVersion,
-  }) async {
+  Future<void> deleteTeam(String id, {required int expectedVersion}) async {
     await _run(() async {
       await teamRepository.delete(id, expectedVersion: expectedVersion);
       await _reloadTeams();
@@ -253,9 +241,9 @@ final class OrganizationManagementController extends ChangeNotifier {
     Organization? selected;
     if (selectedId != null) {
       selected = page.items.cast<Organization?>().firstWhere(
-            (value) => value?.id == selectedId,
-            orElse: () => null,
-          );
+        (value) => value?.id == selectedId,
+        orElse: () => null,
+      );
     }
     _state = _state.copyWith(
       organizations: page.items,
@@ -277,9 +265,9 @@ final class OrganizationManagementController extends ChangeNotifier {
     Branch? selected;
     if (selectedId != null) {
       selected = branches.cast<Branch?>().firstWhere(
-            (value) => value?.id == selectedId,
-            orElse: () => null,
-          );
+        (value) => value?.id == selectedId,
+        orElse: () => null,
+      );
     }
     _state = _state.copyWith(
       branches: branches,
@@ -299,9 +287,9 @@ final class OrganizationManagementController extends ChangeNotifier {
     Department? selected;
     if (selectedId != null) {
       selected = departments.cast<Department?>().firstWhere(
-            (value) => value?.id == selectedId,
-            orElse: () => null,
-          );
+        (value) => value?.id == selectedId,
+        orElse: () => null,
+      );
     }
     _state = _state.copyWith(
       departments: departments,
@@ -319,9 +307,9 @@ final class OrganizationManagementController extends ChangeNotifier {
     Team? selected;
     if (selectedId != null) {
       selected = teams.cast<Team?>().firstWhere(
-            (value) => value?.id == selectedId,
-            orElse: () => null,
-          );
+        (value) => value?.id == selectedId,
+        orElse: () => null,
+      );
     }
     _state = _state.copyWith(
       teams: teams,
@@ -338,10 +326,7 @@ final class OrganizationManagementController extends ChangeNotifier {
       await action();
       _state = _state.copyWith(loading: false, clearError: true);
     } on Object catch (error) {
-      _state = _state.copyWith(
-        loading: false,
-        errorMessage: error.toString(),
-      );
+      _state = _state.copyWith(loading: false, errorMessage: error.toString());
     }
 
     notifyListeners();
