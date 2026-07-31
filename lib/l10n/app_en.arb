@@ -87,5 +87,7 @@
   "previewReportDescription": "Choose report options, then generate an A4 preview.",
   "printReport": "Print",
   "sharePdf": "Share PDF",
-  "reportGenerationError": "The PDF report could not be generated."
+  "reportGenerationError": "The PDF report could not be generated.",
+  "active": "Active",
+  "inactive": "Inactive"
 }

@@ -31,10 +31,10 @@ class SourceProfile {
 
   @override
   int get hashCode => Object.hash(
-        sourceId,
-        sheetName,
-        rowKey,
-        externalEmployeeId,
-        googleAccountEmail,
-      );
+    sourceId,
+    sheetName,
+    rowKey,
+    externalEmployeeId,
+    googleAccountEmail,
+  );
 }

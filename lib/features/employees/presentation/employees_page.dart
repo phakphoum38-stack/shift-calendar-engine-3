@@ -53,77 +53,77 @@ class _EmployeesPageState extends State<EmployeesPage> {
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
-        listenable: controller,
-        builder: (context, _) {
-          final state = controller.state;
-          final visibleEmployees = state.visibleEmployees;
+    listenable: controller,
+    builder: (context, _) {
+      final state = controller.state;
+      final visibleEmployees = state.visibleEmployees;
 
-          return RefreshIndicator(
-            onRefresh: controller.refresh,
-            child: ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(20),
-              children: [
-                EmployeeHeader(loading: state.loading, onAdd: _edit),
-                const SizedBox(height: 16),
-                EmployeeSummary(
-                  total: state.employees.length,
-                  active: state.activeCount,
-                  inactive: state.employees.length - state.activeCount,
-                  departments: state.departments.length,
-                ),
-                const SizedBox(height: 16),
-                EmployeeFilters(
-                  statusFilter: state.statusFilter,
-                  employeeSort: state.employeeSort,
-                  departmentId: state.departmentId,
-                  departments: state.departments,
-                  onSearchChanged: controller.search,
-                  onStatusChanged: controller.setStatusFilter,
-                  onSortChanged: controller.setSort,
-                  onDepartmentChanged: controller.setDepartment,
-                ),
-                if (state.loading) ...[
-                  const SizedBox(height: 12),
-                  const LinearProgressIndicator(),
-                ],
-                if (state.error case final error?) ...[
-                  const SizedBox(height: 12),
-                  Text(
-                    error,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 16),
-                if (visibleEmployees.isEmpty)
-                  EmptyEmployeeState(onAdd: state.loading ? null : _edit)
-                else
-                  Card(
-                    clipBehavior: Clip.antiAlias,
-                    child: Column(
-                      children: [
-                        for (var index = 0;
-                            index < visibleEmployees.length;
-                            index++) ...[
-                          EmployeeCard(
-                            employee: visibleEmployees[index],
-                            onEdit: () => _edit(visibleEmployees[index]),
-                            onDeactivate: () =>
-                                _deactivate(visibleEmployees[index]),
-                          ),
-                          if (index != visibleEmployees.length - 1)
-                            const Divider(height: 1),
-                        ],
-                      ],
-                    ),
-                  ),
-              ],
+      return RefreshIndicator(
+        onRefresh: controller.refresh,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(20),
+          children: [
+            EmployeeHeader(loading: state.loading, onAdd: _edit),
+            const SizedBox(height: 16),
+            EmployeeSummary(
+              total: state.employees.length,
+              active: state.activeCount,
+              inactive: state.employees.length - state.activeCount,
+              departments: state.departments.length,
             ),
-          );
-        },
+            const SizedBox(height: 16),
+            EmployeeFilters(
+              statusFilter: state.statusFilter,
+              employeeSort: state.employeeSort,
+              departmentId: state.departmentId,
+              departments: state.departments,
+              onSearchChanged: controller.search,
+              onStatusChanged: controller.setStatusFilter,
+              onSortChanged: controller.setSort,
+              onDepartmentChanged: controller.setDepartment,
+            ),
+            if (state.loading) ...[
+              const SizedBox(height: 12),
+              const LinearProgressIndicator(),
+            ],
+            if (state.error case final error?) ...[
+              const SizedBox(height: 12),
+              Text(
+                error,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+            ],
+            const SizedBox(height: 16),
+            if (visibleEmployees.isEmpty)
+              EmptyEmployeeState(onAdd: state.loading ? null : _edit)
+            else
+              Card(
+                clipBehavior: Clip.antiAlias,
+                child: Column(
+                  children: [
+                    for (
+                      var index = 0;
+                      index < visibleEmployees.length;
+                      index++
+                    ) ...[
+                      EmployeeCard(
+                        employee: visibleEmployees[index],
+                        onEdit: () => _edit(visibleEmployees[index]),
+                        onDeactivate: () =>
+                            _deactivate(visibleEmployees[index]),
+                      ),
+                      if (index != visibleEmployees.length - 1)
+                        const Divider(height: 1),
+                    ],
+                  ],
+                ),
+              ),
+          ],
+        ),
       );
+    },
+  );
 
   Future<void> _edit([Employee? employee]) async {
     final value = await showDialog<Employee>(

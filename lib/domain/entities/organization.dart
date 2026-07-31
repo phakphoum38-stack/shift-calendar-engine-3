@@ -60,13 +60,13 @@ class Organization {
 
   @override
   int get hashCode => Object.hash(
-        id,
-        code,
-        name,
-        displayName,
-        timeZone,
-        locale,
-        countryCode,
-        active,
-      );
+    id,
+    code,
+    name,
+    displayName,
+    timeZone,
+    locale,
+    countryCode,
+    active,
+  );
 }

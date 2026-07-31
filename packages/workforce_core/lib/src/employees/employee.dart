@@ -14,8 +14,8 @@ final class Employee {
     this.email,
     this.phoneNumber,
     this.deletedAt,
-  })  : employeeCode = _required(employeeCode, 'employeeCode'),
-        displayName = _required(displayName, 'displayName') {
+  }) : employeeCode = _required(employeeCode, 'employeeCode'),
+       displayName = _required(displayName, 'displayName') {
     if (version < 1) {
       throw ArgumentError.value(version, 'version', 'must be at least 1');
     }

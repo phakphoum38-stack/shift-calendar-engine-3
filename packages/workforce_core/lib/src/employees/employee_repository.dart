@@ -8,8 +8,8 @@ final class EmployeeQuery {
     this.status,
     this.limit = 50,
     this.offset = 0,
-  })  : assert(limit > 0),
-        assert(offset >= 0);
+  }) : assert(limit > 0),
+       assert(offset >= 0);
 
   final String? organizationId;
   final String? departmentId;

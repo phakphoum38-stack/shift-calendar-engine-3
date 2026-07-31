@@ -41,7 +41,8 @@ class EmployeeDirectoryState {
   List<Employee> get visibleEmployees {
     final normalized = query.trim().toLowerCase();
     final result = employees.where((employee) {
-      final matchesText = normalized.isEmpty ||
+      final matchesText =
+          normalized.isEmpty ||
           employee.employeeCode.toLowerCase().contains(normalized) ||
           employee.displayName.toLowerCase().contains(normalized) ||
           employee.position.toLowerCase().contains(normalized);
@@ -55,17 +56,19 @@ class EmployeeDirectoryState {
       return matchesText && matchesStatus && matchesDepartment;
     }).toList();
 
-    result.sort((a, b) => switch (employeeSort) {
-          EmployeeSort.nameAscending => a.displayName
-              .toLowerCase()
-              .compareTo(b.displayName.toLowerCase()),
-          EmployeeSort.nameDescending => b.displayName
-              .toLowerCase()
-              .compareTo(a.displayName.toLowerCase()),
-          EmployeeSort.employeeCode => a.employeeCode
-              .toLowerCase()
-              .compareTo(b.employeeCode.toLowerCase()),
-        });
+    result.sort(
+      (a, b) => switch (employeeSort) {
+        EmployeeSort.nameAscending => a.displayName.toLowerCase().compareTo(
+          b.displayName.toLowerCase(),
+        ),
+        EmployeeSort.nameDescending => b.displayName.toLowerCase().compareTo(
+          a.displayName.toLowerCase(),
+        ),
+        EmployeeSort.employeeCode => a.employeeCode.toLowerCase().compareTo(
+          b.employeeCode.toLowerCase(),
+        ),
+      },
+    );
     return List.unmodifiable(result);
   }
 
@@ -79,15 +82,13 @@ class EmployeeDirectoryState {
     bool? loading,
     String? error,
     bool clearError = false,
-  }) =>
-      EmployeeDirectoryState(
-        employees: employees ?? this.employees,
-        query: query ?? this.query,
-        statusFilter: statusFilter ?? this.statusFilter,
-        employeeSort: employeeSort ?? this.employeeSort,
-        departmentId:
-            clearDepartment ? null : departmentId ?? this.departmentId,
-        loading: loading ?? this.loading,
-        error: clearError ? null : error ?? this.error,
-      );
+  }) => EmployeeDirectoryState(
+    employees: employees ?? this.employees,
+    query: query ?? this.query,
+    statusFilter: statusFilter ?? this.statusFilter,
+    employeeSort: employeeSort ?? this.employeeSort,
+    departmentId: clearDepartment ? null : departmentId ?? this.departmentId,
+    loading: loading ?? this.loading,
+    error: clearError ? null : error ?? this.error,
+  );
 }

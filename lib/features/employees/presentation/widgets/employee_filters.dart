@@ -111,8 +111,7 @@ class EmployeeFilters extends StatelessWidget {
             children: [
               for (var index = 0; index < controls.length; index++) ...[
                 Expanded(child: controls[index]),
-                if (index != controls.length - 1)
-                  const SizedBox(width: 12),
+                if (index != controls.length - 1) const SizedBox(width: 12),
               ],
             ],
           );

@@ -278,4 +278,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportGenerationError => 'The PDF report could not be generated.';
+
+  @override
+  String get active => 'Active';
+
+  @override
+  String get inactive => 'Inactive';
 }

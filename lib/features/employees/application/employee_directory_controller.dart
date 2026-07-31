@@ -83,11 +83,8 @@ class EmployeeDirectoryController extends ChangeNotifier {
       _emit(_state.copyWith(employeeSort: value));
 
   void setDepartment(String? value) => _emit(
-        _state.copyWith(
-          departmentId: value,
-          clearDepartment: value == null,
-        ),
-      );
+    _state.copyWith(departmentId: value, clearDepartment: value == null),
+  );
 
   void _refreshEmployees({bool? loading}) {
     final byId = <String, Employee>{
@@ -96,7 +93,8 @@ class EmployeeDirectoryController extends ChangeNotifier {
       for (final employee in _persisted) employee.id: employee,
     };
     final employees = List<Employee>.unmodifiable(byId.values);
-    final departmentStillExists = _state.departmentId == null ||
+    final departmentStillExists =
+        _state.departmentId == null ||
         employees.any(
           (employee) => employee.department.id == _state.departmentId,
         );

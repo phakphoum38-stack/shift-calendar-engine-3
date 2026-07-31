@@ -87,5 +87,7 @@
   "previewReportDescription": "เลือกตัวเลือกรายงานแล้วสร้างตัวอย่าง A4",
   "printReport": "พิมพ์",
   "sharePdf": "แชร์ PDF",
-  "reportGenerationError": "ไม่สามารถสร้างรายงาน PDF ได้"
+  "reportGenerationError": "ไม่สามารถสร้างรายงาน PDF ได้",
+  "active": "เปิดใช้งาน",
+  "inactive": "ปิดใช้งาน"
 }

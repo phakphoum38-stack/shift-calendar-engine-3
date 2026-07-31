@@ -3,11 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../l10n/l10n.dart';
 
 class EmployeeHeader extends StatelessWidget {
-  const EmployeeHeader({
-    required this.loading,
-    required this.onAdd,
-    super.key,
-  });
+  const EmployeeHeader({required this.loading, required this.onAdd, super.key});
 
   final bool loading;
   final VoidCallback onAdd;

@@ -83,7 +83,10 @@ class _SummaryCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('$value', style: Theme.of(context).textTheme.headlineSmall),
+                Text(
+                  '$value',
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
                 Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
               ],
             ),

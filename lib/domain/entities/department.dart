@@ -52,12 +52,12 @@ class Department {
 
   @override
   int get hashCode => Object.hash(
-        id,
-        code,
-        name,
-        organizationId,
-        branchId,
-        parentDepartmentId,
-        active,
-      );
+    id,
+    code,
+    name,
+    organizationId,
+    branchId,
+    parentDepartmentId,
+    active,
+  );
 }
