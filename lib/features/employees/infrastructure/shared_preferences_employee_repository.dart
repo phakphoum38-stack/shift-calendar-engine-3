@@ -2,27 +2,35 @@ import '../../../core/result/result.dart';
 import '../../../core/storage/atomic_string_store.dart';
 import '../../../domain/entities/employee.dart';
 import '../../../domain/repositories/employee_repository.dart';
-import '../../foundation/infrastructure/canonical_json_codec.dart';
+import 'employee_json_codec.dart';
 
-/// Atomic production repository for employee identities.
+/// Atomic production repository for enterprise employee identities.
 class SharedPreferencesEmployeeRepository implements EmployeeRepository {
   SharedPreferencesEmployeeRepository({
     AtomicStringStore? store,
-    this.codec = const CanonicalJsonCodec(),
+    this.codec = const EmployeeJsonCodec(),
   }) : store =
-           store ?? AtomicStringStore(namespace: 'sce3.canonical_employees.v1');
+           store ?? AtomicStringStore(namespace: 'sce3.canonical_employees.v2');
 
   final AtomicStringStore store;
-  final CanonicalJsonCodec codec;
+  final EmployeeJsonCodec codec;
 
   @override
   Future<Result<void>> delete(String id) async {
+    final normalizedId = id.trim();
+    if (normalizedId.isEmpty) {
+      return const ValidationFailure(
+        'Employee id is required.',
+        fieldErrors: {'id': 'required'},
+      );
+    }
+
     final loaded = await _load();
     if (loaded case Failure<List<Employee>>()) {
       return PersistenceFailure(loaded.message, cause: loaded);
     }
     final values = (loaded as Success<List<Employee>>).value
-        .where((employee) => employee.id != id)
+        .where((employee) => employee.id != normalizedId)
         .toList();
     final saved = await _saveAll(values);
     return switch (saved) {
@@ -48,6 +56,29 @@ class SharedPreferencesEmployeeRepository implements EmployeeRepository {
   }
 
   @override
+  Future<Result<Employee?>> findById(String id) async {
+    final normalizedId = id.trim();
+    if (normalizedId.isEmpty) {
+      return const ValidationFailure(
+        'Employee id is required.',
+        fieldErrors: {'id': 'required'},
+      );
+    }
+
+    final loaded = await _load();
+    if (loaded case Failure<List<Employee>>()) {
+      return PersistenceFailure(loaded.message, cause: loaded);
+    }
+
+    for (final employee in (loaded as Success<List<Employee>>).value) {
+      if (employee.id == normalizedId) {
+        return Success(employee);
+      }
+    }
+    return const Success(null);
+  }
+
+  @override
   Future<Result<Employee>> save(Employee employee) async {
     if (employee.id.trim().isEmpty ||
         employee.employeeCode.trim().isEmpty ||
@@ -62,11 +93,12 @@ class SharedPreferencesEmployeeRepository implements EmployeeRepository {
     if (values.any(
       (value) =>
           value.id != employee.id &&
+          value.organizationId == employee.organizationId &&
           value.employeeCode.toLowerCase() ==
               employee.employeeCode.toLowerCase(),
     )) {
       return const ValidationFailure(
-        'Employee code is already in use.',
+        'Employee code is already in use in this organization.',
         fieldErrors: {'employeeCode': 'duplicate'},
       );
     }
@@ -89,9 +121,7 @@ class SharedPreferencesEmployeeRepository implements EmployeeRepository {
   Future<Result<List<Employee>>> _load() async {
     try {
       final payload = await store.read();
-      return Success(
-        payload == null ? const [] : codec.decodeEmployees(payload),
-      );
+      return Success(payload == null ? const [] : codec.decode(payload));
     } on Object catch (error, stackTrace) {
       return PersistenceFailure(
         'Could not load employees.',
@@ -103,7 +133,7 @@ class SharedPreferencesEmployeeRepository implements EmployeeRepository {
 
   Future<Result<List<Employee>>> _saveAll(List<Employee> values) async {
     try {
-      await store.write(codec.encodeEmployees(values));
+      await store.write(codec.encode(values));
       return Success(List.unmodifiable(values));
     } on Object catch (error, stackTrace) {
       return PersistenceFailure(
