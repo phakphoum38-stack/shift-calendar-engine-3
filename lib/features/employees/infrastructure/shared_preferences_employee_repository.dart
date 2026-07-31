@@ -20,10 +20,7 @@ class SharedPreferencesEmployeeRepository implements EmployeeRepository {
     final loaded = await _load();
 
     if (loaded case Failure<List<Employee>>()) {
-      return PersistenceFailure(
-        loaded.message,
-        cause: loaded,
-      );
+      return PersistenceFailure(loaded.message, cause: loaded);
     }
 
     final values = (loaded as Success<List<Employee>>).value
@@ -42,12 +39,8 @@ class SharedPreferencesEmployeeRepository implements EmployeeRepository {
   }
 
   @override
-  Future<Result<List<Employee>>> findAll({
-    bool activeOnly = true,
-  }) =>
-      search(
-        EmployeeQuery(activeOnly: activeOnly),
-      );
+  Future<Result<List<Employee>>> findAll({bool activeOnly = true}) =>
+      search(EmployeeQuery(activeOnly: activeOnly));
 
   @override
   Future<Result<Employee?>> findById(String id) async {
@@ -56,9 +49,7 @@ class SharedPreferencesEmployeeRepository implements EmployeeRepository {
     if (normalizedId.isEmpty) {
       return const ValidationFailure(
         'Employee id is required.',
-        fieldErrors: {
-          'id': 'required',
-        },
+        fieldErrors: {'id': 'required'},
       );
     }
 
@@ -84,9 +75,7 @@ class SharedPreferencesEmployeeRepository implements EmployeeRepository {
 
     return switch (loaded) {
       Success<List<Employee>>(value: final values) => Success(
-        List.unmodifiable(
-          _filterAndSort(values, query),
-        ),
+        List.unmodifiable(_filterAndSort(values, query)),
       ),
       Failure<List<Employee>>() => PersistenceFailure(
         loaded.message,
@@ -100,23 +89,16 @@ class SharedPreferencesEmployeeRepository implements EmployeeRepository {
     if (employee.id.trim().isEmpty ||
         employee.employeeCode.trim().isEmpty ||
         employee.firstName.trim().isEmpty) {
-      return const ValidationFailure(
-        'Employee data is incomplete.',
-      );
+      return const ValidationFailure('Employee data is incomplete.');
     }
 
     final loaded = await _load();
 
     if (loaded case Failure<List<Employee>>()) {
-      return PersistenceFailure(
-        loaded.message,
-        cause: loaded,
-      );
+      return PersistenceFailure(loaded.message, cause: loaded);
     }
 
-    final values = List<Employee>.of(
-      (loaded as Success<List<Employee>>).value,
-    );
+    final values = List<Employee>.of((loaded as Success<List<Employee>>).value);
 
     final duplicateEmployeeCode = values.any(
       (value) =>
@@ -128,15 +110,11 @@ class SharedPreferencesEmployeeRepository implements EmployeeRepository {
     if (duplicateEmployeeCode) {
       return const ValidationFailure(
         'Employee code is already in use.',
-        fieldErrors: {
-          'employeeCode': 'duplicate',
-        },
+        fieldErrors: {'employeeCode': 'duplicate'},
       );
     }
 
-    final index = values.indexWhere(
-      (value) => value.id == employee.id,
-    );
+    final index = values.indexWhere((value) => value.id == employee.id);
 
     if (index == -1) {
       values.add(employee);
@@ -155,74 +133,69 @@ class SharedPreferencesEmployeeRepository implements EmployeeRepository {
     };
   }
 
-  List<Employee> _filterAndSort(
-    List<Employee> values,
-    EmployeeQuery query,
-  ) {
+  List<Employee> _filterAndSort(List<Employee> values, EmployeeQuery query) {
     final text = query.text.trim().toLowerCase();
     final organizationId = query.organizationId.trim();
     final branchId = query.branchId.trim();
     final departmentId = query.departmentId.trim();
     final teamId = query.teamId.trim();
 
-    final result = values.where((employee) {
-      if (query.activeOnly && !employee.active) {
-        return false;
-      }
+    final result =
+        values.where((employee) {
+          if (query.activeOnly && !employee.active) {
+            return false;
+          }
 
-      if (organizationId.isNotEmpty &&
-          employee.organizationId != organizationId) {
-        return false;
-      }
+          if (organizationId.isNotEmpty &&
+              employee.organizationId != organizationId) {
+            return false;
+          }
 
-      if (branchId.isNotEmpty && employee.branchId != branchId) {
-        return false;
-      }
+          if (branchId.isNotEmpty && employee.branchId != branchId) {
+            return false;
+          }
 
-      if (departmentId.isNotEmpty &&
-          employee.department.id != departmentId) {
-        return false;
-      }
+          if (departmentId.isNotEmpty &&
+              employee.department.id != departmentId) {
+            return false;
+          }
 
-      if (teamId.isNotEmpty && employee.teamId != teamId) {
-        return false;
-      }
+          if (teamId.isNotEmpty && employee.teamId != teamId) {
+            return false;
+          }
 
-      if (text.isEmpty) {
-        return true;
-      }
+          if (text.isEmpty) {
+            return true;
+          }
 
-      return employee.id.toLowerCase().contains(text) ||
-          employee.employeeCode.toLowerCase().contains(text) ||
-          employee.firstName.toLowerCase().contains(text) ||
-          employee.lastName.toLowerCase().contains(text) ||
-          employee.nickname.toLowerCase().contains(text) ||
-          employee.displayName.toLowerCase().contains(text) ||
-          employee.position.toLowerCase().contains(text) ||
-          employee.email.toLowerCase().contains(text) ||
-          employee.phone.toLowerCase().contains(text) ||
-          employee.department.code.toLowerCase().contains(text) ||
-          employee.department.name.toLowerCase().contains(text);
-    }).toList()
-      ..sort((a, b) {
-        final departmentComparison = a.department.name.compareTo(
-          b.department.name,
-        );
+          return employee.id.toLowerCase().contains(text) ||
+              employee.employeeCode.toLowerCase().contains(text) ||
+              employee.firstName.toLowerCase().contains(text) ||
+              employee.lastName.toLowerCase().contains(text) ||
+              employee.nickname.toLowerCase().contains(text) ||
+              employee.displayName.toLowerCase().contains(text) ||
+              employee.position.toLowerCase().contains(text) ||
+              employee.email.toLowerCase().contains(text) ||
+              employee.phone.toLowerCase().contains(text) ||
+              employee.department.code.toLowerCase().contains(text) ||
+              employee.department.name.toLowerCase().contains(text);
+        }).toList()..sort((a, b) {
+          final departmentComparison = a.department.name.compareTo(
+            b.department.name,
+          );
 
-        if (departmentComparison != 0) {
-          return departmentComparison;
-        }
+          if (departmentComparison != 0) {
+            return departmentComparison;
+          }
 
-        final nameComparison = a.displayName.compareTo(
-          b.displayName,
-        );
+          final nameComparison = a.displayName.compareTo(b.displayName);
 
-        if (nameComparison != 0) {
-          return nameComparison;
-        }
+          if (nameComparison != 0) {
+            return nameComparison;
+          }
 
-        return a.id.compareTo(b.id);
-      });
+          return a.id.compareTo(b.id);
+        });
 
     return result;
   }
@@ -235,9 +208,7 @@ class SharedPreferencesEmployeeRepository implements EmployeeRepository {
           ? <Employee>[]
           : codec.decodeEmployees(payload);
 
-      return Success(
-        List.unmodifiable(employees),
-      );
+      return Success(List.unmodifiable(employees));
     } on Object catch (error, stackTrace) {
       return PersistenceFailure(
         'Could not load employees.',
@@ -247,15 +218,11 @@ class SharedPreferencesEmployeeRepository implements EmployeeRepository {
     }
   }
 
-  Future<Result<List<Employee>>> _saveAll(
-    List<Employee> values,
-  ) async {
+  Future<Result<List<Employee>>> _saveAll(List<Employee> values) async {
     try {
       final immutableValues = List<Employee>.unmodifiable(values);
 
-      await store.write(
-        codec.encodeEmployees(immutableValues),
-      );
+      await store.write(codec.encodeEmployees(immutableValues));
 
       return Success(immutableValues);
     } on Object catch (error, stackTrace) {
