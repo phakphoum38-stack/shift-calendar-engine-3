@@ -1,11 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shift_calendar_engine_3/core/result/result.dart';
-import 'package:shift_calendar_engine_3/domain/entities/branch.dart';
-import 'package:shift_calendar_engine_3/domain/entities/department.dart';
-import 'package:shift_calendar_engine_3/domain/entities/employee.dart';
-import 'package:shift_calendar_engine_3/domain/entities/organization.dart';
-import 'package:shift_calendar_engine_3/domain/entities/team.dart';
-import 'package:shift_calendar_engine_3/features/organization/application/organization_hierarchy_service.dart';
+import 'package:shift_calendar_engine/core/result/result.dart';
+import 'package:shift_calendar_engine/domain/entities/branch.dart';
+import 'package:shift_calendar_engine/domain/entities/department.dart';
+import 'package:shift_calendar_engine/domain/entities/employee.dart';
+import 'package:shift_calendar_engine/domain/entities/organization.dart';
+import 'package:shift_calendar_engine/domain/entities/team.dart';
+import 'package:shift_calendar_engine/features/organization/application/organization_hierarchy_service.dart';
 
 void main() {
   const service = OrganizationHierarchyService();
