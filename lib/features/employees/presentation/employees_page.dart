@@ -49,116 +49,107 @@ class _EmployeesPageState extends State<EmployeesPage> {
   @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: controller,
-    builder: (context, _) => ListView(
-      padding: const EdgeInsets.all(20),
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                context.l10n.employeeDirectory,
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-            ),
-            FilledButton.icon(
-              onPressed: controller.loading ? null : () => _edit(),
-              icon: const Icon(Icons.person_add_outlined),
-              label: Text(context.l10n.addEmployee),
+    builder: (context, _) {
+      final employees = controller.employees;
+      final activeCount = employees.where((employee) => employee.active).length;
+      final inactiveCount = employees.length - activeCount;
+      final departmentCount = employees
+          .map((employee) => employee.department.id)
+          .where((id) => id.isNotEmpty)
+          .toSet()
+          .length;
+
+      return ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          _Header(
+            loading: controller.loading,
+            onAdd: _edit,
+          ),
+          const SizedBox(height: 16),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final width = constraints.maxWidth;
+              final columns = width >= 1000
+                  ? 4
+                  : width >= 640
+                  ? 2
+                  : 1;
+
+              return GridView.count(
+                crossAxisCount: columns,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: columns == 1 ? 4.2 : 2.5,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                children: [
+                  _SummaryCard(
+                    icon: Icons.groups_outlined,
+                    value: employees.length,
+                    label: context.l10n.employeeDirectory,
+                  ),
+                  _SummaryCard(
+                    icon: Icons.check_circle_outline,
+                    value: activeCount,
+                    label: context.l10n.active,
+                  ),
+                  _SummaryCard(
+                    icon: Icons.block_outlined,
+                    value: inactiveCount,
+                    label: context.l10n.inactive,
+                  ),
+                  _SummaryCard(
+                    icon: Icons.apartment_outlined,
+                    value: departmentCount,
+                    label: context.l10n.departmentName,
+                  ),
+                ],
+              );
+            },
+          ),
+          const SizedBox(height: 16),
+          SearchBar(
+            onChanged: controller.search,
+            leading: const Icon(Icons.search),
+            hintText: context.l10n.search,
+          ),
+          if (controller.loading) ...[
+            const SizedBox(height: 12),
+            const LinearProgressIndicator(),
+          ],
+          if (controller.error case final error?) ...[
+            const SizedBox(height: 12),
+            Text(
+              error,
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
           ],
-        ),
-        const SizedBox(height: 6),
-        Text(context.l10n.employeeDirectoryDescription),
-        const SizedBox(height: 16),
-        TextField(
-          onChanged: controller.search,
-          decoration: InputDecoration(
-            labelText: context.l10n.search,
-            prefixIcon: const Icon(Icons.search),
-          ),
-        ),
-        if (controller.loading) ...[
-          const SizedBox(height: 12),
-          const LinearProgressIndicator(),
-        ],
-        if (controller.error case final error?) ...[
-          const SizedBox(height: 12),
-          Text(
-            error,
-            style: TextStyle(color: Theme.of(context).colorScheme.error),
-          ),
-        ],
-        const SizedBox(height: 16),
-        if (controller.employees.isEmpty)
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(32),
+          const SizedBox(height: 16),
+          if (employees.isEmpty)
+            _EmptyState(
+              onAdd: controller.loading ? null : _edit,
+            )
+          else
+            Card(
+              clipBehavior: Clip.antiAlias,
               child: Column(
                 children: [
-                  const Icon(Icons.groups_outlined, size: 52),
-                  const SizedBox(height: 12),
-                  Text(context.l10n.noEmployees),
+                  for (var index = 0; index < employees.length; index++) ...[
+                    _EmployeeTile(
+                      employee: employees[index],
+                      onEdit: () => _edit(employees[index]),
+                      onDeactivate: () => _deactivate(employees[index]),
+                    ),
+                    if (index != employees.length - 1)
+                      const Divider(height: 1),
+                  ],
                 ],
               ),
             ),
-          )
-        else
-          Card(
-            child: Column(
-              children: [
-                for (
-                  var index = 0;
-                  index < controller.employees.length;
-                  index++
-                ) ...[
-                  ListTile(
-                    leading: CircleAvatar(
-                      child: Text(
-                        controller
-                            .employees[index]
-                            .displayName
-                            .characters
-                            .first,
-                      ),
-                    ),
-                    title: Text(controller.employees[index].displayName),
-                    subtitle: Text(
-                      [
-                        controller.employees[index].employeeCode,
-                        controller.employees[index].position,
-                        controller.employees[index].department.name,
-                      ].where((value) => value.isNotEmpty).join(' • '),
-                    ),
-                    trailing: PopupMenuButton<_EmployeeAction>(
-                      onSelected: (action) {
-                        if (action == _EmployeeAction.edit) {
-                          unawaited(_edit(controller.employees[index]));
-                        } else {
-                          unawaited(
-                            controller.deactivate(controller.employees[index]),
-                          );
-                        }
-                      },
-                      itemBuilder: (context) => [
-                        PopupMenuItem(
-                          value: _EmployeeAction.edit,
-                          child: Text(context.l10n.editEmployee),
-                        ),
-                        PopupMenuItem(
-                          value: _EmployeeAction.deactivate,
-                          child: Text(context.l10n.deactivate),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (index != controller.employees.length - 1)
-                    const Divider(height: 1),
-                ],
-              ],
-            ),
-          ),
-      ],
-    ),
+        ],
+      );
+    },
   );
 
   Future<void> _edit([Employee? employee]) async {
@@ -167,6 +158,218 @@ class _EmployeesPageState extends State<EmployeesPage> {
       builder: (context) => _EmployeeDialog(employee: employee),
     );
     if (value != null) await controller.save(value);
+  }
+
+  Future<void> _deactivate(Employee employee) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(context.l10n.deactivate),
+        content: Text(
+          '${context.l10n.deactivate}: ${employee.displayName}?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(context.l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(context.l10n.deactivate),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await controller.deactivate(employee);
+    }
+  }
+}
+
+class _Header extends StatelessWidget {
+  const _Header({required this.loading, required this.onAdd});
+
+  final bool loading;
+  final VoidCallback onAdd;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      final compact = constraints.maxWidth < 560;
+      final title = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            context.l10n.employeeDirectory,
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          const SizedBox(height: 6),
+          Text(context.l10n.employeeDirectoryDescription),
+        ],
+      );
+      final button = FilledButton.icon(
+        onPressed: loading ? null : onAdd,
+        icon: const Icon(Icons.person_add_outlined),
+        label: Text(context.l10n.addEmployee),
+      );
+
+      if (compact) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            title,
+            const SizedBox(height: 12),
+            button,
+          ],
+        );
+      }
+
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(child: title),
+          const SizedBox(width: 16),
+          button,
+        ],
+      );
+    },
+  );
+}
+
+class _SummaryCard extends StatelessWidget {
+  const _SummaryCard({
+    required this.icon,
+    required this.value,
+    required this.label,
+  });
+
+  final IconData icon;
+  final int value;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Card(
+    child: Padding(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          CircleAvatar(child: Icon(icon)),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '$value',
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+class _EmptyState extends StatelessWidget {
+  const _EmptyState({required this.onAdd});
+
+  final VoidCallback? onAdd;
+
+  @override
+  Widget build(BuildContext context) => Card(
+    child: Padding(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        children: [
+          const Icon(Icons.groups_outlined, size: 52),
+          const SizedBox(height: 12),
+          Text(
+            context.l10n.noEmployees,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 16),
+          FilledButton.icon(
+            onPressed: onAdd,
+            icon: const Icon(Icons.person_add_outlined),
+            label: Text(context.l10n.addEmployee),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+class _EmployeeTile extends StatelessWidget {
+  const _EmployeeTile({
+    required this.employee,
+    required this.onEdit,
+    required this.onDeactivate,
+  });
+
+  final Employee employee;
+  final VoidCallback onEdit;
+  final VoidCallback onDeactivate;
+
+  @override
+  Widget build(BuildContext context) {
+    final displayName = employee.displayName.trim();
+    final avatarText = displayName.isEmpty ? '?' : displayName.characters.first;
+
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      leading: CircleAvatar(child: Text(avatarText)),
+      title: Row(
+        children: [
+          Expanded(child: Text(displayName.isEmpty ? employee.employeeCode : displayName)),
+          const SizedBox(width: 8),
+          Chip(
+            label: Text(
+              employee.active ? context.l10n.active : context.l10n.inactive,
+            ),
+            avatar: Icon(
+              employee.active
+                  ? Icons.check_circle_outline
+                  : Icons.block_outlined,
+              size: 18,
+            ),
+            visualDensity: VisualDensity.compact,
+          ),
+        ],
+      ),
+      subtitle: Text(
+        [
+          employee.employeeCode,
+          employee.position,
+          employee.department.name,
+        ].where((value) => value.isNotEmpty).join(' • '),
+      ),
+      trailing: PopupMenuButton<_EmployeeAction>(
+        onSelected: (action) {
+          switch (action) {
+            case _EmployeeAction.edit:
+              onEdit();
+            case _EmployeeAction.deactivate:
+              onDeactivate();
+          }
+        },
+        itemBuilder: (context) => [
+          PopupMenuItem(
+            value: _EmployeeAction.edit,
+            child: Text(context.l10n.editEmployee),
+          ),
+          if (employee.active)
+            PopupMenuItem(
+              value: _EmployeeAction.deactivate,
+              child: Text(context.l10n.deactivate),
+            ),
+        ],
+      ),
+    );
   }
 }
 
@@ -286,7 +489,9 @@ class _EmployeeDialogState extends State<_EmployeeDialog> {
     Navigator.pop(
       context,
       Employee(
-        id: widget.employee?.id ?? 'employee:${normalizedCode.toLowerCase()}',
+        id:
+            widget.employee?.id ??
+            'employee:${DateTime.now().microsecondsSinceEpoch}',
         employeeCode: normalizedCode,
         firstName: firstName.text.trim(),
         lastName: lastName.text.trim(),
