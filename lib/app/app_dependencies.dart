@@ -6,32 +6,33 @@ import 'package:workforce_core/workforce_core.dart'
         TeamRepository;
 
 import '../domain/entities/app_settings.dart';
+import '../domain/entities/schedule.dart';
+import '../domain/repositories/employee_repository.dart';
 import '../domain/repositories/schedule_repository.dart';
 import '../domain/repositories/settings_repository.dart';
-import '../domain/repositories/employee_repository.dart';
 import '../domain/repositories/shift_template_repository.dart';
 import '../features/dashboard/application/dashboard_summary_service.dart';
+import '../features/employees/application/employee_directory_controller.dart';
+import '../features/employees/infrastructure/shared_preferences_employee_repository.dart';
 import '../features/foundation/infrastructure/memory_schedule_repository.dart';
 import '../features/foundation/infrastructure/memory_settings_repository.dart';
 import '../features/foundation/infrastructure/shared_preferences_schedule_repository.dart';
-import '../features/employees/infrastructure/shared_preferences_employee_repository.dart';
+import '../features/organization/application/organization_management_controller.dart';
 import '../features/organization/infrastructure/shared_preferences_branch_repository.dart';
 import '../features/organization/infrastructure/shared_preferences_department_repository.dart';
 import '../features/organization/infrastructure/shared_preferences_organization_repository.dart';
 import '../features/organization/infrastructure/shared_preferences_team_repository.dart';
-import '../features/settings/infrastructure/shared_preferences_settings_repository.dart';
-import '../features/shift_templates/infrastructure/shared_preferences_shift_template_repository.dart';
-import '../features/roster/application/roster_controller.dart';
-import '../features/roster/application/roster_editor_controller.dart';
 import '../features/reports/application/monthly_roster_report_mapper.dart';
 import '../features/reports/application/report_controller.dart';
 import '../features/reports/application/report_service.dart';
 import '../features/reports/domain/monthly_roster_report.dart';
 import '../features/reports/infrastructure/monthly_roster_pdf_service.dart';
 import '../features/reports/infrastructure/printing_report_output_gateway.dart';
-import '../features/employees/application/employee_directory_controller.dart';
+import '../features/roster/application/roster_controller.dart';
+import '../features/roster/application/roster_editor_controller.dart';
+import '../features/settings/infrastructure/shared_preferences_settings_repository.dart';
 import '../features/shift_templates/application/shift_template_controller.dart';
-import '../domain/entities/schedule.dart';
+import '../features/shift_templates/infrastructure/shared_preferences_shift_template_repository.dart';
 import 'app_controller.dart';
 
 /// Explicit composition root for all production dependencies.
@@ -120,6 +121,15 @@ class AppDependencies {
     return EmployeeDirectoryController(
       repository: employeeRepository,
       schedule: schedule,
+    );
+  }
+
+  OrganizationManagementController createOrganizationManagementController() {
+    return OrganizationManagementController(
+      organizationRepository: organizationRepository,
+      branchRepository: branchRepository,
+      departmentRepository: departmentRepository,
+      teamRepository: teamRepository,
     );
   }
 
