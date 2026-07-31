@@ -4,6 +4,7 @@ import '../../../domain/repositories/branch_repository.dart';
 import '../../../domain/repositories/department_repository.dart';
 import '../../../domain/repositories/organization_repository.dart';
 import '../../../domain/repositories/team_repository.dart';
+import 'organization_storage_migrator.dart';
 import 'shared_preferences_json_collection.dart';
 import 'shared_preferences_organization_repositories.dart';
 
@@ -21,8 +22,12 @@ final class OrganizationRepositoryBundle {
   final DepartmentRepository departments;
   final TeamRepository teams;
 
-  static Future<OrganizationRepositoryBundle> createLocal() async {
+  static Future<OrganizationRepositoryBundle> createLocal({
+    OrganizationStorageMigrator migrator = const OrganizationStorageMigrator(),
+  }) async {
     final preferences = await SharedPreferences.getInstance();
+    await migrator.migrate(preferences);
+
     final organizationStore = SharedPreferencesJsonCollection(
       preferences: preferences,
       key: 'sce.enterprise.organizations.v1',
