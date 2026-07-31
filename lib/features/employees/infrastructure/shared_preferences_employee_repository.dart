@@ -35,13 +35,36 @@ class SharedPreferencesEmployeeRepository implements EmployeeRepository {
   }
 
   @override
-  Future<Result<List<Employee>>> findAll({bool activeOnly = true}) async {
+  Future<Result<List<Employee>>> findAll({bool activeOnly = true}) =>
+      search(EmployeeQuery(activeOnly: activeOnly));
+
+  @override
+  Future<Result<Employee?>> findById(String id) async {
+    final normalizedId = id.trim();
+    if (normalizedId.isEmpty) {
+      return const ValidationFailure(
+        'Employee id is required.',
+        fieldErrors: {'id': 'required'},
+      );
+    }
     final loaded = await _load();
     return switch (loaded) {
       Success<List<Employee>>(value: final values) => Success(
-        List.unmodifiable(
-          values.where((employee) => !activeOnly || employee.active),
-        ),
+        values.cast<Employee?>().firstWhere(
+              (employee) => employee!.id == normalizedId,
+              orElse: () => null,
+            ),
+      ),
+      Failure<List<Employee>>() => loaded,
+    };
+  }
+
+  @override
+  Future<Result<List<Employee>>> search(EmployeeQuery query) async {
+    final loaded = await _load();
+    return switch (loaded) {
+      Success<List<Employee>>(value: final values) => Success(
+        List.unmodifiable(_filterAndSort(values, query)),
       ),
       Failure<List<Employee>>() => loaded,
     };
@@ -84,6 +107,51 @@ class SharedPreferencesEmployeeRepository implements EmployeeRepository {
         cause: saved,
       ),
     };
+  }
+
+  List<Employee> _filterAndSort(
+    List<Employee> values,
+    EmployeeQuery query,
+  ) {
+    final text = query.text.trim().toLowerCase();
+    final organizationId = query.organizationId.trim();
+    final branchId = query.branchId.trim();
+    final departmentId = query.departmentId.trim();
+    final teamId = query.teamId.trim();
+
+    final result = values.where((employee) {
+      if (query.activeOnly && !employee.active) return false;
+      if (organizationId.isNotEmpty &&
+          employee.organizationId != organizationId) {
+        return false;
+      }
+      if (branchId.isNotEmpty && employee.branchId != branchId) return false;
+      if (departmentId.isNotEmpty && employee.department.id != departmentId) {
+        return false;
+      }
+      if (teamId.isNotEmpty && employee.teamId != teamId) return false;
+      if (text.isEmpty) return true;
+
+      return employee.id.toLowerCase().contains(text) ||
+          employee.employeeCode.toLowerCase().contains(text) ||
+          employee.firstName.toLowerCase().contains(text) ||
+          employee.lastName.toLowerCase().contains(text) ||
+          employee.nickname.toLowerCase().contains(text) ||
+          employee.displayName.toLowerCase().contains(text) ||
+          employee.position.toLowerCase().contains(text) ||
+          employee.email.toLowerCase().contains(text) ||
+          employee.phone.toLowerCase().contains(text) ||
+          employee.department.code.toLowerCase().contains(text) ||
+          employee.department.name.toLowerCase().contains(text);
+    }).toList()
+      ..sort((a, b) {
+        final department = a.department.name.compareTo(b.department.name);
+        if (department != 0) return department;
+        final name = a.displayName.compareTo(b.displayName);
+        return name != 0 ? name : a.id.compareTo(b.id);
+      });
+
+    return result;
   }
 
   Future<Result<List<Employee>>> _load() async {
