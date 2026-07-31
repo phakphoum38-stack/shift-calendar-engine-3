@@ -1,4 +1,5 @@
 import '../../../core/result/result.dart';
+import '../../../domain/entities/department.dart';
 import '../../../domain/entities/employee.dart';
 import '../../../domain/repositories/employee_repository.dart';
 import 'employee_query.dart';
@@ -74,8 +75,8 @@ final class EmployeeApplicationService {
     required Employee employee,
     required String organizationId,
     required String branchId,
+    required Department department,
     required String teamId,
-    required dynamic department,
   }) {
     return save(
       employee.copyWith(
