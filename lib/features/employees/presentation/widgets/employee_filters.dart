@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../domain/entities/department.dart';
 import '../../../../l10n/l10n.dart';
-
-enum EmployeeStatusFilter { all, active, inactive }
-
-enum EmployeeSort { nameAscending, nameDescending, employeeCode }
+import '../../application/employee_directory_state.dart';
 
 class EmployeeFilters extends StatelessWidget {
   const EmployeeFilters({
