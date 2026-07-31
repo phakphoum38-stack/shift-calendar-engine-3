@@ -44,11 +44,11 @@ class Employment {
 
   @override
   int get hashCode => Object.hash(
-        type,
-        startDate,
-        endDate,
-        supervisorEmployeeId,
-        shiftGroupId,
-        defaultShiftTemplateId,
-      );
+    type,
+    startDate,
+    endDate,
+    supervisorEmployeeId,
+    shiftGroupId,
+    defaultShiftTemplateId,
+  );
 }
