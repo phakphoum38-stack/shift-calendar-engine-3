@@ -276,4 +276,10 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get reportGenerationError => 'ไม่สามารถสร้างรายงาน PDF ได้';
+
+  @override
+  String get active => 'เปิดใช้งาน';
+
+  @override
+  String get inactive => 'ปิดใช้งาน';
 }

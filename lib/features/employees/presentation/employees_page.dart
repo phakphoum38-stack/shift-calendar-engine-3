@@ -2,11 +2,16 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../../domain/entities/department.dart';
 import '../../../domain/entities/employee.dart';
 import '../../../domain/entities/schedule.dart';
 import '../../../l10n/l10n.dart';
 import '../application/employee_directory_controller.dart';
+import 'dialogs/employee_dialog.dart';
+import 'widgets/employee_card.dart';
+import 'widgets/employee_filters.dart';
+import 'widgets/employee_header.dart';
+import 'widgets/employee_summary.dart';
+import 'widgets/empty_employee_state.dart';
 
 /// Persistent canonical employee directory.
 class EmployeesPage extends StatefulWidget {
@@ -27,10 +32,6 @@ class _EmployeesPageState extends State<EmployeesPage> {
   late final EmployeeDirectoryController controller = widget.controllerFactory(
     widget.schedule,
   );
-
-  _EmployeeStatusFilter statusFilter = _EmployeeStatusFilter.all;
-  _EmployeeSort employeeSort = _EmployeeSort.nameAscending;
-  String? departmentId;
 
   @override
   void initState() {
@@ -54,170 +55,80 @@ class _EmployeesPageState extends State<EmployeesPage> {
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: controller,
     builder: (context, _) {
-      final employees = controller.employees;
-      final activeCount = employees.where((employee) => employee.active).length;
-      final inactiveCount = employees.length - activeCount;
-      final departments = _departmentsFrom(employees);
-      final visibleEmployees = _visibleEmployees(employees);
+      final state = controller.state;
+      final visibleEmployees = state.visibleEmployees;
 
-      if (departmentId != null &&
-          !departments.any((department) => department.id == departmentId)) {
-        departmentId = null;
-      }
-
-      return ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          _Header(
-            loading: controller.loading,
-            onAdd: _edit,
-          ),
-          const SizedBox(height: 16),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final width = constraints.maxWidth;
-              final columns = width >= 1000
-                  ? 4
-                  : width >= 640
-                  ? 2
-                  : 1;
-
-              return GridView.count(
-                crossAxisCount: columns,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: columns == 1 ? 4.2 : 2.5,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                children: [
-                  _SummaryCard(
-                    icon: Icons.groups_outlined,
-                    value: employees.length,
-                    label: context.l10n.employeeDirectory,
-                  ),
-                  _SummaryCard(
-                    icon: Icons.check_circle_outline,
-                    value: activeCount,
-                    label: context.l10n.active,
-                  ),
-                  _SummaryCard(
-                    icon: Icons.block_outlined,
-                    value: inactiveCount,
-                    label: context.l10n.inactive,
-                  ),
-                  _SummaryCard(
-                    icon: Icons.apartment_outlined,
-                    value: departments.length,
-                    label: context.l10n.departmentName,
-                  ),
-                ],
-              );
-            },
-          ),
-          const SizedBox(height: 16),
-          SearchBar(
-            onChanged: controller.search,
-            leading: const Icon(Icons.search),
-            hintText: context.l10n.search,
-          ),
-          const SizedBox(height: 12),
-          _DirectoryControls(
-            statusFilter: statusFilter,
-            employeeSort: employeeSort,
-            departmentId: departmentId,
-            departments: departments,
-            onStatusChanged: (value) => setState(() => statusFilter = value),
-            onSortChanged: (value) => setState(() => employeeSort = value),
-            onDepartmentChanged: (value) => setState(() => departmentId = value),
-          ),
-          if (controller.loading) ...[
-            const SizedBox(height: 12),
-            const LinearProgressIndicator(),
-          ],
-          if (controller.error case final error?) ...[
-            const SizedBox(height: 12),
-            Text(
-              error,
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
+      return RefreshIndicator(
+        onRefresh: controller.refresh,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(20),
+          children: [
+            EmployeeHeader(loading: state.loading, onAdd: _edit),
+            const SizedBox(height: 16),
+            EmployeeSummary(
+              total: state.employees.length,
+              active: state.activeCount,
+              inactive: state.employees.length - state.activeCount,
+              departments: state.departments.length,
             ),
-          ],
-          const SizedBox(height: 16),
-          if (visibleEmployees.isEmpty)
-            _EmptyState(
-              onAdd: controller.loading ? null : _edit,
-            )
-          else
-            Card(
-              clipBehavior: Clip.antiAlias,
-              child: Column(
-                children: [
-                  for (
-                    var index = 0;
-                    index < visibleEmployees.length;
-                    index++
-                  ) ...[
-                    _EmployeeTile(
-                      employee: visibleEmployees[index],
-                      onEdit: () => _edit(visibleEmployees[index]),
-                      onDeactivate: () => _deactivate(visibleEmployees[index]),
-                    ),
-                    if (index != visibleEmployees.length - 1)
-                      const Divider(height: 1),
-                  ],
-                ],
+            const SizedBox(height: 16),
+            EmployeeFilters(
+              statusFilter: state.statusFilter,
+              employeeSort: state.employeeSort,
+              departmentId: state.departmentId,
+              departments: state.departments,
+              onSearchChanged: controller.search,
+              onStatusChanged: controller.setStatusFilter,
+              onSortChanged: controller.setSort,
+              onDepartmentChanged: controller.setDepartment,
+            ),
+            if (state.loading) ...[
+              const SizedBox(height: 12),
+              const LinearProgressIndicator(),
+            ],
+            if (state.error case final error?) ...[
+              const SizedBox(height: 12),
+              Text(
+                error,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
-            ),
-        ],
+            ],
+            const SizedBox(height: 16),
+            if (visibleEmployees.isEmpty)
+              EmptyEmployeeState(onAdd: state.loading ? null : _edit)
+            else
+              Card(
+                clipBehavior: Clip.antiAlias,
+                child: Column(
+                  children: [
+                    for (
+                      var index = 0;
+                      index < visibleEmployees.length;
+                      index++
+                    ) ...[
+                      EmployeeCard(
+                        employee: visibleEmployees[index],
+                        onEdit: () => _edit(visibleEmployees[index]),
+                        onDeactivate: () =>
+                            _deactivate(visibleEmployees[index]),
+                      ),
+                      if (index != visibleEmployees.length - 1)
+                        const Divider(height: 1),
+                    ],
+                  ],
+                ),
+              ),
+          ],
+        ),
       );
     },
   );
 
-  List<Department> _departmentsFrom(List<Employee> employees) {
-    final departments = <String, Department>{};
-    for (final employee in employees) {
-      final department = employee.department;
-      if (department.id.isNotEmpty) departments[department.id] = department;
-    }
-    final result = departments.values.toList();
-    result.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
-    return result;
-  }
-
-  List<Employee> _visibleEmployees(List<Employee> employees) {
-    final result = employees.where((employee) {
-      final matchesStatus = switch (statusFilter) {
-        _EmployeeStatusFilter.all => true,
-        _EmployeeStatusFilter.active => employee.active,
-        _EmployeeStatusFilter.inactive => !employee.active,
-      };
-      final matchesDepartment =
-          departmentId == null || employee.department.id == departmentId;
-      return matchesStatus && matchesDepartment;
-    }).toList();
-
-    result.sort((a, b) {
-      switch (employeeSort) {
-        case _EmployeeSort.nameAscending:
-          return a.displayName.toLowerCase().compareTo(
-            b.displayName.toLowerCase(),
-          );
-        case _EmployeeSort.nameDescending:
-          return b.displayName.toLowerCase().compareTo(
-            a.displayName.toLowerCase(),
-          );
-        case _EmployeeSort.employeeCode:
-          return a.employeeCode.toLowerCase().compareTo(
-            b.employeeCode.toLowerCase(),
-          );
-      }
-    });
-    return result;
-  }
-
   Future<void> _edit([Employee? employee]) async {
     final value = await showDialog<Employee>(
       context: context,
-      builder: (context) => _EmployeeDialog(employee: employee),
+      builder: (context) => EmployeeDialog(employee: employee),
     );
     if (value != null) await controller.save(value);
   }
@@ -227,9 +138,7 @@ class _EmployeesPageState extends State<EmployeesPage> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(context.l10n.deactivate),
-        content: Text(
-          '${context.l10n.deactivate}: ${employee.displayName}?',
-        ),
+        content: Text('${context.l10n.deactivate}: ${employee.displayName}?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -243,442 +152,6 @@ class _EmployeesPageState extends State<EmployeesPage> {
       ),
     );
 
-    if (confirmed == true) {
-      await controller.deactivate(employee);
-    }
-  }
-}
-
-class _Header extends StatelessWidget {
-  const _Header({required this.loading, required this.onAdd});
-
-  final bool loading;
-  final VoidCallback onAdd;
-
-  @override
-  Widget build(BuildContext context) => LayoutBuilder(
-    builder: (context, constraints) {
-      final compact = constraints.maxWidth < 560;
-      final title = Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            context.l10n.employeeDirectory,
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          const SizedBox(height: 6),
-          Text(context.l10n.employeeDirectoryDescription),
-        ],
-      );
-      final button = FilledButton.icon(
-        onPressed: loading ? null : onAdd,
-        icon: const Icon(Icons.person_add_outlined),
-        label: Text(context.l10n.addEmployee),
-      );
-
-      if (compact) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            title,
-            const SizedBox(height: 12),
-            button,
-          ],
-        );
-      }
-
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(child: title),
-          const SizedBox(width: 16),
-          button,
-        ],
-      );
-    },
-  );
-}
-
-class _SummaryCard extends StatelessWidget {
-  const _SummaryCard({
-    required this.icon,
-    required this.value,
-    required this.label,
-  });
-
-  final IconData icon;
-  final int value;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) => Card(
-    child: Padding(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          CircleAvatar(child: Icon(icon)),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '$value',
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
-              ],
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
-class _DirectoryControls extends StatelessWidget {
-  const _DirectoryControls({
-    required this.statusFilter,
-    required this.employeeSort,
-    required this.departmentId,
-    required this.departments,
-    required this.onStatusChanged,
-    required this.onSortChanged,
-    required this.onDepartmentChanged,
-  });
-
-  final _EmployeeStatusFilter statusFilter;
-  final _EmployeeSort employeeSort;
-  final String? departmentId;
-  final List<Department> departments;
-  final ValueChanged<_EmployeeStatusFilter> onStatusChanged;
-  final ValueChanged<_EmployeeSort> onSortChanged;
-  final ValueChanged<String?> onDepartmentChanged;
-
-  @override
-  Widget build(BuildContext context) => LayoutBuilder(
-    builder: (context, constraints) {
-      final compact = constraints.maxWidth < 760;
-      final controls = [
-        DropdownMenu<_EmployeeStatusFilter>(
-          initialSelection: statusFilter,
-          leadingIcon: const Icon(Icons.person_search_outlined),
-          label: Text(context.l10n.active),
-          dropdownMenuEntries: [
-            DropdownMenuEntry(
-              value: _EmployeeStatusFilter.all,
-              label: context.l10n.employeeDirectory,
-            ),
-            DropdownMenuEntry(
-              value: _EmployeeStatusFilter.active,
-              label: context.l10n.active,
-            ),
-            DropdownMenuEntry(
-              value: _EmployeeStatusFilter.inactive,
-              label: context.l10n.inactive,
-            ),
-          ],
-          onSelected: (value) {
-            if (value != null) onStatusChanged(value);
-          },
-        ),
-        DropdownMenu<String?>(
-          initialSelection: departmentId,
-          leadingIcon: const Icon(Icons.apartment_outlined),
-          label: Text(context.l10n.departmentName),
-          dropdownMenuEntries: [
-            DropdownMenuEntry<String?>(
-              value: null,
-              label: context.l10n.departmentName,
-            ),
-            for (final department in departments)
-              DropdownMenuEntry<String?>(
-                value: department.id,
-                label: department.name.isEmpty
-                    ? department.code
-                    : department.name,
-              ),
-          ],
-          onSelected: onDepartmentChanged,
-        ),
-        DropdownMenu<_EmployeeSort>(
-          initialSelection: employeeSort,
-          leadingIcon: const Icon(Icons.sort_outlined),
-          label: Text(context.l10n.search),
-          dropdownMenuEntries: [
-            DropdownMenuEntry(
-              value: _EmployeeSort.nameAscending,
-              label: '${context.l10n.firstName} A–Z',
-            ),
-            DropdownMenuEntry(
-              value: _EmployeeSort.nameDescending,
-              label: '${context.l10n.firstName} Z–A',
-            ),
-            DropdownMenuEntry(
-              value: _EmployeeSort.employeeCode,
-              label: context.l10n.employeeCode,
-            ),
-          ],
-          onSelected: (value) {
-            if (value != null) onSortChanged(value);
-          },
-        ),
-      ];
-
-      if (compact) {
-        return Wrap(spacing: 12, runSpacing: 12, children: controls);
-      }
-
-      return Row(
-        children: [
-          for (var index = 0; index < controls.length; index++) ...[
-            Expanded(child: controls[index]),
-            if (index != controls.length - 1) const SizedBox(width: 12),
-          ],
-        ],
-      );
-    },
-  );
-}
-
-class _EmptyState extends StatelessWidget {
-  const _EmptyState({required this.onAdd});
-
-  final VoidCallback? onAdd;
-
-  @override
-  Widget build(BuildContext context) => Card(
-    child: Padding(
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        children: [
-          const Icon(Icons.groups_outlined, size: 52),
-          const SizedBox(height: 12),
-          Text(
-            context.l10n.noEmployees,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 16),
-          FilledButton.icon(
-            onPressed: onAdd,
-            icon: const Icon(Icons.person_add_outlined),
-            label: Text(context.l10n.addEmployee),
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
-class _EmployeeTile extends StatelessWidget {
-  const _EmployeeTile({
-    required this.employee,
-    required this.onEdit,
-    required this.onDeactivate,
-  });
-
-  final Employee employee;
-  final VoidCallback onEdit;
-  final VoidCallback onDeactivate;
-
-  @override
-  Widget build(BuildContext context) {
-    final displayName = employee.displayName.trim();
-    final avatarText = displayName.isEmpty ? '?' : displayName.characters.first;
-
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      leading: CircleAvatar(child: Text(avatarText)),
-      title: Row(
-        children: [
-          Expanded(
-            child: Text(
-              displayName.isEmpty ? employee.employeeCode : displayName,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Chip(
-            label: Text(
-              employee.active ? context.l10n.active : context.l10n.inactive,
-            ),
-            avatar: Icon(
-              employee.active
-                  ? Icons.check_circle_outline
-                  : Icons.block_outlined,
-              size: 18,
-            ),
-            visualDensity: VisualDensity.compact,
-          ),
-        ],
-      ),
-      subtitle: Text(
-        [
-          employee.employeeCode,
-          employee.position,
-          employee.department.name,
-        ].where((value) => value.isNotEmpty).join(' • '),
-      ),
-      trailing: PopupMenuButton<_EmployeeAction>(
-        onSelected: (action) {
-          switch (action) {
-            case _EmployeeAction.edit:
-              onEdit();
-            case _EmployeeAction.deactivate:
-              onDeactivate();
-          }
-        },
-        itemBuilder: (context) => [
-          PopupMenuItem(
-            value: _EmployeeAction.edit,
-            child: Text(context.l10n.editEmployee),
-          ),
-          if (employee.active)
-            PopupMenuItem(
-              value: _EmployeeAction.deactivate,
-              child: Text(context.l10n.deactivate),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-enum _EmployeeAction { edit, deactivate }
-
-enum _EmployeeStatusFilter { all, active, inactive }
-
-enum _EmployeeSort { nameAscending, nameDescending, employeeCode }
-
-class _EmployeeDialog extends StatefulWidget {
-  const _EmployeeDialog({this.employee});
-
-  final Employee? employee;
-
-  @override
-  State<_EmployeeDialog> createState() => _EmployeeDialogState();
-}
-
-class _EmployeeDialogState extends State<_EmployeeDialog> {
-  final formKey = GlobalKey<FormState>();
-  late final code = TextEditingController(
-    text: widget.employee?.employeeCode ?? '',
-  );
-  late final firstName = TextEditingController(
-    text: widget.employee?.firstName ?? '',
-  );
-  late final lastName = TextEditingController(
-    text: widget.employee?.lastName ?? '',
-  );
-  late final nickname = TextEditingController(
-    text: widget.employee?.nickname ?? '',
-  );
-  late final position = TextEditingController(
-    text: widget.employee?.position ?? '',
-  );
-  late final departmentCode = TextEditingController(
-    text: widget.employee?.department.code ?? '',
-  );
-  late final departmentName = TextEditingController(
-    text: widget.employee?.department.name ?? '',
-  );
-
-  @override
-  void dispose() {
-    code.dispose();
-    firstName.dispose();
-    lastName.dispose();
-    nickname.dispose();
-    position.dispose();
-    departmentCode.dispose();
-    departmentName.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => AlertDialog(
-    title: Text(
-      widget.employee == null
-          ? context.l10n.addEmployee
-          : context.l10n.editEmployee,
-    ),
-    content: SizedBox(
-      width: 540,
-      child: Form(
-        key: formKey,
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              _field(code, context.l10n.employeeCode, required: true),
-              _field(firstName, context.l10n.firstName, required: true),
-              _field(lastName, context.l10n.lastName),
-              _field(nickname, context.l10n.nickname),
-              _field(position, context.l10n.position),
-              _field(
-                departmentCode,
-                context.l10n.departmentCode,
-                required: true,
-              ),
-              _field(
-                departmentName,
-                context.l10n.departmentName,
-                required: true,
-              ),
-            ],
-          ),
-        ),
-      ),
-    ),
-    actions: [
-      TextButton(
-        onPressed: () => Navigator.pop(context),
-        child: Text(context.l10n.cancel),
-      ),
-      FilledButton(onPressed: _submit, child: Text(context.l10n.save)),
-    ],
-  );
-
-  Widget _field(
-    TextEditingController controller,
-    String label, {
-    bool required = false,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: TextFormField(
-        controller: controller,
-        decoration: InputDecoration(labelText: required ? '$label *' : label),
-        validator: required
-            ? (value) => value == null || value.trim().isEmpty
-                  ? context.l10n.requiredField
-                  : null
-            : null,
-      ),
-    );
-  }
-
-  void _submit() {
-    if (!formKey.currentState!.validate()) return;
-    final normalizedCode = code.text.trim();
-    final normalizedDepartment = departmentCode.text.trim();
-    Navigator.pop(
-      context,
-      Employee(
-        id:
-            widget.employee?.id ??
-            'employee:${DateTime.now().microsecondsSinceEpoch}',
-        employeeCode: normalizedCode,
-        firstName: firstName.text.trim(),
-        lastName: lastName.text.trim(),
-        nickname: nickname.text.trim(),
-        department: Department(
-          id: 'department:${normalizedDepartment.toLowerCase()}',
-          code: normalizedDepartment,
-          name: departmentName.text.trim(),
-        ),
-        position: position.text.trim(),
-        active: widget.employee?.active ?? true,
-      ),
-    );
+    if (confirmed == true) await controller.deactivate(employee);
   }
 }

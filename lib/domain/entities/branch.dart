@@ -31,13 +31,6 @@ class Branch {
           active == other.active;
 
   @override
-  int get hashCode => Object.hash(
-        id,
-        organizationId,
-        code,
-        name,
-        address,
-        timeZone,
-        active,
-      );
+  int get hashCode =>
+      Object.hash(id, organizationId, code, name, address, timeZone, active);
 }

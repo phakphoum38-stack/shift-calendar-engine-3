@@ -107,21 +107,21 @@ class Employee {
 
   @override
   int get hashCode => Object.hashAll([
-        id,
-        employeeCode,
-        firstName,
-        lastName,
-        nickname,
-        organizationId,
-        branchId,
-        department,
-        teamId,
-        position,
-        email,
-        phone,
-        employment,
-        calendarProfile,
-        sourceProfile,
-        active,
-      ]);
+    id,
+    employeeCode,
+    firstName,
+    lastName,
+    nickname,
+    organizationId,
+    branchId,
+    department,
+    teamId,
+    position,
+    email,
+    phone,
+    employment,
+    calendarProfile,
+    sourceProfile,
+    active,
+  ]);
 }
