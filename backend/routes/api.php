@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 use App\Http\Controllers\Api\V1\EmployeeController;
 use Illuminate\Support\Facades\Route;
