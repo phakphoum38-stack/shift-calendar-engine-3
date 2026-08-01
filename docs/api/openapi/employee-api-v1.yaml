@@ -1,0 +1,297 @@
+openapi: 3.1.0
+info:
+  title: Shift Calendar Engine Employee API
+  version: 1.0.0
+  description: Version 1 Employee CRUD API.
+servers:
+  - url: /api/v1
+paths:
+  /employees:
+    get:
+      summary: List employees
+      operationId: listEmployees
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        "200":
+          description: Paginated employee collection
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployeeCollection"
+    post:
+      summary: Create an employee
+      operationId: createEmployee
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateEmployeeRequest"
+      responses:
+        "201":
+          description: Employee created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployeeResponse"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+  /employees/{employee}:
+    parameters:
+      - $ref: "#/components/parameters/EmployeeId"
+    get:
+      summary: Show an employee
+      operationId: showEmployee
+      responses:
+        "200":
+          description: Employee found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployeeResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      summary: Replace employee properties
+      operationId: replaceEmployee
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateEmployeeRequest"
+      responses:
+        "200":
+          description: Employee updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployeeResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+    patch:
+      summary: Update employee properties
+      operationId: updateEmployee
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateEmployeeRequest"
+      responses:
+        "200":
+          description: Employee updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployeeResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+    delete:
+      summary: Soft delete an employee
+      operationId: deleteEmployee
+      responses:
+        "204":
+          description: Employee deleted
+        "404":
+          $ref: "#/components/responses/NotFound"
+components:
+  parameters:
+    EmployeeId:
+      name: employee
+      in: path
+      required: true
+      description: Employee UUID
+      schema:
+        type: string
+        format: uuid
+  responses:
+    NotFound:
+      description: Employee not found
+    ValidationError:
+      description: Validation failed
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ValidationError"
+  schemas:
+    Employee:
+      type: object
+      required:
+        - id
+        - employeeCode
+        - firstName
+        - lastName
+        - isActive
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        organizationId:
+          type: [string, "null"]
+          format: uuid
+        branchId:
+          type: [string, "null"]
+          format: uuid
+        departmentId:
+          type: [string, "null"]
+          format: uuid
+        teamId:
+          type: [string, "null"]
+          format: uuid
+        employeeCode:
+          type: string
+          maxLength: 50
+        firstName:
+          type: string
+          maxLength: 100
+        lastName:
+          type: string
+          maxLength: 100
+        nickname:
+          type: [string, "null"]
+          maxLength: 100
+        position:
+          type: [string, "null"]
+          maxLength: 150
+        email:
+          type: [string, "null"]
+          format: email
+          maxLength: 255
+        phone:
+          type: [string, "null"]
+          maxLength: 30
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    EmployeeResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/components/schemas/Employee"
+    EmployeeCollection:
+      type: object
+      required: [data, links, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Employee"
+        links:
+          type: object
+          additionalProperties: true
+        meta:
+          type: object
+          additionalProperties: true
+    CreateEmployeeRequest:
+      type: object
+      required:
+        - employee_code
+        - first_name
+        - last_name
+      properties:
+        organization_id:
+          type: [string, "null"]
+          format: uuid
+        branch_id:
+          type: [string, "null"]
+          format: uuid
+        department_id:
+          type: [string, "null"]
+          format: uuid
+        team_id:
+          type: [string, "null"]
+          format: uuid
+        employee_code:
+          type: string
+          maxLength: 50
+        first_name:
+          type: string
+          maxLength: 100
+        last_name:
+          type: string
+          maxLength: 100
+        nickname:
+          type: [string, "null"]
+          maxLength: 100
+        position:
+          type: [string, "null"]
+          maxLength: 150
+        email:
+          type: [string, "null"]
+          format: email
+          maxLength: 255
+        phone:
+          type: [string, "null"]
+          maxLength: 30
+        is_active:
+          type: boolean
+    UpdateEmployeeRequest:
+      type: object
+      properties:
+        organization_id:
+          type: [string, "null"]
+          format: uuid
+        branch_id:
+          type: [string, "null"]
+          format: uuid
+        department_id:
+          type: [string, "null"]
+          format: uuid
+        team_id:
+          type: [string, "null"]
+          format: uuid
+        employee_code:
+          type: string
+          maxLength: 50
+        first_name:
+          type: string
+          maxLength: 100
+        last_name:
+          type: string
+          maxLength: 100
+        nickname:
+          type: [string, "null"]
+          maxLength: 100
+        position:
+          type: [string, "null"]
+          maxLength: 150
+        email:
+          type: [string, "null"]
+          format: email
+          maxLength: 255
+        phone:
+          type: [string, "null"]
+          maxLength: 30
+        is_active:
+          type: boolean
+    ValidationError:
+      type: object
+      required: [message, errors]
+      properties:
+        message:
+          type: string
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
