@@ -35,7 +35,9 @@ final class SchedulerRequest {
     required Iterable<SchedulerShiftSlot> slots,
     this.timeWindows = const [],
   }) : employeeIds = List.unmodifiable(
-         employeeIds.map((value) => value.trim()).where((value) => value.isNotEmpty),
+         employeeIds
+             .map((value) => value.trim())
+             .where((value) => value.isNotEmpty),
        ),
        slots = List.unmodifiable(slots) {
     if (this.employeeIds.isEmpty) {

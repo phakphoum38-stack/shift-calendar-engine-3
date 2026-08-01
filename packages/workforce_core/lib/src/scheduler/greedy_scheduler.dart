@@ -24,7 +24,9 @@ final class GreedyScheduler implements SchedulerEngine {
     for (final slot in slots) {
       final candidates = List<String>.of(request.employeeIds)
         ..sort((a, b) {
-          final loadComparison = loadByEmployee[a]!.compareTo(loadByEmployee[b]!);
+          final loadComparison = loadByEmployee[a]!.compareTo(
+            loadByEmployee[b]!,
+          );
           return loadComparison != 0 ? loadComparison : a.compareTo(b);
         });
 
@@ -39,10 +41,10 @@ final class GreedyScheduler implements SchedulerEngine {
           departmentId: slot.departmentId,
           location: slot.location,
         );
-        final validation = evaluationEngine.constraintEngine.validate(
-          [...assignments, candidate],
-          timeWindows: request.timeWindows,
-        );
+        final validation = evaluationEngine.constraintEngine.validate([
+          ...assignments,
+          candidate,
+        ], timeWindows: request.timeWindows);
         if (validation.isValid) {
           selected = candidate;
           break;
@@ -55,7 +57,8 @@ final class GreedyScheduler implements SchedulerEngine {
       }
 
       assignments.add(selected);
-      loadByEmployee[selected.employeeId] = loadByEmployee[selected.employeeId]! + 1;
+      loadByEmployee[selected.employeeId] =
+          loadByEmployee[selected.employeeId]! + 1;
     }
 
     final evaluation = evaluationEngine.evaluate(
