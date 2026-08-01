@@ -3,9 +3,7 @@ import 'roster_validation.dart';
 import 'shift_assignment.dart';
 
 final class RosterConstraintEngine {
-  const RosterConstraintEngine({
-    this.policy = const RosterConstraintPolicy(),
-  });
+  const RosterConstraintEngine({this.policy = const RosterConstraintPolicy()});
 
   final RosterConstraintPolicy policy;
 
@@ -39,7 +37,8 @@ final class RosterConstraintEngine {
     final seen = <String, ShiftAssignment>{};
 
     for (final assignment in assignments) {
-      final key = '${assignment.startsAt.toIso8601String()}|'
+      final key =
+          '${assignment.startsAt.toIso8601String()}|'
           '${assignment.endsAt.toIso8601String()}|${assignment.shiftCode}';
       final existing = seen[key];
 
@@ -103,17 +102,18 @@ final class RosterConstraintEngine {
     List<ShiftAssignment> assignments,
     List<RosterViolation> violations,
   ) {
-    final days = assignments
-        .map(
-          (assignment) => DateTime.utc(
-            assignment.startsAt.year,
-            assignment.startsAt.month,
-            assignment.startsAt.day,
-          ),
-        )
-        .toSet()
-        .toList()
-      ..sort();
+    final days =
+        assignments
+            .map(
+              (assignment) => DateTime.utc(
+                assignment.startsAt.year,
+                assignment.startsAt.month,
+                assignment.startsAt.day,
+              ),
+            )
+            .toSet()
+            .toList()
+          ..sort();
 
     var consecutive = 1;
     for (var index = 1; index < days.length; index++) {

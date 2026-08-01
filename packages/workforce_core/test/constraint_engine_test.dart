@@ -58,27 +58,25 @@ void main() {
   });
 
   test('detects insufficient rest between assignments', () {
-    final result = const RosterConstraintEngine(
-      policy: RosterConstraintPolicy(minimumRest: Duration(hours: 10)),
-    ).validate([
-      assignment(
-        id: 'a1',
-        employeeId: 'e1',
-        startsAt: DateTime.utc(2026, 8, 1, 8),
-        endsAt: DateTime.utc(2026, 8, 1, 16),
-      ),
-      assignment(
-        id: 'a2',
-        employeeId: 'e1',
-        startsAt: DateTime.utc(2026, 8, 2, 0),
-        endsAt: DateTime.utc(2026, 8, 2, 8),
-      ),
-    ]);
+    final result =
+        const RosterConstraintEngine(
+          policy: RosterConstraintPolicy(minimumRest: Duration(hours: 10)),
+        ).validate([
+          assignment(
+            id: 'a1',
+            employeeId: 'e1',
+            startsAt: DateTime.utc(2026, 8, 1, 8),
+            endsAt: DateTime.utc(2026, 8, 1, 16),
+          ),
+          assignment(
+            id: 'a2',
+            employeeId: 'e1',
+            startsAt: DateTime.utc(2026, 8, 2, 0),
+            endsAt: DateTime.utc(2026, 8, 2, 8),
+          ),
+        ]);
 
-    expect(
-      result.errors.single.code,
-      RosterViolationCode.insufficientRest,
-    );
+    expect(result.errors.single.code, RosterViolationCode.insufficientRest);
   });
 
   test('warns when maximum consecutive days is exceeded', () {

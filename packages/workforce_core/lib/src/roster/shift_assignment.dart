@@ -13,18 +13,10 @@ final class ShiftAssignment {
       throw ArgumentError.value(id, 'id', 'must not be empty');
     }
     if (employeeId.trim().isEmpty) {
-      throw ArgumentError.value(
-        employeeId,
-        'employeeId',
-        'must not be empty',
-      );
+      throw ArgumentError.value(employeeId, 'employeeId', 'must not be empty');
     }
     if (shiftCode.trim().isEmpty) {
-      throw ArgumentError.value(
-        shiftCode,
-        'shiftCode',
-        'must not be empty',
-      );
+      throw ArgumentError.value(shiftCode, 'shiftCode', 'must not be empty');
     }
     if (!this.endsAt.isAfter(this.startsAt)) {
       throw ArgumentError('endsAt must be after startsAt');
