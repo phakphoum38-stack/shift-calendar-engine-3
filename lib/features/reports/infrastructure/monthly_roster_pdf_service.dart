@@ -5,6 +5,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../../../domain/entities/schedule.dart';
+import '../../../l10n/localized_date_format.dart';
 import '../application/monthly_roster_report_mapper.dart';
 import '../application/report_service.dart';
 import '../domain/monthly_roster_report.dart';
@@ -66,8 +67,16 @@ class MonthlyRosterPdfService implements MonthlyRosterReportService {
 
   pw.Widget _header(MonthlyRosterReport report, DateTime generatedAt) {
     final locale = report.options.language == ReportLanguage.thai ? 'th' : 'en';
-    final month = DateFormat.yMMMM(locale).format(report.month);
-    final generated = DateFormat.yMd(locale).add_Hm().format(generatedAt);
+    final month = formatLocalizedDate(
+      DateFormat.yMMMM(locale),
+      report.month,
+      locale: locale,
+    );
+    final generated = formatLocalizedDate(
+      DateFormat.yMd(locale).add_Hm(),
+      generatedAt,
+      locale: locale,
+    );
     return pw.Padding(
       padding: const pw.EdgeInsets.only(bottom: 8),
       child: pw.Column(

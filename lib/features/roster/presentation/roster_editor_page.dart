@@ -8,6 +8,7 @@ import '../../../domain/entities/schedule.dart';
 import '../../../domain/entities/shift_assignment.dart';
 import '../../../domain/entities/shift_template.dart';
 import '../../../l10n/l10n.dart';
+import '../../../l10n/localized_date_format.dart';
 import '../application/roster_editor_controller.dart';
 
 /// Explicit preview-and-save editor for canonical assignments.
@@ -97,9 +98,13 @@ class _RosterEditorPageState extends State<RosterEditorPage> {
                   child: ExpansionTile(
                     initiallyExpanded: true,
                     title: Text(
-                      DateFormat.yMMMMEEEEd(
-                        Localizations.localeOf(context).toLanguageTag(),
-                      ).format(day.date),
+                      formatLocalizedDate(
+                        DateFormat.yMMMMEEEEd(
+                          Localizations.localeOf(context).toLanguageTag(),
+                        ),
+                        day.date,
+                        locale: Localizations.localeOf(context).toLanguageTag(),
+                      ),
                     ),
                     children: [
                       for (final assignment in day.assignments)
@@ -147,9 +152,13 @@ class _RosterEditorPageState extends State<RosterEditorPage> {
           leading: CircleAvatar(child: Text(value.shift.code)),
           title: Text(value.employee.displayName),
           subtitle: Text(
-            DateFormat.yMMMMEEEEd(
-              Localizations.localeOf(context).toLanguageTag(),
-            ).format(value.date),
+            formatLocalizedDate(
+              DateFormat.yMMMMEEEEd(
+                Localizations.localeOf(context).toLanguageTag(),
+              ),
+              value.date,
+              locale: Localizations.localeOf(context).toLanguageTag(),
+            ),
           ),
         ),
         actions: [
@@ -266,9 +275,13 @@ class _AssignmentDialogState extends State<_AssignmentDialog> {
             onPressed: _pickDate,
             icon: const Icon(Icons.event_outlined),
             label: Text(
-              DateFormat.yMMMMEEEEd(
-                Localizations.localeOf(context).toLanguageTag(),
-              ).format(date),
+              formatLocalizedDate(
+                DateFormat.yMMMMEEEEd(
+                  Localizations.localeOf(context).toLanguageTag(),
+                ),
+                date,
+                locale: Localizations.localeOf(context).toLanguageTag(),
+              ),
             ),
           ),
           const SizedBox(height: 12),

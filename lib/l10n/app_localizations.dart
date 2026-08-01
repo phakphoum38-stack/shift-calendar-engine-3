@@ -739,6 +739,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Inactive'**
   String get inactive;
+
+  /// No description provided for @googleDrive.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Drive'**
+  String get googleDrive;
+
+  /// No description provided for @googleDriveDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the roster source to load from Google Drive.'**
+  String get googleDriveDescription;
+
+  /// No description provided for @openGoogleDrive.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Drive'**
+  String get openGoogleDrive;
+
+  /// No description provided for @recentlyModified.
+  ///
+  /// In en, this message translates to:
+  /// **'Recently Modified'**
+  String get recentlyModified;
+
+  /// No description provided for @lastImported.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Imported'**
+  String get lastImported;
+
+  /// No description provided for @loadCurrentSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Load Current Source'**
+  String get loadCurrentSource;
+
+  /// No description provided for @noDriveRosterFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'No roster files have been loaded from Google Drive.'**
+  String get noDriveRosterFiles;
+
+  /// No description provided for @noLastImportedSource.
+  ///
+  /// In en, this message translates to:
+  /// **'No source has been imported yet.'**
+  String get noLastImportedSource;
+
+  /// No description provided for @googleDriveNotConfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Drive is not configured. Add an OAuth-backed Drive gateway to connect an account.'**
+  String get googleDriveNotConfigured;
+
+  /// No description provided for @googleDriveLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load the Google Drive source.'**
+  String get googleDriveLoadFailed;
+
+  /// No description provided for @driveSourceLoaded.
+  ///
+  /// In en, this message translates to:
+  /// **'The current source was loaded.'**
+  String get driveSourceLoaded;
 }
 
 class _AppLocalizationsDelegate

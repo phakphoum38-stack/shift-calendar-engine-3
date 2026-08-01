@@ -106,5 +106,16 @@
   "sharePdf": "แชร์ PDF",
   "reportGenerationError": "ไม่สามารถสร้างรายงาน PDF ได้",
   "active": "เปิดใช้งาน",
-  "inactive": "ปิดใช้งาน"
+  "inactive": "ปิดใช้งาน",
+  "googleDrive": "Google Drive",
+  "googleDriveDescription": "เลือกไฟล์ต้นทางของตารางเวรจาก Google Drive",
+  "openGoogleDrive": "Google Drive",
+  "recentlyModified": "แก้ไขล่าสุด",
+  "lastImported": "นำเข้าล่าสุด",
+  "loadCurrentSource": "โหลดไฟล์ต้นทางปัจจุบัน",
+  "noDriveRosterFiles": "ยังไม่ได้โหลดไฟล์ตารางเวรจาก Google Drive",
+  "noLastImportedSource": "ยังไม่เคยนำเข้าไฟล์ต้นทาง",
+  "googleDriveNotConfigured": "ยังไม่ได้ตั้งค่า Google Drive โปรดเพิ่มการเชื่อมต่อ Drive แบบ OAuth ก่อนเชื่อมบัญชี",
+  "googleDriveLoadFailed": "ไม่สามารถโหลดไฟล์ต้นทางจาก Google Drive ได้",
+  "driveSourceLoaded": "โหลดไฟล์ต้นทางปัจจุบันแล้ว"
 }

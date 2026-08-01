@@ -6,6 +6,7 @@ import 'package:printing/printing.dart';
 
 import '../../../domain/entities/schedule.dart';
 import '../../../l10n/l10n.dart';
+import '../../../l10n/localized_date_format.dart';
 import '../application/report_controller.dart';
 import '../domain/monthly_roster_report.dart';
 
@@ -108,9 +109,15 @@ class _ReportsPageState extends State<ReportsPage> {
                     for (final month in months)
                       DropdownMenuEntry(
                         value: month,
-                        label: DateFormat.yMMMM(
-                          Localizations.localeOf(context).toLanguageTag(),
-                        ).format(month),
+                        label: formatLocalizedDate(
+                          DateFormat.yMMMM(
+                            Localizations.localeOf(context).toLanguageTag(),
+                          ),
+                          month,
+                          locale: Localizations.localeOf(
+                            context,
+                          ).toLanguageTag(),
+                        ),
                       ),
                   ],
                   onSelected: (month) {

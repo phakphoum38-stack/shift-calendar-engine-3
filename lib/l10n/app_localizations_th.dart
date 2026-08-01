@@ -334,4 +334,40 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get inactive => 'ปิดใช้งาน';
+
+  @override
+  String get googleDrive => 'Google Drive';
+
+  @override
+  String get googleDriveDescription =>
+      'เลือกไฟล์ต้นทางของตารางเวรจาก Google Drive';
+
+  @override
+  String get openGoogleDrive => 'Google Drive';
+
+  @override
+  String get recentlyModified => 'แก้ไขล่าสุด';
+
+  @override
+  String get lastImported => 'นำเข้าล่าสุด';
+
+  @override
+  String get loadCurrentSource => 'โหลดไฟล์ต้นทางปัจจุบัน';
+
+  @override
+  String get noDriveRosterFiles => 'ยังไม่ได้โหลดไฟล์ตารางเวรจาก Google Drive';
+
+  @override
+  String get noLastImportedSource => 'ยังไม่เคยนำเข้าไฟล์ต้นทาง';
+
+  @override
+  String get googleDriveNotConfigured =>
+      'ยังไม่ได้ตั้งค่า Google Drive โปรดเพิ่มการเชื่อมต่อ Drive แบบ OAuth ก่อนเชื่อมบัญชี';
+
+  @override
+  String get googleDriveLoadFailed =>
+      'ไม่สามารถโหลดไฟล์ต้นทางจาก Google Drive ได้';
+
+  @override
+  String get driveSourceLoaded => 'โหลดไฟล์ต้นทางปัจจุบันแล้ว';
 }
