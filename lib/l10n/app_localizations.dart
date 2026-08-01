@@ -140,6 +140,108 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get settings;
 
+  /// No description provided for @organizationManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Organization management'**
+  String get organizationManagement;
+
+  /// No description provided for @organizationManagementDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse organizations, branches, departments, and teams.'**
+  String get organizationManagementDescription;
+
+  /// No description provided for @organizationHierarchy.
+  ///
+  /// In en, this message translates to:
+  /// **'Organization hierarchy'**
+  String get organizationHierarchy;
+
+  /// No description provided for @organizations.
+  ///
+  /// In en, this message translates to:
+  /// **'Organizations'**
+  String get organizations;
+
+  /// No description provided for @branches.
+  ///
+  /// In en, this message translates to:
+  /// **'Branches'**
+  String get branches;
+
+  /// No description provided for @departments.
+  ///
+  /// In en, this message translates to:
+  /// **'Departments'**
+  String get departments;
+
+  /// No description provided for @teams.
+  ///
+  /// In en, this message translates to:
+  /// **'Teams'**
+  String get teams;
+
+  /// No description provided for @organization.
+  ///
+  /// In en, this message translates to:
+  /// **'Organization'**
+  String get organization;
+
+  /// No description provided for @branch.
+  ///
+  /// In en, this message translates to:
+  /// **'Branch'**
+  String get branch;
+
+  /// No description provided for @department.
+  ///
+  /// In en, this message translates to:
+  /// **'Department'**
+  String get department;
+
+  /// No description provided for @team.
+  ///
+  /// In en, this message translates to:
+  /// **'Team'**
+  String get team;
+
+  /// No description provided for @selectOrganization.
+  ///
+  /// In en, this message translates to:
+  /// **'Select an organization to view its hierarchy.'**
+  String get selectOrganization;
+
+  /// No description provided for @noOrganizations.
+  ///
+  /// In en, this message translates to:
+  /// **'No organizations yet'**
+  String get noOrganizations;
+
+  /// No description provided for @noBranches.
+  ///
+  /// In en, this message translates to:
+  /// **'No branches in this organization'**
+  String get noBranches;
+
+  /// No description provided for @noData.
+  ///
+  /// In en, this message translates to:
+  /// **'No data'**
+  String get noData;
+
+  /// No description provided for @details.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get details;
+
+  /// No description provided for @refresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get refresh;
+
   /// No description provided for @today.
   ///
   /// In en, this message translates to:
@@ -625,6 +727,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The PDF report could not be generated.'**
   String get reportGenerationError;
+
+  /// No description provided for @active.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get active;
+
+  /// No description provided for @inactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get inactive;
 }
 
 class _AppLocalizationsDelegate

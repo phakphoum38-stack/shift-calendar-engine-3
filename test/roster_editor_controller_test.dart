@@ -81,6 +81,10 @@ class _EmployeeRepository implements EmployeeRepository {
       Success(id == employee.id ? employee : null);
 
   @override
+  Future<Result<List<Employee>>> search(EmployeeQuery query) async =>
+      Success([employee]);
+
+  @override
   Future<Result<Employee>> save(Employee employee) async => Success(employee);
 }
 

@@ -54,11 +54,17 @@ class _EmployeeFormDialogState extends State<EmployeeFormDialog> {
     _position = TextEditingController(text: employee?.position ?? '');
     _email = TextEditingController(text: employee?.email ?? '');
     _phone = TextEditingController(text: employee?.phone ?? '');
-    _organizationId = TextEditingController(text: employee?.organizationId ?? '');
+    _organizationId = TextEditingController(
+      text: employee?.organizationId ?? '',
+    );
     _branchId = TextEditingController(text: employee?.branchId ?? '');
     _departmentId = TextEditingController(text: employee?.department.id ?? '');
-    _departmentCode = TextEditingController(text: employee?.department.code ?? '');
-    _departmentName = TextEditingController(text: employee?.department.name ?? '');
+    _departmentCode = TextEditingController(
+      text: employee?.department.code ?? '',
+    );
+    _departmentName = TextEditingController(
+      text: employee?.department.name ?? '',
+    );
     _teamId = TextEditingController(text: employee?.teamId ?? '');
     _active = employee?.active ?? true;
   }
@@ -149,34 +155,99 @@ class _EmployeeFormDialogState extends State<EmployeeFormDialog> {
               children: [
                 _sectionTitle('Identity'),
                 _responsiveFields([
-                  _field(controller: _employeeCode, label: 'Employee code', field: 'employeeCode', requiredField: true),
-                  _field(controller: _firstName, label: 'First name', field: 'firstName', requiredField: true),
-                  _field(controller: _lastName, label: 'Last name', field: 'lastName', requiredField: true),
-                  _field(controller: _nickname, label: 'Nickname', field: 'nickname'),
+                  _field(
+                    controller: _employeeCode,
+                    label: 'Employee code',
+                    field: 'employeeCode',
+                    requiredField: true,
+                  ),
+                  _field(
+                    controller: _firstName,
+                    label: 'First name',
+                    field: 'firstName',
+                    requiredField: true,
+                  ),
+                  _field(
+                    controller: _lastName,
+                    label: 'Last name',
+                    field: 'lastName',
+                    requiredField: true,
+                  ),
+                  _field(
+                    controller: _nickname,
+                    label: 'Nickname',
+                    field: 'nickname',
+                  ),
                 ]),
                 const SizedBox(height: 16),
                 _sectionTitle('Organization'),
                 _responsiveFields([
-                  _field(controller: _organizationId, label: 'Organization ID', field: 'organizationId', requiredField: true),
-                  _field(controller: _branchId, label: 'Branch ID', field: 'branchId', requiredField: true),
-                  _field(controller: _departmentId, label: 'Department ID', field: 'departmentId', requiredField: true),
-                  _field(controller: _departmentCode, label: 'Department code', field: 'departmentCode', requiredField: true),
-                  _field(controller: _departmentName, label: 'Department name', field: 'departmentName', requiredField: true),
-                  _field(controller: _teamId, label: 'Team ID', field: 'teamId'),
+                  _field(
+                    controller: _organizationId,
+                    label: 'Organization ID',
+                    field: 'organizationId',
+                    requiredField: true,
+                  ),
+                  _field(
+                    controller: _branchId,
+                    label: 'Branch ID',
+                    field: 'branchId',
+                    requiredField: true,
+                  ),
+                  _field(
+                    controller: _departmentId,
+                    label: 'Department ID',
+                    field: 'departmentId',
+                    requiredField: true,
+                  ),
+                  _field(
+                    controller: _departmentCode,
+                    label: 'Department code',
+                    field: 'departmentCode',
+                    requiredField: true,
+                  ),
+                  _field(
+                    controller: _departmentName,
+                    label: 'Department name',
+                    field: 'departmentName',
+                    requiredField: true,
+                  ),
+                  _field(
+                    controller: _teamId,
+                    label: 'Team ID',
+                    field: 'teamId',
+                  ),
                 ]),
                 const SizedBox(height: 16),
                 _sectionTitle('Work and contact'),
                 _responsiveFields([
-                  _field(controller: _position, label: 'Position', field: 'position', requiredField: true),
-                  _field(controller: _email, label: 'Email', field: 'email', keyboardType: TextInputType.emailAddress),
-                  _field(controller: _phone, label: 'Phone', field: 'phone', keyboardType: TextInputType.phone),
+                  _field(
+                    controller: _position,
+                    label: 'Position',
+                    field: 'position',
+                    requiredField: true,
+                  ),
+                  _field(
+                    controller: _email,
+                    label: 'Email',
+                    field: 'email',
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                  _field(
+                    controller: _phone,
+                    label: 'Phone',
+                    field: 'phone',
+                    keyboardType: TextInputType.phone,
+                  ),
                 ]),
                 const SizedBox(height: 8),
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
                   title: const Text('Active employee'),
                   value: _active,
-                  onChanged: busy ? null : (value) => setState(() => _active = value),
+                  onChanged: busy
+                      ? null
+                      : (value) => setState(() => _active = value),
                 ),
               ],
             ),
@@ -218,7 +289,9 @@ class _EmployeeFormDialogState extends State<EmployeeFormDialog> {
         return Wrap(
           spacing: 12,
           runSpacing: 12,
-          children: children.map((child) => SizedBox(width: width, child: child)).toList(),
+          children: children
+              .map((child) => SizedBox(width: width, child: child))
+              .toList(),
         );
       },
     );
@@ -250,12 +323,12 @@ class _EmployeeFormDialogState extends State<EmployeeFormDialog> {
 /// Supplies const defaults without introducing demo or personal employee data.
 class EmployeePlaceholderData extends Employee {
   const EmployeePlaceholderData()
-      : super(
-          id: '',
-          employeeCode: '',
-          firstName: '',
-          lastName: '',
-          department: const Department(id: '', code: '', name: ''),
-          position: '',
-        );
+    : super(
+        id: '',
+        employeeCode: '',
+        firstName: '',
+        lastName: '',
+        department: const Department(id: '', code: '', name: ''),
+        position: '',
+      );
 }

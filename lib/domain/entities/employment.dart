@@ -1,11 +1,4 @@
-enum EmploymentType {
-  fullTime,
-  partTime,
-  temporary,
-  contract,
-  intern,
-  other,
-}
+enum EmploymentType { fullTime, partTime, temporary, contract, intern, other }
 
 /// Employment details kept separate from personal identity.
 class Employment {

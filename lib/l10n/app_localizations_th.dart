@@ -30,6 +30,58 @@ class AppLocalizationsTh extends AppLocalizations {
   String get settings => 'ตั้งค่า';
 
   @override
+  String get organizationManagement => 'จัดการโครงสร้างองค์กร';
+
+  @override
+  String get organizationManagementDescription =>
+      'ดูองค์กร สาขา แผนก และทีมในที่เดียว';
+
+  @override
+  String get organizationHierarchy => 'ลำดับโครงสร้างองค์กร';
+
+  @override
+  String get organizations => 'องค์กร';
+
+  @override
+  String get branches => 'สาขา';
+
+  @override
+  String get departments => 'แผนก';
+
+  @override
+  String get teams => 'ทีม';
+
+  @override
+  String get organization => 'องค์กร';
+
+  @override
+  String get branch => 'สาขา';
+
+  @override
+  String get department => 'แผนก';
+
+  @override
+  String get team => 'ทีม';
+
+  @override
+  String get selectOrganization => 'เลือกองค์กรเพื่อดูโครงสร้างภายใน';
+
+  @override
+  String get noOrganizations => 'ยังไม่มีองค์กร';
+
+  @override
+  String get noBranches => 'องค์กรนี้ยังไม่มีสาขา';
+
+  @override
+  String get noData => 'ยังไม่มีข้อมูล';
+
+  @override
+  String get details => 'รายละเอียด';
+
+  @override
+  String get refresh => 'รีเฟรช';
+
+  @override
   String get today => 'วันนี้';
 
   @override
@@ -276,4 +328,10 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get reportGenerationError => 'ไม่สามารถสร้างรายงาน PDF ได้';
+
+  @override
+  String get active => 'เปิดใช้งาน';
+
+  @override
+  String get inactive => 'ปิดใช้งาน';
 }

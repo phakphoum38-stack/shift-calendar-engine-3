@@ -1,7 +1,8 @@
 import '../../../core/result/result.dart';
 import '../../../domain/entities/department.dart';
 import '../../../domain/entities/employee.dart';
-import '../../../domain/repositories/employee_repository.dart';
+import '../../../domain/repositories/employee_repository.dart'
+    hide EmployeeQuery;
 import 'employee_query.dart';
 import 'employee_write_validator.dart';
 
@@ -15,9 +16,7 @@ final class EmployeeApplicationService {
   final EmployeeRepository repository;
   final EmployeeWriteValidator validator;
 
-  Future<Result<EmployeePage<Employee>>> search(
-    EmployeeQuery query,
-  ) async {
+  Future<Result<EmployeePage<Employee>>> search(EmployeeQuery query) async {
     final result = await repository.findAll(activeOnly: query.activeOnly);
     if (result is Failure<List<Employee>>) {
       return PersistenceFailure<EmployeePage<Employee>>(
@@ -28,20 +27,17 @@ final class EmployeeApplicationService {
     }
 
     final normalizedSearch = query.searchText.trim().toLowerCase();
-    final filtered = (result as Success<List<Employee>>)
-        .value
-        .where((employee) => _matchesHierarchy(employee, query))
-        .where((employee) => _matchesSearch(employee, normalizedSearch))
-        .toList(growable: false)
-      ..sort(_compareEmployees);
+    final filtered =
+        (result as Success<List<Employee>>).value
+            .where((employee) => _matchesHierarchy(employee, query))
+            .where((employee) => _matchesSearch(employee, normalizedSearch))
+            .toList(growable: false)
+          ..sort(_compareEmployees);
 
     final start = (query.page - 1) * query.pageSize;
     final items = start >= filtered.length
         ? const <Employee>[]
-        : filtered
-            .skip(start)
-            .take(query.pageSize)
-            .toList(growable: false);
+        : filtered.skip(start).take(query.pageSize).toList(growable: false);
 
     return Success<EmployeePage<Employee>>(
       EmployeePage<Employee>(

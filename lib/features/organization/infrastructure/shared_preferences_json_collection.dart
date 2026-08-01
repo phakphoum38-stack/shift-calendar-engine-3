@@ -5,11 +5,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// Versioned JSON collection stored atomically under one preferences key.
 final class SharedPreferencesJsonCollection {
   SharedPreferencesJsonCollection({
-    required SharedPreferences preferences,
-    required String key,
+    required this._preferences,
+    required this._key,
     this.schemaVersion = 1,
-  })  : _preferences = preferences,
-        _key = key;
+  });
 
   final SharedPreferences _preferences;
   final String _key;

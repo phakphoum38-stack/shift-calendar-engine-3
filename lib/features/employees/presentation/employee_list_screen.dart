@@ -68,7 +68,7 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
               onSearch: widget.controller.search,
               onRefresh: widget.controller.load,
               onActiveOnlyChanged: widget.controller.setActiveOnly,
-              onClearFilters: widget.controller.clearHierarchy,
+              onClearFilters: widget.controller.clearHierarchyFilters,
               onAddEmployee: widget.onAddEmployee,
             ),
             if (state.loading) const LinearProgressIndicator(),
@@ -110,7 +110,7 @@ class _EmployeeListScreenState extends State<EmployeeListScreen> {
       child: ListView.separated(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
         itemCount: state.items.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 8),
+        separatorBuilder: (_, _) => const SizedBox(height: 8),
         itemBuilder: (context, index) {
           final employee = state.items[index];
           return _EmployeeCard(
@@ -204,11 +204,7 @@ class _EmployeeToolbar extends StatelessWidget {
 }
 
 class _EmployeeCard extends StatelessWidget {
-  const _EmployeeCard({
-    required this.employee,
-    this.onEdit,
-    this.onDelete,
-  });
+  const _EmployeeCard({required this.employee, this.onEdit, this.onDelete});
 
   final Employee employee;
   final VoidCallback? onEdit;
@@ -231,8 +227,10 @@ class _EmployeeCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 4),
-            Text('${employee.employeeCode} • ${employee.position}'),
-            Text('${employee.department.name} • ${employee.active ? 'Active' : 'Inactive'}'),
+            Text('${employee.employeeCode} โ€ข ${employee.position}'),
+            Text(
+              '${employee.department.name} โ€ข ${employee.active ? 'Active' : 'Inactive'}',
+            ),
           ],
         ),
         isThreeLine: true,
@@ -292,14 +290,19 @@ class _EmployeePagination extends StatelessWidget {
             DropdownButton<int>(
               value: state.query.pageSize,
               items: const [10, 20, 50, 100]
-                  .map((value) => DropdownMenuItem(value: value, child: Text('$value')))
+                  .map(
+                    (value) =>
+                        DropdownMenuItem(value: value, child: Text('$value')),
+                  )
                   .toList(),
               onChanged: (value) {
                 if (value != null) onPageSizeChanged(value);
               },
             ),
             const SizedBox(width: 16),
-            Text('Page ${state.query.page} of ${state.totalPages == 0 ? 1 : state.totalPages}'),
+            Text(
+              'Page ${state.query.page} of ${state.totalPages == 0 ? 1 : state.totalPages}',
+            ),
             IconButton(
               tooltip: 'Previous page',
               onPressed: state.hasPreviousPage ? onPrevious : null,

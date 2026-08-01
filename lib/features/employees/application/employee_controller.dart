@@ -58,16 +58,12 @@ class EmployeeController extends ChangeNotifier {
     if (_state.query.searchText == normalized && _state.query.page == 1) {
       return Future<void>.value();
     }
-    return _applyQuery(
-      _state.query.copyWith(searchText: normalized, page: 1),
-    );
+    return _applyQuery(_state.query.copyWith(searchText: normalized, page: 1));
   }
 
   Future<void> setActiveOnly(bool value) {
     if (_state.query.activeOnly == value) return Future<void>.value();
-    return _applyQuery(
-      _state.query.copyWith(activeOnly: value, page: 1),
-    );
+    return _applyQuery(_state.query.copyWith(activeOnly: value, page: 1));
   }
 
   Future<void> setOrganization(String? organizationId) {
@@ -95,11 +91,7 @@ class EmployeeController extends ChangeNotifier {
 
   Future<void> setDepartment(String? departmentId) {
     return _applyQuery(
-      _state.query.copyWith(
-        departmentId: departmentId,
-        teamId: null,
-        page: 1,
-      ),
+      _state.query.copyWith(departmentId: departmentId, teamId: null, page: 1),
     );
   }
 
@@ -115,9 +107,7 @@ class EmployeeController extends ChangeNotifier {
     if (pageSize <= 0 || _state.query.pageSize == pageSize) {
       return Future<void>.value();
     }
-    return _applyQuery(
-      _state.query.copyWith(pageSize: pageSize, page: 1),
-    );
+    return _applyQuery(_state.query.copyWith(pageSize: pageSize, page: 1));
   }
 
   Future<void> goToPage(int page) {

@@ -6,6 +6,8 @@ import '../features/dashboard/application/dashboard_summary_service.dart';
 import '../features/dashboard/presentation/dashboard_page.dart';
 import '../features/employees/presentation/employees_page.dart';
 import '../features/exchange/presentation/exchange_page.dart';
+import '../features/organization/application/organization_management_controller.dart';
+import '../features/organization/presentation/organization_management_page.dart';
 import '../features/reports/presentation/reports_page.dart';
 import '../features/reports/application/report_controller.dart';
 import '../features/reports/domain/monthly_roster_report.dart';
@@ -20,7 +22,7 @@ import '../l10n/l10n.dart';
 import '../domain/entities/schedule.dart';
 import 'app_controller.dart';
 
-/// Adaptive six-destination application shell.
+/// Adaptive application shell.
 class AppShell extends StatefulWidget {
   const AppShell({
     required this.controller,
@@ -28,6 +30,7 @@ class AppShell extends StatefulWidget {
     required this.rosterControllerFactory,
     required this.rosterEditorControllerFactory,
     required this.employeeDirectoryControllerFactory,
+    required this.organizationManagementControllerFactory,
     required this.shiftTemplateControllerFactory,
     required this.reportControllerFactory,
     super.key,
@@ -40,6 +43,8 @@ class AppShell extends StatefulWidget {
   rosterEditorControllerFactory;
   final EmployeeDirectoryController Function(Schedule schedule)
   employeeDirectoryControllerFactory;
+  final OrganizationManagementController Function()
+  organizationManagementControllerFactory;
   final ShiftTemplateController Function() shiftTemplateControllerFactory;
   final ReportController Function(
     Schedule schedule,
@@ -70,6 +75,10 @@ class _AppShellState extends State<AppShell> {
         label: context.l10n.employees,
       ),
       NavigationDestination(
+        icon: const Icon(Icons.account_tree_outlined),
+        label: context.l10n.organizationManagement,
+      ),
+      NavigationDestination(
         icon: const Icon(Icons.swap_horiz_outlined),
         label: context.l10n.exchange,
       ),
@@ -97,6 +106,9 @@ class _AppShellState extends State<AppShell> {
       EmployeesPage(
         schedule: widget.controller.schedule,
         controllerFactory: widget.employeeDirectoryControllerFactory,
+      ),
+      OrganizationManagementPage(
+        controllerFactory: widget.organizationManagementControllerFactory,
       ),
       const ExchangePage(),
       ReportsPage(

@@ -1,0 +1,23 @@
+repos:
+  - repo: local
+    hooks:
+      - id: dart-format
+        name: Dart format
+        entry: dart format --output=none --set-exit-if-changed .
+        language: system
+        pass_filenames: false
+        types_or: [dart]
+
+      - id: flutter-analyze
+        name: Flutter analyze
+        entry: flutter analyze
+        language: system
+        pass_filenames: false
+        types_or: [dart]
+
+      - id: flutter-test
+        name: Flutter test
+        entry: flutter test
+        language: system
+        pass_filenames: false
+        stages: [pre-push]

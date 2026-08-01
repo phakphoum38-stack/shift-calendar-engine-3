@@ -114,19 +114,11 @@ final class EmployeeJsonCodec {
       branchId: _string(value['branchId']),
       department: Department(
         id: _requiredString(departmentValue['id'], '$path.department.id'),
-        code: _requiredString(
-          departmentValue['code'],
-          '$path.department.code',
-        ),
-        name: _requiredString(
-          departmentValue['name'],
-          '$path.department.name',
-        ),
+        code: _requiredString(departmentValue['code'], '$path.department.code'),
+        name: _requiredString(departmentValue['name'], '$path.department.name'),
         organizationId: _string(departmentValue['organizationId']),
         branchId: _string(departmentValue['branchId']),
-        parentDepartmentId: _string(
-          departmentValue['parentDepartmentId'],
-        ),
+        parentDepartmentId: _string(departmentValue['parentDepartmentId']),
         active: _boolean(departmentValue['active'], fallback: true),
       ),
       teamId: _string(value['teamId']),
@@ -137,9 +129,7 @@ final class EmployeeJsonCodec {
         type: _employmentType(employmentValue['type']),
         startDate: _date(employmentValue['startDate']),
         endDate: _date(employmentValue['endDate']),
-        supervisorEmployeeId: _string(
-          employmentValue['supervisorEmployeeId'],
-        ),
+        supervisorEmployeeId: _string(employmentValue['supervisorEmployeeId']),
         shiftGroupId: _string(employmentValue['shiftGroupId']),
         defaultShiftTemplateId: _string(
           employmentValue['defaultShiftTemplateId'],

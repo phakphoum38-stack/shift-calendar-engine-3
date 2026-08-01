@@ -53,26 +53,25 @@ final class OrganizationStorageMigrator {
       return;
     }
 
-    final records = decoded.whereType<Map>().map((item) {
-      final value = Map<String, dynamic>.from(item);
-      return <String, dynamic>{
-        'id': value['id']?.toString() ?? '',
-        'code': value['code']?.toString() ?? '',
-        'name': value['name']?.toString() ?? '',
-        'organizationId': value['organizationId']?.toString() ?? '',
-        'branchId': value['branchId']?.toString() ?? '',
-        'parentDepartmentId':
-            value['parentDepartmentId']?.toString() ?? '',
-        'active': value['active'] is bool ? value['active'] : true,
-      };
-    }).toList(growable: false);
+    final records = decoded
+        .whereType<Map>()
+        .map((item) {
+          final value = Map<String, dynamic>.from(item);
+          return <String, dynamic>{
+            'id': value['id']?.toString() ?? '',
+            'code': value['code']?.toString() ?? '',
+            'name': value['name']?.toString() ?? '',
+            'organizationId': value['organizationId']?.toString() ?? '',
+            'branchId': value['branchId']?.toString() ?? '',
+            'parentDepartmentId': value['parentDepartmentId']?.toString() ?? '',
+            'active': value['active'] is bool ? value['active'] : true,
+          };
+        })
+        .toList(growable: false);
 
     await preferences.setString(
       enterpriseDepartmentKey,
-      jsonEncode(<String, dynamic>{
-        'version': 1,
-        'items': records,
-      }),
+      jsonEncode(<String, dynamic>{'version': 1, 'items': records}),
     );
   }
 }

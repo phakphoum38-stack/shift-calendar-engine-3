@@ -46,8 +46,7 @@ final class OrganizationRepositoryBundle {
     );
 
     return OrganizationRepositoryBundle(
-      organizations:
-          SharedPreferencesOrganizationRepository(organizationStore),
+      organizations: SharedPreferencesOrganizationRepository(organizationStore),
       branches: SharedPreferencesBranchRepository(branchStore),
       departments: SharedPreferencesDepartmentRepository(departmentStore),
       teams: SharedPreferencesTeamRepository(
