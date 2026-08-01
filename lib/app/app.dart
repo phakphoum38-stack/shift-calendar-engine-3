@@ -98,6 +98,7 @@ class _ShiftCalendarEngineAppState extends State<ShiftCalendarEngineApp> {
 
     return AppShell(
       controller: controller,
+      authController: authController,
       dashboardSummaryService: widget.dependencies.dashboardSummaryService,
       rosterControllerFactory: widget.dependencies.createRosterController,
       rosterEditorControllerFactory:
@@ -127,7 +128,9 @@ class _StartupScreen extends StatelessWidget {
           children: [
             CircularProgressIndicator(),
             SizedBox(height: 20),
-            Text('กำลังตรวจสอบการเข้าสู่ระบบ...'),
+            Text(
+              'เธเธณเธฅเธฑเธเธ•เธฃเธงเธเธชเธญเธเธเธฒเธฃเน€เธเนเธฒเธชเธนเนเธฃเธฐเธเธ...',
+            ),
           ],
         ),
       ),
