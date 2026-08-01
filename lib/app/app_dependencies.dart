@@ -22,6 +22,7 @@ import '../features/dashboard/application/dashboard_summary_service.dart';
 import '../features/employees/application/employee_application_service.dart';
 import '../features/employees/application/employee_controller.dart';
 import '../features/employees/application/employee_directory_controller.dart';
+import '../features/employees/infrastructure/api_employee_repository.dart';
 import '../features/employees/infrastructure/shared_preferences_employee_repository.dart';
 import '../features/foundation/infrastructure/memory_schedule_repository.dart';
 import '../features/foundation/infrastructure/memory_settings_repository.dart';
@@ -106,9 +107,18 @@ class AppDependencies {
   }
 
   factory AppDependencies.production() {
+    final tokenStore = SecureTokenStore();
+    final apiClient = ApiClient(
+      configuration: ApiConfiguration.fromEnvironment(),
+      tokenStore: tokenStore,
+    );
+
     return AppDependencies(
       scheduleRepository: SharedPreferencesScheduleRepository(),
       settingsRepository: SharedPreferencesSettingsRepository(),
+      employeeRepository: ApiEmployeeRepository(apiClient: apiClient),
+      tokenStore: tokenStore,
+      apiClient: apiClient,
     );
   }
 
