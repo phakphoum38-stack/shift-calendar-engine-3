@@ -12,3 +12,6 @@ export 'src/roster/employee_availability.dart';
 export 'src/roster/roster_constraint.dart';
 export 'src/roster/roster_validation.dart';
 export 'src/roster/constraint_engine.dart';
+export 'src/roster/fairness_policy.dart';
+export 'src/roster/fairness_report.dart';
+export 'src/roster/fairness_engine.dart';
