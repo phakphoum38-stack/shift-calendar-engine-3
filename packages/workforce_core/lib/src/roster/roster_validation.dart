@@ -5,6 +5,8 @@ enum RosterViolationCode {
   overlappingAssignment,
   insufficientRest,
   maximumConsecutiveDays,
+  leaveConflict,
+  outsideAvailability,
 }
 
 final class RosterViolation {
@@ -14,6 +16,7 @@ final class RosterViolation {
     required this.message,
     this.employeeId,
     this.assignmentIds = const [],
+    this.relatedWindowIds = const [],
   });
 
   final RosterViolationCode code;
@@ -21,6 +24,7 @@ final class RosterViolation {
   final String message;
   final String? employeeId;
   final List<String> assignmentIds;
+  final List<String> relatedWindowIds;
 }
 
 final class RosterValidationResult {
