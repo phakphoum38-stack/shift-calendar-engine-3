@@ -15,3 +15,5 @@ export 'src/roster/constraint_engine.dart';
 export 'src/roster/fairness_policy.dart';
 export 'src/roster/fairness_report.dart';
 export 'src/roster/fairness_engine.dart';
+export 'src/roster/evaluation_report.dart';
+export 'src/roster/evaluation_engine.dart';
