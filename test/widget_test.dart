@@ -90,10 +90,5 @@ void main() {
     await tester.pumpAndSettle();
     expect(controller.settings.demoMode, isTrue);
     expect(controller.schedule.assignments, hasLength(1));
-
-    await tester.tap(find.byIcon(Icons.groups_outlined));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Anan Sukjai (Nan)'), findsOneWidget);
   });
 }

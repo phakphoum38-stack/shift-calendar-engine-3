@@ -1,4 +1,7 @@
+import 'calendar_profile.dart';
 import 'department.dart';
+import 'employment.dart';
+import 'source_profile.dart';
 
 /// Person who may receive canonical shift assignments.
 class Employee {
@@ -10,6 +13,14 @@ class Employee {
     required this.department,
     required this.position,
     this.nickname = '',
+    this.organizationId = '',
+    this.branchId = '',
+    this.teamId = '',
+    this.email = '',
+    this.phone = '',
+    this.employment = const Employment(),
+    this.calendarProfile = const CalendarProfile(),
+    this.sourceProfile = const SourceProfile(),
     this.active = true,
   });
 
@@ -18,8 +29,16 @@ class Employee {
   final String firstName;
   final String lastName;
   final String nickname;
+  final String organizationId;
+  final String branchId;
   final Department department;
+  final String teamId;
   final String position;
+  final String email;
+  final String phone;
+  final Employment employment;
+  final CalendarProfile calendarProfile;
+  final SourceProfile sourceProfile;
   final bool active;
 
   String get fullName => '$firstName $lastName'.trim();
@@ -33,8 +52,16 @@ class Employee {
     String? firstName,
     String? lastName,
     String? nickname,
+    String? organizationId,
+    String? branchId,
     Department? department,
+    String? teamId,
     String? position,
+    String? email,
+    String? phone,
+    Employment? employment,
+    CalendarProfile? calendarProfile,
+    SourceProfile? sourceProfile,
     bool? active,
   }) {
     return Employee(
@@ -43,8 +70,16 @@ class Employee {
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
       nickname: nickname ?? this.nickname,
+      organizationId: organizationId ?? this.organizationId,
+      branchId: branchId ?? this.branchId,
       department: department ?? this.department,
+      teamId: teamId ?? this.teamId,
       position: position ?? this.position,
+      email: email ?? this.email,
+      phone: phone ?? this.phone,
+      employment: employment ?? this.employment,
+      calendarProfile: calendarProfile ?? this.calendarProfile,
+      sourceProfile: sourceProfile ?? this.sourceProfile,
       active: active ?? this.active,
     );
   }
@@ -58,19 +93,35 @@ class Employee {
           firstName == other.firstName &&
           lastName == other.lastName &&
           nickname == other.nickname &&
+          organizationId == other.organizationId &&
+          branchId == other.branchId &&
           department == other.department &&
+          teamId == other.teamId &&
           position == other.position &&
+          email == other.email &&
+          phone == other.phone &&
+          employment == other.employment &&
+          calendarProfile == other.calendarProfile &&
+          sourceProfile == other.sourceProfile &&
           active == other.active;
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     id,
     employeeCode,
     firstName,
     lastName,
     nickname,
+    organizationId,
+    branchId,
     department,
+    teamId,
     position,
+    email,
+    phone,
+    employment,
+    calendarProfile,
+    sourceProfile,
     active,
-  );
+  ]);
 }

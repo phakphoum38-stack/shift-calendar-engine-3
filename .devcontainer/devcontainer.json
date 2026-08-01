@@ -1,0 +1,30 @@
+{
+  "name": "Shift Calendar Engine",
+  "build": {
+    "dockerfile": "../Dockerfile",
+    "context": ".."
+  },
+  "workspaceFolder": "/workspace",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "Dart-Code.dart-code",
+        "Dart-Code.flutter",
+        "eamodio.gitlens",
+        "EditorConfig.EditorConfig",
+        "DavidAnson.vscode-markdownlint",
+        "redhat.vscode-yaml"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.fixAll": "explicit"
+        },
+        "dart.lineLength": 80,
+        "files.eol": "\n"
+      }
+    }
+  },
+  "postCreateCommand": "flutter pub get && flutter gen-l10n",
+  "remoteUser": "root"
+}

@@ -30,6 +30,59 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings => 'Settings';
 
   @override
+  String get organizationManagement => 'Organization management';
+
+  @override
+  String get organizationManagementDescription =>
+      'Browse organizations, branches, departments, and teams.';
+
+  @override
+  String get organizationHierarchy => 'Organization hierarchy';
+
+  @override
+  String get organizations => 'Organizations';
+
+  @override
+  String get branches => 'Branches';
+
+  @override
+  String get departments => 'Departments';
+
+  @override
+  String get teams => 'Teams';
+
+  @override
+  String get organization => 'Organization';
+
+  @override
+  String get branch => 'Branch';
+
+  @override
+  String get department => 'Department';
+
+  @override
+  String get team => 'Team';
+
+  @override
+  String get selectOrganization =>
+      'Select an organization to view its hierarchy.';
+
+  @override
+  String get noOrganizations => 'No organizations yet';
+
+  @override
+  String get noBranches => 'No branches in this organization';
+
+  @override
+  String get noData => 'No data';
+
+  @override
+  String get details => 'Details';
+
+  @override
+  String get refresh => 'Refresh';
+
+  @override
   String get today => 'Today';
 
   @override
@@ -278,6 +331,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportGenerationError => 'The PDF report could not be generated.';
+
+  @override
+  String get active => 'Active';
+
+  @override
+  String get inactive => 'Inactive';
 
   @override
   String get googleDrive => 'Google Drive';
