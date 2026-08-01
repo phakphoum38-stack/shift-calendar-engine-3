@@ -18,6 +18,22 @@ void main() {
     );
   }
 
+  EmployeeTimeWindow window({
+    required String id,
+    required String employeeId,
+    required EmployeeTimeWindowKind kind,
+    required DateTime startsAt,
+    required DateTime endsAt,
+  }) {
+    return EmployeeTimeWindow(
+      id: id,
+      employeeId: employeeId,
+      kind: kind,
+      startsAt: startsAt,
+      endsAt: endsAt,
+    );
+  }
+
   test('shift assignment normalizes times to UTC and reports duration', () {
     final value = assignment(
       id: 'a1',
@@ -116,6 +132,82 @@ void main() {
         endsAt: DateTime.utc(2026, 8, 1, 16),
       ),
     ]);
+
+    expect(result.isValid, isTrue);
+    expect(result.violations, isEmpty);
+  });
+
+  test('rejects an assignment that overlaps approved leave', () {
+    final result = const RosterConstraintEngine().validate(
+      [
+        assignment(
+          id: 'a1',
+          employeeId: 'e1',
+          startsAt: DateTime.utc(2026, 8, 10, 8),
+          endsAt: DateTime.utc(2026, 8, 10, 16),
+        ),
+      ],
+      timeWindows: [
+        window(
+          id: 'leave-1',
+          employeeId: 'e1',
+          kind: EmployeeTimeWindowKind.leave,
+          startsAt: DateTime.utc(2026, 8, 10),
+          endsAt: DateTime.utc(2026, 8, 11),
+        ),
+      ],
+    );
+
+    expect(result.isValid, isFalse);
+    expect(result.errors.single.code, RosterViolationCode.leaveConflict);
+    expect(result.errors.single.relatedWindowIds, ['leave-1']);
+  });
+
+  test('rejects an assignment outside declared availability', () {
+    final result = const RosterConstraintEngine().validate(
+      [
+        assignment(
+          id: 'a1',
+          employeeId: 'e1',
+          startsAt: DateTime.utc(2026, 8, 12, 16),
+          endsAt: DateTime.utc(2026, 8, 13),
+        ),
+      ],
+      timeWindows: [
+        window(
+          id: 'available-1',
+          employeeId: 'e1',
+          kind: EmployeeTimeWindowKind.availability,
+          startsAt: DateTime.utc(2026, 8, 12, 8),
+          endsAt: DateTime.utc(2026, 8, 12, 16),
+        ),
+      ],
+    );
+
+    expect(result.isValid, isFalse);
+    expect(result.errors.single.code, RosterViolationCode.outsideAvailability);
+  });
+
+  test('accepts an assignment fully contained by availability', () {
+    final result = const RosterConstraintEngine().validate(
+      [
+        assignment(
+          id: 'a1',
+          employeeId: 'e1',
+          startsAt: DateTime.utc(2026, 8, 12, 8),
+          endsAt: DateTime.utc(2026, 8, 12, 16),
+        ),
+      ],
+      timeWindows: [
+        window(
+          id: 'available-1',
+          employeeId: 'e1',
+          kind: EmployeeTimeWindowKind.availability,
+          startsAt: DateTime.utc(2026, 8, 12, 7),
+          endsAt: DateTime.utc(2026, 8, 12, 17),
+        ),
+      ],
+    );
 
     expect(result.isValid, isTrue);
     expect(result.violations, isEmpty);
