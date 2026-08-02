@@ -81,7 +81,7 @@ jobs:
 
   build-1-web:
     name: Build 1 · Web release
-    needs: [code-1-format-l10n, code-2-app-analysis, code-3-app-tests, code-4-core-tests]
+    needs: [code-1-format-l10n, code-2-app-analysis]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -101,7 +101,7 @@ jobs:
 
   build-2-android:
     name: Build 2 · Android APK release
-    needs: [code-1-format-l10n, code-2-app-analysis, code-3-app-tests, code-4-core-tests]
+    needs: [code-1-format-l10n, code-2-app-analysis]
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -121,7 +121,7 @@ jobs:
 
   build-3-linux:
     name: Build 3 · Linux release
-    needs: [code-1-format-l10n, code-2-app-analysis, code-3-app-tests, code-4-core-tests]
+    needs: [code-1-format-l10n, code-2-app-analysis]
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -144,7 +144,7 @@ jobs:
 
   build-4-windows:
     name: Build 4 · Windows release
-    needs: [code-1-format-l10n, code-2-app-analysis, code-3-app-tests, code-4-core-tests]
+    needs: [code-1-format-l10n, code-2-app-analysis]
     runs-on: windows-latest
     timeout-minutes: 45
     steps:
