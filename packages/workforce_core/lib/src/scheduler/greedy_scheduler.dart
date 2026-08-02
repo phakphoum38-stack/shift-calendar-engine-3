@@ -13,9 +13,7 @@ final class GreedyScheduler implements SchedulerEngine {
 
   @override
   SchedulerResult generate(SchedulerRequest request) {
-    final assignments = <ShiftAssignment>[
-      ...request.existingAssignments,
-    ];
+    final assignments = <ShiftAssignment>[...request.existingAssignments];
     final unassignedSlotIds = <String>[];
     final loadByEmployee = <String, int>{
       for (final employeeId in request.employeeIds) employeeId: 0,
