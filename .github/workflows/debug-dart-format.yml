@@ -1,6 +1,7 @@
 name: Debug Dart Format
 
 on:
+  pull_request:
   push:
     branches:
       - feature/roster-constraint-engine-v1
