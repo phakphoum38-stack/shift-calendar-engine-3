@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../../../domain/entities/schedule.dart';
+import '../../../domain/entities/shift_template.dart';
 import '../application/ai_scheduler_controller.dart';
 import '../application/ai_scheduler_request_factory.dart';
 import '../application/ai_scheduler_request_provider.dart';
 import 'ai_scheduler_page.dart';
+import 'ai_scheduler_shift_input_controller.dart';
+import 'ai_scheduler_shift_input_panel.dart';
 
 /// Binds canonical request loading and scheduler state to the presentation page.
 ///
@@ -16,6 +19,8 @@ class AiSchedulerWorkspace extends StatefulWidget {
     required this.requestProvider,
     required this.schedule,
     this.requestedShifts = const [],
+    this.shiftInputController,
+    this.shiftTemplates = const [],
     this.onPreview,
     this.onCompare,
     this.onApprove,
@@ -26,6 +31,8 @@ class AiSchedulerWorkspace extends StatefulWidget {
   final AiSchedulerRequestProvider requestProvider;
   final Schedule schedule;
   final List<AiSchedulerShiftInput> requestedShifts;
+  final AiSchedulerShiftInputController? shiftInputController;
+  final List<ShiftTemplate> shiftTemplates;
   final VoidCallback? onPreview;
   final VoidCallback? onCompare;
   final VoidCallback? onApprove;
@@ -40,15 +47,26 @@ class _AiSchedulerWorkspaceState extends State<AiSchedulerWorkspace> {
 
   bool get loading => buildingRequest || widget.controller.loading;
 
+  List<AiSchedulerShiftInput> get _requestedShifts {
+    return widget.shiftInputController?.inputs ?? widget.requestedShifts;
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
       listenable: widget.controller,
       builder: (context, _) {
+        final inputController = widget.shiftInputController;
         return AiSchedulerPage(
           proposal: widget.controller.proposal,
           loading: loading,
           errorMessage: _errorMessage,
+          inputEditor: inputController == null
+              ? null
+              : AiSchedulerShiftInputPanel(
+                  controller: inputController,
+                  templates: widget.shiftTemplates,
+                ),
           onGenerate: loading ? null : _generate,
           onPreview: widget.onPreview,
           onCompare: widget.onCompare,
@@ -78,7 +96,7 @@ class _AiSchedulerWorkspaceState extends State<AiSchedulerWorkspace> {
 
     try {
       final request = await widget.requestProvider.build(
-        requestedShifts: widget.requestedShifts,
+        requestedShifts: _requestedShifts,
         schedule: widget.schedule,
       );
 
