@@ -13,19 +13,17 @@ final class GreedyScheduler implements SchedulerEngine {
 
   @override
   SchedulerResult generate(SchedulerRequest request) {
-    final assignments = <ShiftAssignment>[...request.existingAssignments];
+    final generatedAssignments = <ShiftAssignment>[];
+    final workingAssignments = <ShiftAssignment>[
+      ...request.existingAssignments,
+    ];
     final unassignedSlotIds = <String>[];
     final loadByEmployee = <String, int>{
-      for (final employeeId in request.employeeIds) employeeId: 0,
+      for (final employeeId in request.employeeIds)
+        employeeId: request.existingAssignments
+            .where((assignment) => assignment.employeeId == employeeId)
+            .length,
     };
-
-    for (final assignment in request.existingAssignments) {
-      if (loadByEmployee.containsKey(assignment.employeeId)) {
-        loadByEmployee[assignment.employeeId] =
-            loadByEmployee[assignment.employeeId]! + 1;
-      }
-    }
-
     final slots = List<SchedulerShiftSlot>.of(request.slots)
       ..sort((a, b) {
         final startComparison = a.startsAt.compareTo(b.startsAt);
@@ -45,7 +43,7 @@ final class GreedyScheduler implements SchedulerEngine {
       for (final employeeId in candidates) {
         final candidate = slot.assignTo(employeeId);
         final validation = evaluationEngine.constraintEngine.validate([
-          ...assignments,
+          ...workingAssignments,
           candidate,
         ], timeWindows: request.timeWindows);
         if (validation.isValid) {
@@ -59,19 +57,20 @@ final class GreedyScheduler implements SchedulerEngine {
         continue;
       }
 
-      assignments.add(selected);
+      generatedAssignments.add(selected);
+      workingAssignments.add(selected);
       loadByEmployee[selected.employeeId] =
           loadByEmployee[selected.employeeId]! + 1;
     }
 
     final evaluation = evaluationEngine.evaluate(
-      assignments,
+      workingAssignments,
       timeWindows: request.timeWindows,
       employeeIds: request.employeeIds,
     );
 
     return SchedulerResult(
-      assignments: List.unmodifiable(assignments),
+      assignments: List.unmodifiable(generatedAssignments),
       unassignedSlotIds: List.unmodifiable(unassignedSlotIds),
       evaluation: evaluation,
     );
