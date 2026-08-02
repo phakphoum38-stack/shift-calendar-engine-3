@@ -44,7 +44,8 @@ final class DefaultAiSchedulerRuleEngine implements AiSchedulerRuleEngine {
         AiScheduleExplanation(
           code: 'assignment.unassigned',
           kind: AiScheduleExplanationKind.unassigned,
-          message: 'Shift slot $slotId could not be assigned without '
+          message:
+              'Shift slot $slotId could not be assigned without '
               'violating the active rules.',
           slotId: slotId,
         ),
@@ -59,7 +60,7 @@ final class DefaultAiSchedulerRuleEngine implements AiSchedulerRuleEngine {
         message: validation.isValid
             ? 'The proposal passes all active roster constraints.'
             : 'The proposal contains ${validation.violations.length} '
-                'constraint findings that require review.',
+                  'constraint findings that require review.',
       ),
     );
 
@@ -67,7 +68,8 @@ final class DefaultAiSchedulerRuleEngine implements AiSchedulerRuleEngine {
       AiScheduleExplanation(
         code: 'fairness.score',
         kind: AiScheduleExplanationKind.fairness,
-        message: 'The evaluated schedule score is '
+        message:
+            'The evaluated schedule score is '
             '${result.evaluation.overallScore} out of 100.',
       ),
     );
@@ -76,7 +78,8 @@ final class DefaultAiSchedulerRuleEngine implements AiSchedulerRuleEngine {
       const AiScheduleExplanation(
         code: 'approval.required',
         kind: AiScheduleExplanationKind.approval,
-        message: 'Human approval is required before this proposal is '
+        message:
+            'Human approval is required before this proposal is '
             'published or saved.',
       ),
     );
