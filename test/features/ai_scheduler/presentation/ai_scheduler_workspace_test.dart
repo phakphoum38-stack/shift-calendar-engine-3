@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shift_calendar_engine/core/result/result.dart';
+import 'package:shift_calendar_engine/domain/entities/employee.dart';
+import 'package:shift_calendar_engine/domain/entities/schedule.dart';
+import 'package:shift_calendar_engine/domain/repositories/employee_repository.dart';
 import 'package:shift_calendar_engine/features/ai_scheduler/application/ai_scheduler_controller.dart';
+import 'package:shift_calendar_engine/features/ai_scheduler/application/ai_scheduler_request_provider.dart';
 import 'package:shift_calendar_engine/features/ai_scheduler/presentation/ai_scheduler_workspace.dart';
 import 'package:workforce_core/workforce_core.dart';
 
 void main() {
-  final request = SchedulerRequest(employeeIds: const ['e1'], slots: const []);
-
-  testWidgets('generates a proposal through the application controller', (
+  testWidgets('loads a canonical request before generating a proposal', (
     tester,
   ) async {
+    final repository = _EmployeeRepository(const Success([]));
     final controller = AiSchedulerController(
       assistant: _FakeAssistant(_proposal()),
     );
@@ -19,15 +23,19 @@ void main() {
         home: Scaffold(
           body: AiSchedulerWorkspace(
             controller: controller,
-            requestFactory: () => request,
+            requestProvider: AiSchedulerRequestProvider(
+              employeeRepository: repository,
+            ),
+            schedule: Schedule(id: 'schedule-1', name: 'August'),
           ),
         ),
       ),
     );
 
     await tester.tap(find.text('Generate proposal').first);
-    await tester.pump();
+    await tester.pumpAndSettle();
 
+    expect(repository.lastActiveOnly, isTrue);
     expect(find.text('95'), findsOneWidget);
     expect(find.text('Balanced proposal'), findsOneWidget);
   });
@@ -44,17 +52,51 @@ void main() {
         home: Scaffold(
           body: AiSchedulerWorkspace(
             controller: controller,
-            requestFactory: () => request,
+            requestProvider: AiSchedulerRequestProvider(
+              employeeRepository: _EmployeeRepository(const Success([])),
+            ),
+            schedule: Schedule(id: 'schedule-1', name: 'August'),
           ),
         ),
       ),
     );
 
     await tester.tap(find.text('Generate proposal').first);
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     expect(find.text('สร้างข้อเสนอไม่สำเร็จ'), findsOneWidget);
     expect(find.textContaining('generation failed'), findsOneWidget);
+    expect(controller.proposal, isNull);
+  });
+
+  testWidgets('shows canonical repository failures without generating', (
+    tester,
+  ) async {
+    final controller = AiSchedulerController(
+      assistant: _FakeAssistant(_proposal()),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: AiSchedulerWorkspace(
+            controller: controller,
+            requestProvider: AiSchedulerRequestProvider(
+              employeeRepository: _EmployeeRepository(
+                const NetworkFailure('employee service unavailable'),
+              ),
+            ),
+            schedule: Schedule(id: 'schedule-1', name: 'August'),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Generate proposal').first);
+    await tester.pumpAndSettle();
+
+    expect(find.text('สร้างข้อเสนอไม่สำเร็จ'), findsOneWidget);
+    expect(find.textContaining('employee service unavailable'), findsOneWidget);
     expect(controller.proposal, isNull);
   });
 }
@@ -102,4 +144,33 @@ final class _ThrowingAssistant implements AiSchedulerAssistant {
   AiScheduleProposal propose(SchedulerRequest request) {
     throw StateError('generation failed');
   }
+}
+
+final class _EmployeeRepository implements EmployeeRepository {
+  _EmployeeRepository(this.result);
+
+  final Result<List<Employee>> result;
+  bool? lastActiveOnly;
+
+  @override
+  Future<Result<List<Employee>>> findAll({bool activeOnly = true}) async {
+    lastActiveOnly = activeOnly;
+    return result;
+  }
+
+  @override
+  Future<Result<void>> delete(String id) =>
+      throw UnsupportedError('Not used by this test');
+
+  @override
+  Future<Result<Employee?>> findById(String id) =>
+      throw UnsupportedError('Not used by this test');
+
+  @override
+  Future<Result<Employee>> save(Employee employee) =>
+      throw UnsupportedError('Not used by this test');
+
+  @override
+  Future<Result<List<Employee>>> search(EmployeeQuery query) =>
+      throw UnsupportedError('Not used by this test');
 }
