@@ -23,6 +23,33 @@ void main() {
     expect(assistant.lastRequest, same(request));
   });
 
+  test('default composition uses the deterministic canonical scheduler', () {
+    final dependencies = AppDependencies();
+    final controller = dependencies.createDefaultAiSchedulerController();
+    final request = SchedulerRequest(
+      employeeIds: const ['employee-1'],
+      slots: [
+        SchedulerShiftSlot(
+          id: 'slot-1',
+          shiftCode: 'M',
+          startsAt: DateTime(2026, 8, 3, 8),
+          endsAt: DateTime(2026, 8, 3, 16),
+        ),
+      ],
+    );
+
+    controller.generate(request);
+
+    expect(controller.status, AiSchedulerStatus.ready);
+    expect(controller.error, isNull);
+    expect(controller.proposal, isNotNull);
+    expect(controller.proposal!.schedule.assignments, hasLength(1));
+    expect(
+      controller.proposal!.schedule.assignments.single.employeeId,
+      'employee-1',
+    );
+  });
+
   test('composition helpers expose the canonical request boundary', () {
     final dependencies = AppDependencies();
 
