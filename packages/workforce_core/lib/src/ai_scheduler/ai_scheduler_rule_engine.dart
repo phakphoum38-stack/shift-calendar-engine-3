@@ -17,7 +17,9 @@ final class DefaultAiSchedulerRuleEngine implements AiSchedulerRuleEngine {
     SchedulerRequest request,
     SchedulerResult result,
   ) {
-    final existingIds = request.existingAssignments.map((item) => item.id).toSet();
+    final existingIds = request.existingAssignments
+        .map((item) => item.id)
+        .toSet();
     final explanations = <AiScheduleExplanation>[];
 
     for (final assignment in result.assignments) {
@@ -29,7 +31,8 @@ final class DefaultAiSchedulerRuleEngine implements AiSchedulerRuleEngine {
           code: 'assignment.selected',
           kind: AiScheduleExplanationKind.assignment,
           message:
-              'Assigned ${assignment.employeeId} to ${assignment.shiftCode} after constraint validation and load balancing.',
+              'Assigned ${assignment.employeeId} to ${assignment.shiftCode} '
+              'after constraint validation and load balancing.',
           employeeId: assignment.employeeId,
           slotId: assignment.id.split('::').first,
         ),
@@ -41,8 +44,8 @@ final class DefaultAiSchedulerRuleEngine implements AiSchedulerRuleEngine {
         AiScheduleExplanation(
           code: 'assignment.unassigned',
           kind: AiScheduleExplanationKind.unassigned,
-          message:
-              'Shift slot $slotId could not be assigned without violating the active rules.',
+          message: 'Shift slot $slotId could not be assigned without '
+              'violating the active rules.',
           slotId: slotId,
         ),
       );
@@ -55,7 +58,8 @@ final class DefaultAiSchedulerRuleEngine implements AiSchedulerRuleEngine {
         kind: AiScheduleExplanationKind.constraint,
         message: validation.isValid
             ? 'The proposal passes all active roster constraints.'
-            : 'The proposal contains ${validation.violations.length} constraint findings that require review.',
+            : 'The proposal contains ${validation.violations.length} '
+                'constraint findings that require review.',
       ),
     );
 
@@ -63,8 +67,8 @@ final class DefaultAiSchedulerRuleEngine implements AiSchedulerRuleEngine {
       AiScheduleExplanation(
         code: 'fairness.score',
         kind: AiScheduleExplanationKind.fairness,
-        message:
-            'The evaluated schedule score is ${result.evaluation.overallScore} out of 100.',
+        message: 'The evaluated schedule score is '
+            '${result.evaluation.overallScore} out of 100.',
       ),
     );
 
@@ -72,8 +76,8 @@ final class DefaultAiSchedulerRuleEngine implements AiSchedulerRuleEngine {
       const AiScheduleExplanation(
         code: 'approval.required',
         kind: AiScheduleExplanationKind.approval,
-        message:
-            'Human approval is required before this proposal is saved or published.',
+        message: 'Human approval is required before this proposal is '
+            'published or saved.',
       ),
     );
 
