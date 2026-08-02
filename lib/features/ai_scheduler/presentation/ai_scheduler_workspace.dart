@@ -26,64 +26,20 @@ class AiSchedulerWorkspace extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: controller,
-      builder: (context, child) {
-        final error = controller.error;
-
-        return Stack(
-          children: [
-            AiSchedulerPage(
-              proposal: controller.proposal,
-              onGenerate: controller.loading
-                  ? null
-                  : () => controller.generate(requestFactory()),
-              onPreview: onPreview,
-              onCompare: onCompare,
-              onApprove: onApprove,
-              onReject: controller.proposal == null ? null : controller.reject,
-            ),
-            if (error != null)
-              Align(
-                alignment: Alignment.topCenter,
-                child: SafeArea(
-                  minimum: const EdgeInsets.all(16),
-                  child: Material(
-                    color: Theme.of(context).colorScheme.errorContainer,
-                    borderRadius: BorderRadius.circular(12),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.error_outline_rounded,
-                            color: Theme.of(context).colorScheme.onErrorContainer,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              'Unable to generate proposal: $error',
-                              style: TextStyle(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onErrorContainer,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            if (controller.loading)
-              const Positioned.fill(
-                child: ColoredBox(
-                  color: Color(0x33000000),
-                  child: Center(child: CircularProgressIndicator()),
-                ),
-              ),
-          ],
+    return ListenableBuilder(
+      listenable: controller,
+      builder: (context, _) {
+        return AiSchedulerPage(
+          proposal: controller.proposal,
+          loading: controller.loading,
+          errorMessage: controller.error?.toString(),
+          onGenerate: controller.loading
+              ? null
+              : () => controller.generate(requestFactory()),
+          onPreview: onPreview,
+          onCompare: onCompare,
+          onApprove: onApprove,
+          onReject: controller.proposal == null ? null : controller.reject,
         );
       },
     );
