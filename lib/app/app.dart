@@ -114,6 +114,7 @@ class _ShiftCalendarEngineAppState extends State<ShiftCalendarEngineApp> {
     return AppShell(
       controller: controller,
       authController: authController,
+      aiSchedulerController: aiSchedulerController,
       dashboardSummaryService: widget.dependencies.dashboardSummaryService,
       rosterControllerFactory: widget.dependencies.createRosterController,
       rosterEditorControllerFactory:
