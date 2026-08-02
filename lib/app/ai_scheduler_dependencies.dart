@@ -12,6 +12,14 @@ extension AiSchedulerDependencies on AppDependencies {
     return AiSchedulerController(assistant: assistant);
   }
 
+  /// Creates the production-safe deterministic scheduler composition.
+  ///
+  /// The assistant only generates a proposal. Persistence and publishing stay
+  /// outside this composition boundary and require an explicit user action.
+  AiSchedulerController createDefaultAiSchedulerController() {
+    return createAiSchedulerController(const DeterministicAiScheduler());
+  }
+
   AiSchedulerRequestFactory createAiSchedulerRequestFactory() {
     return const AiSchedulerRequestFactory();
   }
