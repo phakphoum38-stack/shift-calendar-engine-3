@@ -42,6 +42,9 @@ class _ShiftCalendarEngineAppState extends State<ShiftCalendarEngineApp> {
       widget.aiSchedulerController ??
       widget.dependencies.createDefaultAiSchedulerController();
 
+  late final aiSchedulerRequestProvider =
+      widget.dependencies.createAiSchedulerRequestProvider();
+
   late final bool ownsController = widget.controller == null;
   late final bool ownsAuthController = widget.authController == null;
   late final bool ownsAiSchedulerController =
@@ -115,6 +118,7 @@ class _ShiftCalendarEngineAppState extends State<ShiftCalendarEngineApp> {
       controller: controller,
       authController: authController,
       aiSchedulerController: aiSchedulerController,
+      aiSchedulerRequestProvider: aiSchedulerRequestProvider,
       dashboardSummaryService: widget.dependencies.dashboardSummaryService,
       rosterControllerFactory: widget.dependencies.createRosterController,
       rosterEditorControllerFactory:
