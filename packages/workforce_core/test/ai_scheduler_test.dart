@@ -23,7 +23,24 @@ void main() {
       expect(proposal.schedule.assignments, hasLength(1));
       expect(
         proposal.explanations,
-        contains('Human approval is required before this proposal is published or saved.'),
+        contains(
+          'Human approval is required before this proposal is published or saved.',
+        ),
+      );
+      expect(
+        proposal.details.any(
+          (item) =>
+              item.kind == AiScheduleExplanationKind.assignment &&
+              item.employeeId == 'e1' &&
+              item.slotId == 'slot-1',
+        ),
+        isTrue,
+      );
+      expect(
+        proposal.details.any(
+          (item) => item.kind == AiScheduleExplanationKind.fairness,
+        ),
+        isTrue,
       );
     });
   });
