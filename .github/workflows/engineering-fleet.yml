@@ -4,24 +4,25 @@ on:
   workflow_dispatch:
   pull_request:
   push:
-    branches:
-      - main
-      - feature/roster-constraint-engine-v1
+    branches: [main]
+  schedule:
+    - cron: "23 3 * * 1"
 
 permissions:
   contents: read
+  security-events: write
 
 concurrency:
   group: engineering-fleet-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  code-1-format-l10n:
-    name: Code 1 · Format and localization
+  format-and-localization:
+    name: Quality · Format and localization
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
@@ -30,12 +31,12 @@ jobs:
       - run: flutter gen-l10n
       - run: dart format --output=none --set-exit-if-changed .
 
-  code-2-app-analysis:
-    name: Code 2 · Flutter analysis
+  flutter-analysis:
+    name: Quality · Flutter analysis
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
@@ -44,12 +45,12 @@ jobs:
       - run: flutter gen-l10n
       - run: flutter analyze
 
-  code-3-app-tests:
-    name: Code 3 · App tests and coverage
+  flutter-tests:
+    name: Quality · Flutter tests and coverage
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
@@ -63,15 +64,15 @@ jobs:
           path: coverage/lcov.info
           if-no-files-found: error
 
-  code-4-core-tests:
-    name: Code 4 · Workforce core analysis and tests
+  workforce-core:
+    name: Quality · Workforce core
     runs-on: ubuntu-latest
     timeout-minutes: 20
     defaults:
       run:
         working-directory: packages/workforce_core
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dart-lang/setup-dart@v1
         with:
           sdk: stable
@@ -79,13 +80,34 @@ jobs:
       - run: dart analyze
       - run: dart test
 
-  build-1-web:
-    name: Build 1 · Web release
-    needs: [code-1-format-l10n, code-2-app-analysis]
+  dependency-scan:
+    name: Security · Dependency scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: google/osv-scanner-action/osv-scanner-action@v2.3.8
+        with:
+          scan-args: |-
+            --lockfile=pubspec.lock
+
+  secret-scan:
+    name: Security · Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-web:
+    name: Build · Web release
+    needs: [format-and-localization, flutter-analysis, flutter-tests, workforce-core]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
@@ -99,13 +121,13 @@ jobs:
           path: build/web
           if-no-files-found: error
 
-  build-2-android:
-    name: Build 2 · Android APK release
-    needs: [code-1-format-l10n, code-2-app-analysis]
+  build-android:
+    name: Build · Android APK release
+    needs: [format-and-localization, flutter-analysis, flutter-tests, workforce-core]
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
@@ -119,13 +141,13 @@ jobs:
           path: build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
 
-  build-3-linux:
-    name: Build 3 · Linux release
-    needs: [code-1-format-l10n, code-2-app-analysis]
+  build-linux:
+    name: Build · Linux release
+    needs: [format-and-localization, flutter-analysis, flutter-tests, workforce-core]
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install Linux build dependencies
         run: sudo apt-get update && sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libsecret-1-dev
       - uses: subosito/flutter-action@v2
@@ -142,13 +164,13 @@ jobs:
           path: build/linux/x64/release/bundle
           if-no-files-found: error
 
-  build-4-windows:
-    name: Build 4 · Windows release
-    needs: [code-1-format-l10n, code-2-app-analysis]
+  build-windows:
+    name: Build · Windows release
+    needs: [format-and-localization, flutter-analysis, flutter-tests, workforce-core]
     runs-on: windows-latest
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
