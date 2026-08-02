@@ -1,0 +1,164 @@
+name: Engineering Fleet
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - main
+      - feature/roster-constraint-engine-v1
+
+permissions:
+  contents: read
+
+concurrency:
+  group: engineering-fleet-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  code-1-format-l10n:
+    name: Code 1 · Format and localization
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter gen-l10n
+      - run: dart format --output=none --set-exit-if-changed .
+
+  code-2-app-analysis:
+    name: Code 2 · Flutter analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter gen-l10n
+      - run: flutter analyze
+
+  code-3-app-tests:
+    name: Code 3 · App tests and coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter gen-l10n
+      - run: flutter test --coverage
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-coverage
+          path: coverage/lcov.info
+          if-no-files-found: error
+
+  code-4-core-tests:
+    name: Code 4 · Workforce core analysis and tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: packages/workforce_core
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+      - run: dart pub get
+      - run: dart analyze
+      - run: dart test
+
+  build-1-web:
+    name: Build 1 · Web release
+    needs: [code-1-format-l10n, code-2-app-analysis, code-3-app-tests, code-4-core-tests]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter gen-l10n
+      - run: flutter build web --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web-release
+          path: build/web
+          if-no-files-found: error
+
+  build-2-android:
+    name: Build 2 · Android APK release
+    needs: [code-1-format-l10n, code-2-app-analysis, code-3-app-tests, code-4-core-tests]
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter gen-l10n
+      - run: flutter build apk --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-apk-release
+          path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+
+  build-3-linux:
+    name: Build 3 · Linux release
+    needs: [code-1-format-l10n, code-2-app-analysis, code-3-app-tests, code-4-core-tests]
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Linux build dependencies
+        run: sudo apt-get update && sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter config --enable-linux-desktop
+      - run: flutter pub get
+      - run: flutter gen-l10n
+      - run: flutter build linux --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-release
+          path: build/linux/x64/release/bundle
+          if-no-files-found: error
+
+  build-4-windows:
+    name: Build 4 · Windows release
+    needs: [code-1-format-l10n, code-2-app-analysis, code-3-app-tests, code-4-core-tests]
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter config --enable-windows-desktop
+      - run: flutter pub get
+      - run: flutter gen-l10n
+      - run: flutter build windows --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-release
+          path: build/windows/x64/runner/Release
+          if-no-files-found: error
