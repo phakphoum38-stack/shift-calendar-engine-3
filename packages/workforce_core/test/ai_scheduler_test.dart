@@ -4,9 +4,7 @@ import 'package:workforce_core/workforce_core.dart';
 void main() {
   group('DeterministicAiScheduler', () {
     test('returns an explainable proposal that requires approval', () {
-      final proposal = const DeterministicAiScheduler().propose(
-        _request(),
-      );
+      final proposal = const DeterministicAiScheduler().propose(_request());
 
       expect(proposal.isComplete, isTrue);
       expect(proposal.requiresApproval, isTrue);
