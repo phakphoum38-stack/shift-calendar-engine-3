@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../design_system/enterprise_tokens.dart';
 import '../domain/entities/app_settings.dart';
+import '../features/ai_scheduler/application/ai_scheduler_controller.dart';
 import '../features/auth/application/auth_controller.dart';
 import '../features/auth/application/auth_state.dart';
 import '../features/auth/presentation/login_screen.dart';
 import '../l10n/app_localizations.dart';
+import 'ai_scheduler_dependencies.dart';
 import 'app_controller.dart';
 import 'app_dependencies.dart';
 import 'app_shell.dart';
@@ -16,12 +18,14 @@ class ShiftCalendarEngineApp extends StatefulWidget {
     required this.dependencies,
     this.controller,
     this.authController,
+    this.aiSchedulerController,
     super.key,
   });
 
   final AppDependencies dependencies;
   final AppController? controller;
   final AuthController? authController;
+  final AiSchedulerController? aiSchedulerController;
 
   @override
   State<ShiftCalendarEngineApp> createState() => _ShiftCalendarEngineAppState();
@@ -34,8 +38,14 @@ class _ShiftCalendarEngineAppState extends State<ShiftCalendarEngineApp> {
   late final AuthController authController =
       widget.authController ?? widget.dependencies.createAuthController();
 
+  late final AiSchedulerController aiSchedulerController =
+      widget.aiSchedulerController ??
+      widget.dependencies.createDefaultAiSchedulerController();
+
   late final bool ownsController = widget.controller == null;
   late final bool ownsAuthController = widget.authController == null;
+  late final bool ownsAiSchedulerController =
+      widget.aiSchedulerController == null;
 
   @override
   void initState() {
@@ -52,6 +62,10 @@ class _ShiftCalendarEngineAppState extends State<ShiftCalendarEngineApp> {
 
     if (ownsAuthController) {
       authController.dispose();
+    }
+
+    if (ownsAiSchedulerController) {
+      aiSchedulerController.dispose();
     }
 
     super.dispose();
