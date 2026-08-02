@@ -2,6 +2,7 @@ import 'package:workforce_core/workforce_core.dart';
 
 import '../features/ai_scheduler/application/ai_scheduler_controller.dart';
 import '../features/ai_scheduler/application/ai_scheduler_request_factory.dart';
+import '../features/ai_scheduler/application/ai_scheduler_request_provider.dart';
 import 'app_dependencies.dart';
 
 /// Composition helpers for the AI scheduler feature.
@@ -22,5 +23,14 @@ extension AiSchedulerDependencies on AppDependencies {
 
   AiSchedulerRequestFactory createAiSchedulerRequestFactory() {
     return const AiSchedulerRequestFactory();
+  }
+
+  /// Creates the canonical request provider backed by the configured employee
+  /// repository. Requested shifts remain an explicit caller-provided input.
+  AiSchedulerRequestProvider createAiSchedulerRequestProvider() {
+    return AiSchedulerRequestProvider(
+      employeeRepository: employeeRepository,
+      factory: createAiSchedulerRequestFactory(),
+    );
   }
 }
