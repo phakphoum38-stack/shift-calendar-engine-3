@@ -13,10 +13,16 @@ final class GreedyScheduler implements SchedulerEngine {
 
   @override
   SchedulerResult generate(SchedulerRequest request) {
-    final assignments = <ShiftAssignment>[];
+    final generatedAssignments = <ShiftAssignment>[];
+    final workingAssignments = <ShiftAssignment>[
+      ...request.existingAssignments,
+    ];
     final unassignedSlotIds = <String>[];
     final loadByEmployee = <String, int>{
-      for (final employeeId in request.employeeIds) employeeId: 0,
+      for (final employeeId in request.employeeIds)
+        employeeId: request.existingAssignments
+            .where((assignment) => assignment.employeeId == employeeId)
+            .length,
     };
     final slots = List<SchedulerShiftSlot>.of(request.slots)
       ..sort((a, b) => a.startsAt.compareTo(b.startsAt));
@@ -41,10 +47,10 @@ final class GreedyScheduler implements SchedulerEngine {
           departmentId: slot.departmentId,
           location: slot.location,
         );
-        final validation = evaluationEngine.constraintEngine.validate([
-          ...assignments,
-          candidate,
-        ], timeWindows: request.timeWindows);
+        final validation = evaluationEngine.constraintEngine.validate(
+          [...workingAssignments, candidate],
+          timeWindows: request.timeWindows,
+        );
         if (validation.isValid) {
           selected = candidate;
           break;
@@ -56,19 +62,20 @@ final class GreedyScheduler implements SchedulerEngine {
         continue;
       }
 
-      assignments.add(selected);
+      generatedAssignments.add(selected);
+      workingAssignments.add(selected);
       loadByEmployee[selected.employeeId] =
           loadByEmployee[selected.employeeId]! + 1;
     }
 
     final evaluation = evaluationEngine.evaluate(
-      assignments,
+      workingAssignments,
       timeWindows: request.timeWindows,
       employeeIds: request.employeeIds,
     );
 
     return SchedulerResult(
-      assignments: List.unmodifiable(assignments),
+      assignments: List.unmodifiable(generatedAssignments),
       unassignedSlotIds: List.unmodifiable(unassignedSlotIds),
       evaluation: evaluation,
     );
