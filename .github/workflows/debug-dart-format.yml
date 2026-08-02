@@ -1,0 +1,20 @@
+name: Debug Dart Format
+
+on:
+  push:
+    branches:
+      - feature/roster-constraint-engine-v1
+
+permissions:
+  contents: read
+
+jobs:
+  show-format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: 3.12.2
+      - name: Show formatter output
+        run: dart format --output=show packages/workforce_core/lib/src/scheduler/greedy_scheduler.dart
