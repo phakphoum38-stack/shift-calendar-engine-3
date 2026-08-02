@@ -1,0 +1,30 @@
+name: Format AI Optimization Debug
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  format-ai-optimization:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Format target files
+        run: |
+          dart format packages/workforce_core/lib/src/ai_scheduler/ai_schedule_simulation.dart
+          dart format packages/workforce_core/test/ai_scheduler_test.dart
+      - name: Print formatted target files
+        run: |
+          echo '---SIMULATION_START---'
+          cat packages/workforce_core/lib/src/ai_scheduler/ai_schedule_simulation.dart
+          echo '---SIMULATION_END---'
+          echo '---TEST_START---'
+          cat packages/workforce_core/test/ai_scheduler_test.dart
+          echo '---TEST_END---'
