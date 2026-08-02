@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../design_system/enterprise_tokens.dart';
 import '../domain/entities/app_settings.dart';
 import '../features/auth/application/auth_controller.dart';
 import '../features/auth/application/auth_state.dart';
@@ -128,9 +129,7 @@ class _StartupScreen extends StatelessWidget {
           children: [
             CircularProgressIndicator(),
             SizedBox(height: 20),
-            Text(
-              'เธเธณเธฅเธฑเธเธ•เธฃเธงเธเธชเธญเธเธเธฒเธฃเน€เธเนเธฒเธชเธนเนเธฃเธฐเธเธ...',
-            ),
+            Text('กำลังตรวจสอบการเข้าสู่ระบบ...'),
           ],
         ),
       ),
@@ -140,7 +139,7 @@ class _StartupScreen extends StatelessWidget {
 
 ThemeData _theme(Brightness brightness) {
   final scheme = ColorScheme.fromSeed(
-    seedColor: const Color(0xFF006B68),
+    seedColor: EnterpriseColors.seed,
     brightness: brightness,
   );
 
@@ -156,7 +155,7 @@ ThemeData _theme(Brightness brightness) {
       elevation: 0,
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: EnterpriseRadius.card,
         side: BorderSide(color: scheme.outlineVariant),
       ),
     ),
