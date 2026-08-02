@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 
 import '../domain/entities/schedule.dart';
 import '../features/ai_scheduler/application/ai_scheduler_controller.dart';
+import '../features/ai_scheduler/application/ai_scheduler_request_provider.dart';
 import '../features/ai_scheduler/presentation/ai_scheduler_page.dart';
+import '../features/ai_scheduler/presentation/ai_scheduler_workspace.dart';
 import '../features/auth/application/auth_controller.dart';
 import '../features/dashboard/application/dashboard_summary_service.dart';
 import '../features/dashboard/presentation/dashboard_page.dart';
@@ -40,12 +42,14 @@ class AppShell extends StatefulWidget {
     required this.shiftTemplateControllerFactory,
     required this.reportControllerFactory,
     this.aiSchedulerController,
+    this.aiSchedulerRequestProvider,
     super.key,
   });
 
   final AppController controller;
   final AuthController authController;
   final AiSchedulerController? aiSchedulerController;
+  final AiSchedulerRequestProvider? aiSchedulerRequestProvider;
   final DashboardSummaryService dashboardSummaryService;
   final RosterController Function(Schedule schedule) rosterControllerFactory;
   final RosterEditorController Function(Schedule schedule)
@@ -112,7 +116,7 @@ class _AppShellState extends State<AppShell> {
         summaryService: widget.dashboardSummaryService,
         openRoster: () => setState(() => selectedIndex = 2),
       ),
-      AiSchedulerPage(onGenerate: _showSchedulerConnectionNotice),
+      _buildAiSchedulerPage(),
       RosterPage(
         schedule: widget.controller.schedule,
         controllerFactory: widget.rosterControllerFactory,
@@ -182,6 +186,21 @@ class _AppShellState extends State<AppShell> {
                 ),
         );
       },
+    );
+  }
+
+  Widget _buildAiSchedulerPage() {
+    final controller = widget.aiSchedulerController;
+    final requestProvider = widget.aiSchedulerRequestProvider;
+
+    if (controller == null || requestProvider == null) {
+      return AiSchedulerPage(onGenerate: _showSchedulerConnectionNotice);
+    }
+
+    return AiSchedulerWorkspace(
+      controller: controller,
+      requestProvider: requestProvider,
+      schedule: widget.controller.schedule,
     );
   }
 
