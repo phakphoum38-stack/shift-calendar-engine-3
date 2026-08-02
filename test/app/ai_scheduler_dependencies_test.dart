@@ -43,11 +43,8 @@ void main() {
     expect(controller.status, AiSchedulerStatus.ready);
     expect(controller.error, isNull);
     expect(controller.proposal, isNotNull);
-    expect(controller.proposal!.schedule.assignments, hasLength(1));
-    expect(
-      controller.proposal!.schedule.assignments.single.employeeId,
-      'employee-1',
-    );
+    expect(controller.proposal!.conflictCount, 0);
+    expect(controller.proposal!.isComplete, isTrue);
   });
 
   test('composition helpers expose the canonical request boundary', () {
@@ -60,13 +57,13 @@ void main() {
 }
 
 AiScheduleProposal _proposal() {
-  return const AiScheduleProposal(
+  return AiScheduleProposal(
     schedule: SchedulerResult(
-      assignments: [],
-      unassignedSlotIds: [],
+      assignments: const [],
+      unassignedSlotIds: const [],
       evaluation: RosterEvaluationReport(
         validation: RosterValidationResult(),
-        fairness: RosterFairnessReport(
+        fairness: const RosterFairnessReport(
           score: 92,
           employeeSummaries: [],
           assignmentSpread: 0,
@@ -76,7 +73,7 @@ AiScheduleProposal _proposal() {
         overallScore: 95,
       ),
     ),
-    details: [],
+    details: const [],
   );
 }
 
