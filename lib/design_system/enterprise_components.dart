@@ -14,9 +14,8 @@ class EnterpriseStatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = healthy
-        ? EnterpriseColors.success
-        : EnterpriseColors.warning;
+    final color = healthy ? EnterpriseColors.success : EnterpriseColors.warning;
+
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: EnterpriseSpacing.md,
@@ -61,32 +60,42 @@ class EnterpriseMetricCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(EnterpriseSpacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
             CircleAvatar(
               backgroundColor: scheme.primaryContainer,
               foregroundColor: scheme.onPrimaryContainer,
               child: Icon(icon),
             ),
-            const Spacer(),
-            Text(
-              value,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w800,
+            const SizedBox(width: EnterpriseSpacing.md),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    value,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
+                  if (supportingText != null)
+                    Text(
+                      supportingText!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                ],
               ),
             ),
-            Text(label, maxLines: 2, overflow: TextOverflow.ellipsis),
-            if (supportingText != null) ...[
-              const SizedBox(height: EnterpriseSpacing.xs),
-              Text(
-                supportingText!,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ],
           ],
         ),
       ),
