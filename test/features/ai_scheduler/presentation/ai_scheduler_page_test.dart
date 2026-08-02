@@ -4,7 +4,9 @@ import 'package:shift_calendar_engine/features/ai_scheduler/application/ai_sched
 import 'package:shift_calendar_engine/features/ai_scheduler/presentation/ai_scheduler_page.dart';
 
 void main() {
-  testWidgets('shows empty state and invokes proposal generation', (tester) async {
+  testWidgets('shows empty state and invokes proposal generation', (
+    tester,
+  ) async {
     var generated = false;
 
     await tester.pumpWidget(
@@ -25,7 +27,9 @@ void main() {
     expect(generated, isTrue);
   });
 
-  testWidgets('shows canonical proposal view data and actions', (tester) async {
+  testWidgets('shows canonical proposal view data and actions', (
+    tester,
+  ) async {
     var approved = false;
 
     await tester.pumpWidget(
@@ -54,6 +58,7 @@ void main() {
     expect(find.text('Reject'), findsOneWidget);
     expect(find.text('Approve'), findsOneWidget);
 
+    await tester.ensureVisible(find.text('Approve'));
     await tester.tap(find.text('Approve'));
 
     expect(approved, isTrue);
