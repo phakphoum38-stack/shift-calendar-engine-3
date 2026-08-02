@@ -51,9 +51,70 @@ void main() {
     expect(result.unassignedSlotIds, ['s1']);
   });
 
+  test('existing assignments influence load balancing', () {
+    final result = const GreedyScheduler().generate(
+      SchedulerRequest(
+        employeeIds: const ['e1', 'e2'],
+        slots: [slot('s2', 2)],
+        existingAssignments: [
+          ShiftAssignment(
+            id: 'existing-e1',
+            employeeId: 'e1',
+            shiftCode: 'M',
+            startsAt: DateTime.utc(2026, 8, 1, 8),
+            endsAt: DateTime.utc(2026, 8, 1, 16),
+          ),
+        ],
+      ),
+    );
+
+    expect(result.assignments.single.employeeId, 'e2');
+    expect(result.evaluation.fairness.assignmentSpread, 0);
+  });
+
+  test('existing overlap prevents assigning the same employee', () {
+    final result = const GreedyScheduler().generate(
+      SchedulerRequest(
+        employeeIds: const ['e1', 'e2'],
+        slots: [slot('s1', 1)],
+        existingAssignments: [
+          ShiftAssignment(
+            id: 'existing-e1',
+            employeeId: 'e1',
+            shiftCode: 'M',
+            startsAt: DateTime.utc(2026, 8, 1, 8),
+            endsAt: DateTime.utc(2026, 8, 1, 16),
+          ),
+        ],
+      ),
+    );
+
+    expect(result.assignments.single.employeeId, 'e2');
+    expect(result.evaluation.validation.isValid, isTrue);
+  });
+
   test('request rejects duplicate employee ids', () {
     expect(
       () => SchedulerRequest(employeeIds: const ['e1', 'e1'], slots: const []),
+      throwsArgumentError,
+    );
+  });
+
+  test('request rejects existing assignments for unknown employees', () {
+    expect(
+      () => SchedulerRequest(
+        employeeIds: const ['e1'],
+        slots: const [],
+        existingAssignments: [
+          ShiftAssignment(
+            id: 'a1',
+            employeeId: 'e2',
+            shiftCode: 'M',
+            startsAt: DateTime.utc(2026, 8, 1, 8),
+            endsAt: DateTime.utc(2026, 8, 1, 16),
+          ),
+        ],
+      ),
       throwsArgumentError,
     );
   });
