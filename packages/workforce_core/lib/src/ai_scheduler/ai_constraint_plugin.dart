@@ -33,7 +33,7 @@ final class AiConstraintPluginResult {
 
 final class AiConstraintPluginEngine {
   AiConstraintPluginEngine({required Iterable<AiConstraintPlugin> plugins})
-    : plugins = List.unmodifiable(plugins) {
+      : plugins = List.unmodifiable(plugins) {
     final ids = this.plugins.map((plugin) => plugin.id).toList();
     if (ids.any((id) => id.trim().isEmpty)) {
       throw ArgumentError('Plugin ids must not be empty.');
