@@ -62,6 +62,13 @@ final class SchedulerRequest {
     if (this.employeeIds.toSet().length != this.employeeIds.length) {
       throw ArgumentError('employeeIds must be unique');
     }
+    if (this.existingAssignments.any(
+      (assignment) => !this.employeeIds.contains(assignment.employeeId),
+    )) {
+      throw ArgumentError(
+        'existingAssignments must belong to employees in employeeIds',
+      );
+    }
   }
 
   final List<String> employeeIds;
