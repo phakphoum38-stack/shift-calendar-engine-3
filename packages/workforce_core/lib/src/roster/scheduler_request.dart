@@ -9,8 +9,8 @@ final class RosterSchedulerRequest {
   RosterSchedulerRequest({
     required Iterable<String> employeeIds,
     required Iterable<SchedulerShiftSlot> shifts,
-    this.existingAssignments = const [],
-    this.timeWindows = const [],
+    Iterable<ShiftAssignment> existingAssignments = const [],
+    Iterable<EmployeeTimeWindow> timeWindows = const [],
   }) : employeeIds = List.unmodifiable(employeeIds),
        shifts = List.unmodifiable(shifts),
        existingAssignments = List.unmodifiable(existingAssignments),
