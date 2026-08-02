@@ -181,9 +181,7 @@ class _ScheduleCard extends StatelessWidget {
                   for (final assignment in summary.todayAssignments)
                     ListTile(
                       contentPadding: EdgeInsets.zero,
-                      leading: CircleAvatar(
-                        child: Text(assignment.shift.code),
-                      ),
+                      leading: CircleAvatar(child: Text(assignment.shift.code)),
                       title: Text(assignment.employee.displayName),
                       subtitle: Text(
                         [

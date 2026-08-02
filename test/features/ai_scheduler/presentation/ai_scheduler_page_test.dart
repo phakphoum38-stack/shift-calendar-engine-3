@@ -12,9 +12,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: AiSchedulerPage(
-            onGenerate: () => generated = true,
-          ),
+          body: AiSchedulerPage(onGenerate: () => generated = true),
         ),
       ),
     );
@@ -27,9 +25,7 @@ void main() {
     expect(generated, isTrue);
   });
 
-  testWidgets('shows canonical proposal view data and actions', (
-    tester,
-  ) async {
+  testWidgets('shows canonical proposal view data and actions', (tester) async {
     var approved = false;
 
     await tester.pumpWidget(

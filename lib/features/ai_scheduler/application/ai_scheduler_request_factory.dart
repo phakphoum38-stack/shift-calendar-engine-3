@@ -32,13 +32,14 @@ final class AiSchedulerRequestFactory {
     required Iterable<AiSchedulerShiftInput> requestedShifts,
     required Schedule schedule,
   }) {
-    final employeeIds = employees
-        .where((employee) => employee.active)
-        .map((employee) => employee.id.trim())
-        .where((id) => id.isNotEmpty)
-        .toSet()
-        .toList(growable: false)
-      ..sort();
+    final employeeIds =
+        employees
+            .where((employee) => employee.active)
+            .map((employee) => employee.id.trim())
+            .where((id) => id.isNotEmpty)
+            .toSet()
+            .toList(growable: false)
+          ..sort();
 
     final slots = requestedShifts.map(_mapSlot).toList(growable: false)
       ..sort((left, right) => left.startsAt.compareTo(right.startsAt));
@@ -93,10 +94,6 @@ final class AiSchedulerRequestFactory {
   }
 
   DateTime _at(DateTime date, Duration time) {
-    return DateTime(
-      date.year,
-      date.month,
-      date.day,
-    ).add(time);
+    return DateTime(date.year, date.month, date.day).add(time);
   }
 }

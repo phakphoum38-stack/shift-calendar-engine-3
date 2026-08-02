@@ -77,10 +77,7 @@ class AiSchedulerPage extends StatelessWidget {
               label: 'Human approval required',
               healthy: true,
             ),
-            EnterpriseStatusChip(
-              label: 'Explainable decisions',
-              healthy: true,
-            ),
+            EnterpriseStatusChip(label: 'Explainable decisions', healthy: true),
             EnterpriseStatusChip(
               label: 'No autonomous publishing',
               healthy: true,
@@ -123,9 +120,9 @@ class _GeneratingCard extends StatelessWidget {
             const SizedBox(height: EnterpriseSpacing.lg),
             Text(
               'กำลังสร้างข้อเสนอตารางเวร',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: EnterpriseSpacing.sm),
             const Text(
@@ -201,9 +198,9 @@ class _EmptyProposal extends StatelessWidget {
             const SizedBox(height: EnterpriseSpacing.md),
             Text(
               'ยังไม่มีข้อเสนอตารางเวร',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: EnterpriseSpacing.sm),
             const Text(
@@ -284,9 +281,9 @@ class _ProposalWorkspace extends StatelessWidget {
               children: [
                 Text(
                   'Explanation',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: EnterpriseSpacing.md),
                 if (proposal.explanations.isEmpty)
