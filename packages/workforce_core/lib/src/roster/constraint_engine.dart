@@ -185,8 +185,7 @@ final class RosterConstraintEngine {
 
       if (availabilityWindows.isNotEmpty &&
           !availabilityWindows.any(
-            (window) =>
-                window.contains(assignment.startsAt, assignment.endsAt),
+            (window) => window.contains(assignment.startsAt, assignment.endsAt),
           )) {
         violations.add(
           RosterViolation(
