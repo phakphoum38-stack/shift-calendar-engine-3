@@ -10,6 +10,7 @@ class AiSchedulerPage extends StatelessWidget {
     this.proposal,
     this.loading = false,
     this.errorMessage,
+    this.inputEditor,
     this.onGenerate,
     this.onPreview,
     this.onCompare,
@@ -21,6 +22,7 @@ class AiSchedulerPage extends StatelessWidget {
   final AiSchedulerViewData? proposal;
   final bool loading;
   final String? errorMessage;
+  final Widget? inputEditor;
   final VoidCallback? onGenerate;
   final VoidCallback? onPreview;
   final VoidCallback? onCompare;
@@ -68,6 +70,10 @@ class AiSchedulerPage extends StatelessWidget {
             ),
           ],
         ),
+        if (inputEditor != null) ...[
+          const SizedBox(height: EnterpriseSpacing.lg),
+          inputEditor!,
+        ],
         const SizedBox(height: EnterpriseSpacing.lg),
         const Wrap(
           spacing: EnterpriseSpacing.sm,
@@ -204,7 +210,7 @@ class _EmptyProposal extends StatelessWidget {
             ),
             const SizedBox(height: EnterpriseSpacing.sm),
             const Text(
-              'กด Generate เพื่อให้ AI สร้างข้อเสนอจากกฎและข้อมูลใน Canonical Core',
+              'เพิ่มเวรที่ต้องการแบบชัดเจน แล้วกด Generate เพื่อให้ AI สร้างข้อเสนอจาก Canonical Core',
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: EnterpriseSpacing.lg),
