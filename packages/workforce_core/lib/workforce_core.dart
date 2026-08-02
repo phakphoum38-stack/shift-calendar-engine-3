@@ -12,6 +12,7 @@ export 'src/roster/employee_availability.dart';
 export 'src/roster/roster_constraint.dart';
 export 'src/roster/roster_validation.dart';
 export 'src/roster/constraint_engine.dart';
+export 'src/roster/constraint_pipeline.dart';
 export 'src/roster/fairness_policy.dart';
 export 'src/roster/fairness_report.dart';
 export 'src/roster/fairness_engine.dart';
@@ -25,6 +26,7 @@ export 'src/scheduler/scheduler_request.dart';
 export 'src/scheduler/scheduler_result.dart';
 export 'src/scheduler/scheduler_engine.dart';
 export 'src/scheduler/greedy_scheduler.dart';
+export 'src/scheduler/scheduler_api.dart';
 
 export 'src/ai_scheduler/ai_constraint_plugin.dart';
 export 'src/ai_scheduler/ai_schedule_explanation.dart';
