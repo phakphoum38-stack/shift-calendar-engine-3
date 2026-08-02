@@ -20,9 +20,8 @@ abstract interface class AiConstraintPlugin {
 }
 
 final class AiConstraintPluginResult {
-  AiConstraintPluginResult({
-    required Iterable<RosterViolation> violations,
-  }) : violations = List.unmodifiable(violations);
+  AiConstraintPluginResult({required Iterable<RosterViolation> violations})
+    : violations = List.unmodifiable(violations);
 
   final List<RosterViolation> violations;
 
@@ -33,7 +32,7 @@ final class AiConstraintPluginResult {
 
 final class AiConstraintPluginEngine {
   AiConstraintPluginEngine({required Iterable<AiConstraintPlugin> plugins})
-      : plugins = List.unmodifiable(plugins) {
+    : plugins = List.unmodifiable(plugins) {
     final ids = this.plugins.map((plugin) => plugin.id).toList();
     if (ids.any((id) => id.trim().isEmpty)) {
       throw ArgumentError('Plugin ids must not be empty.');
