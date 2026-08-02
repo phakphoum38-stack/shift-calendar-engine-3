@@ -1,8 +1,9 @@
 import 'package:workforce_core/workforce_core.dart' as core;
 
+import '../../../core/result/result.dart';
+import '../../../domain/entities/employee.dart';
 import '../../../domain/entities/schedule.dart';
 import '../../../domain/repositories/employee_repository.dart';
-import '../../../core/result/result.dart';
 import 'ai_scheduler_request_factory.dart';
 
 /// Loads canonical employees and builds an explicit scheduler request.
@@ -32,7 +33,7 @@ final class AiSchedulerRequestProvider {
       );
     }
 
-    final failure = result as Failure;
+    final failure = result as Failure<List<Employee>>;
     throw AiSchedulerRequestLoadException(
       failure.message,
       cause: failure.cause,
