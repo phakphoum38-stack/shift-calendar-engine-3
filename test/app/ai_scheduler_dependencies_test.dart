@@ -3,6 +3,7 @@ import 'package:shift_calendar_engine/app/ai_scheduler_dependencies.dart';
 import 'package:shift_calendar_engine/app/app_dependencies.dart';
 import 'package:shift_calendar_engine/features/ai_scheduler/application/ai_scheduler_controller.dart';
 import 'package:shift_calendar_engine/features/ai_scheduler/application/ai_scheduler_request_factory.dart';
+import 'package:shift_calendar_engine/features/ai_scheduler/application/ai_scheduler_request_provider.dart';
 import 'package:workforce_core/workforce_core.dart';
 
 void main() {
@@ -53,6 +54,16 @@ void main() {
     final factory = dependencies.createAiSchedulerRequestFactory();
 
     expect(factory, isA<AiSchedulerRequestFactory>());
+  });
+
+  test('request provider uses the configured canonical employee repository', () {
+    final dependencies = AppDependencies();
+
+    final provider = dependencies.createAiSchedulerRequestProvider();
+
+    expect(provider, isA<AiSchedulerRequestProvider>());
+    expect(provider.employeeRepository, same(dependencies.employeeRepository));
+    expect(provider.factory, isA<AiSchedulerRequestFactory>());
   });
 }
 
