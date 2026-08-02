@@ -33,5 +33,4 @@ export 'src/ai_scheduler/ai_schedule_proposal.dart';
 export 'src/ai_scheduler/ai_schedule_simulation.dart';
 export 'src/ai_scheduler/ai_scheduler_assistant.dart';
 export 'src/ai_scheduler/ai_scheduler_rule_engine.dart';
-export 'src/ai_scheduler/canonical_constraint_plugin.dart';
 export 'src/ai_scheduler/deterministic_ai_scheduler.dart';
