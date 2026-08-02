@@ -39,14 +39,11 @@ final class GreedyScheduler implements SchedulerEngine {
       ShiftAssignment? selected;
       for (final employeeId in candidates) {
         final candidate = slot.assignTo(employeeId);
-        final validation = evaluationEngine.constraintEngine.validate(
-          [
-            ...request.existingAssignments,
-            ...generatedAssignments,
-            candidate,
-          ],
-          timeWindows: request.timeWindows,
-        );
+        final validation = evaluationEngine.constraintEngine.validate([
+          ...request.existingAssignments,
+          ...generatedAssignments,
+          candidate,
+        ], timeWindows: request.timeWindows);
         if (validation.isValid) {
           selected = candidate;
           break;
