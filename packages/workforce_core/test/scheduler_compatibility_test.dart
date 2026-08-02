@@ -29,11 +29,8 @@ void main() {
       );
 
       expect(result.isComplete, isTrue);
-      expect(result.assignments, hasLength(2));
-      expect(
-        result.assignments.singleWhere((item) => item.id == 'slot-1::e2'),
-        isNotNull,
-      );
+      expect(result.assignments, hasLength(1));
+      expect(result.assignments.single.id, 'slot-1::e2');
     });
 
     test('canonical API also respects existing assignments', () {
@@ -61,8 +58,8 @@ void main() {
       );
 
       expect(result.isComplete, isTrue);
-      expect(result.assignments, hasLength(2));
-      expect(result.assignments.last.employeeId, 'e2');
+      expect(result.assignments, hasLength(1));
+      expect(result.assignments.single.employeeId, 'e2');
     });
   });
 }
