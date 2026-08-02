@@ -7,9 +7,7 @@ void main() {
       plugins: const [_TestPlugin(id: 'hospital.skill')],
     );
 
-    final result = engine.evaluate(
-      AiConstraintContext(assignments: const []),
-    );
+    final result = engine.evaluate(AiConstraintContext(assignments: const []));
 
     expect(result.isValid, isFalse);
     expect(result.violations, hasLength(1));
