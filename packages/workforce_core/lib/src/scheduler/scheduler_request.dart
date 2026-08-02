@@ -46,15 +46,16 @@ final class SchedulerRequest {
   SchedulerRequest({
     required Iterable<String> employeeIds,
     required Iterable<SchedulerShiftSlot> slots,
-    this.existingAssignments = const [],
-    this.timeWindows = const [],
+    Iterable<ShiftAssignment> existingAssignments = const [],
+    Iterable<EmployeeTimeWindow> timeWindows = const [],
   }) : employeeIds = List.unmodifiable(
          employeeIds
              .map((value) => value.trim())
              .where((value) => value.isNotEmpty),
        ),
        slots = List.unmodifiable(slots),
-       existingAssignments = List.unmodifiable(existingAssignments) {
+       existingAssignments = List.unmodifiable(existingAssignments),
+       timeWindows = List.unmodifiable(timeWindows) {
     if (this.employeeIds.isEmpty) {
       throw ArgumentError('employeeIds must not be empty');
     }
