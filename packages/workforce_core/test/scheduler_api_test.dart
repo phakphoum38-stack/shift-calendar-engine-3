@@ -34,10 +34,9 @@ void main() {
     const pipeline = RosterConstraintPipeline(
       rules: [_WarningRule('custom-warning')],
     );
+    const context = RosterConstraintContext(assignments: []);
 
-    final validation = pipeline.validate(
-      const RosterConstraintContext(assignments: []),
-    );
+    final validation = pipeline.validate(context);
 
     expect(validation.isValid, isTrue);
     expect(validation.warnings, hasLength(1));
@@ -47,13 +46,9 @@ void main() {
     const pipeline = RosterConstraintPipeline(
       rules: [_WarningRule('duplicate'), _WarningRule('duplicate')],
     );
+    const context = RosterConstraintContext(assignments: []);
 
-    expect(
-      () => pipeline.validate(
-        const RosterConstraintContext(assignments: []),
-      ),
-      throwsStateError,
-    );
+    expect(() => pipeline.validate(context), throwsStateError);
   });
 
   test('scheduler API rejects invalid existing assignments', () {
@@ -65,11 +60,9 @@ void main() {
         assignment('a2', 'e1', 12),
       ],
     );
+    final generate = () => const SchedulerApi().generate(request);
 
-    expect(
-      () => const SchedulerApi().generate(request),
-      throwsA(isA<SchedulerInputException>()),
-    );
+    expect(generate, throwsA(isA<SchedulerInputException>()));
   });
 
   test('scheduler API returns publishable deterministic execution', () {
