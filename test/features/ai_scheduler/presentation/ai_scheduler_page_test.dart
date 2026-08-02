@@ -59,6 +59,7 @@ void main() {
     expect(find.text('Approve'), findsOneWidget);
 
     await tester.ensureVisible(find.text('Approve'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Approve'));
 
     expect(approved, isTrue);
