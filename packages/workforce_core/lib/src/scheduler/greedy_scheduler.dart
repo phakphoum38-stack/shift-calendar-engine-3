@@ -13,13 +13,19 @@ final class GreedyScheduler implements SchedulerEngine {
 
   @override
   SchedulerResult generate(SchedulerRequest request) {
-    final assignments = <ShiftAssignment>[];
+    final generatedAssignments = <ShiftAssignment>[];
     final unassignedSlotIds = <String>[];
     final loadByEmployee = <String, int>{
-      for (final employeeId in request.employeeIds) employeeId: 0,
+      for (final employeeId in request.employeeIds)
+        employeeId: request.existingAssignments
+            .where((assignment) => assignment.employeeId == employeeId)
+            .length,
     };
     final slots = List<SchedulerShiftSlot>.of(request.slots)
-      ..sort((a, b) => a.startsAt.compareTo(b.startsAt));
+      ..sort((a, b) {
+        final start = a.startsAt.compareTo(b.startsAt);
+        return start != 0 ? start : a.id.compareTo(b.id);
+      });
 
     for (final slot in slots) {
       final candidates = List<String>.of(request.employeeIds)
@@ -32,19 +38,15 @@ final class GreedyScheduler implements SchedulerEngine {
 
       ShiftAssignment? selected;
       for (final employeeId in candidates) {
-        final candidate = ShiftAssignment(
-          id: '${slot.id}::$employeeId',
-          employeeId: employeeId,
-          shiftCode: slot.shiftCode,
-          startsAt: slot.startsAt,
-          endsAt: slot.endsAt,
-          departmentId: slot.departmentId,
-          location: slot.location,
+        final candidate = slot.assignTo(employeeId);
+        final validation = evaluationEngine.constraintEngine.validate(
+          [
+            ...request.existingAssignments,
+            ...generatedAssignments,
+            candidate,
+          ],
+          timeWindows: request.timeWindows,
         );
-        final validation = evaluationEngine.constraintEngine.validate([
-          ...assignments,
-          candidate,
-        ], timeWindows: request.timeWindows);
         if (validation.isValid) {
           selected = candidate;
           break;
@@ -56,19 +58,19 @@ final class GreedyScheduler implements SchedulerEngine {
         continue;
       }
 
-      assignments.add(selected);
+      generatedAssignments.add(selected);
       loadByEmployee[selected.employeeId] =
           loadByEmployee[selected.employeeId]! + 1;
     }
 
     final evaluation = evaluationEngine.evaluate(
-      assignments,
+      [...request.existingAssignments, ...generatedAssignments],
       timeWindows: request.timeWindows,
       employeeIds: request.employeeIds,
     );
 
     return SchedulerResult(
-      assignments: List.unmodifiable(assignments),
+      assignments: List.unmodifiable(generatedAssignments),
       unassignedSlotIds: List.unmodifiable(unassignedSlotIds),
       evaluation: evaluation,
     );
