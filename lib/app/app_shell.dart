@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../domain/entities/schedule.dart';
+import '../features/ai_scheduler/application/ai_scheduler_controller.dart';
 import '../features/ai_scheduler/presentation/ai_scheduler_page.dart';
 import '../features/auth/application/auth_controller.dart';
 import '../features/dashboard/application/dashboard_summary_service.dart';
@@ -38,11 +39,13 @@ class AppShell extends StatefulWidget {
     required this.organizationManagementControllerFactory,
     required this.shiftTemplateControllerFactory,
     required this.reportControllerFactory,
+    this.aiSchedulerController,
     super.key,
   });
 
   final AppController controller;
   final AuthController authController;
+  final AiSchedulerController? aiSchedulerController;
   final DashboardSummaryService dashboardSummaryService;
   final RosterController Function(Schedule schedule) rosterControllerFactory;
   final RosterEditorController Function(Schedule schedule)
