@@ -1,0 +1,67 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:shift_calendar_engine/app/ai_scheduler_dependencies.dart';
+import 'package:shift_calendar_engine/app/app_dependencies.dart';
+import 'package:shift_calendar_engine/features/ai_scheduler/application/ai_scheduler_controller.dart';
+import 'package:shift_calendar_engine/features/ai_scheduler/application/ai_scheduler_request_factory.dart';
+import 'package:workforce_core/workforce_core.dart';
+
+void main() {
+  test('composition helpers inject the canonical assistant', () {
+    final dependencies = AppDependencies();
+    final assistant = _RecordingAssistant(_proposal());
+    final controller = dependencies.createAiSchedulerController(assistant);
+    final request = SchedulerRequest(
+      employeeIds: const ['employee-1'],
+      slots: const [],
+    );
+
+    controller.generate(request);
+
+    expect(controller, isA<AiSchedulerController>());
+    expect(controller.status, AiSchedulerStatus.ready);
+    expect(controller.proposal?.score, 95);
+    expect(assistant.lastRequest, same(request));
+  });
+
+  test('composition helpers expose the canonical request boundary', () {
+    final dependencies = AppDependencies();
+
+    final factory = dependencies.createAiSchedulerRequestFactory();
+
+    expect(factory, isA<AiSchedulerRequestFactory>());
+  });
+}
+
+AiScheduleProposal _proposal() {
+  return const AiScheduleProposal(
+    schedule: SchedulerResult(
+      assignments: [],
+      unassignedSlotIds: [],
+      evaluation: RosterEvaluationReport(
+        validation: RosterValidationResult(),
+        fairness: RosterFairnessReport(
+          score: 92,
+          employeeSummaries: [],
+          assignmentSpread: 0,
+          nightSpread: 0,
+          weekendSpread: 0,
+        ),
+        overallScore: 95,
+      ),
+    ),
+    details: [],
+  );
+}
+
+final class _RecordingAssistant implements AiSchedulerAssistant {
+  _RecordingAssistant(this.proposal);
+
+  final AiScheduleProposal proposal;
+  SchedulerRequest? lastRequest;
+
+  @override
+  AiScheduleProposal propose(SchedulerRequest request) {
+    lastRequest = request;
+    return proposal;
+  }
+}
