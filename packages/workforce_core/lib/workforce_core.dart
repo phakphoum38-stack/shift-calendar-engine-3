@@ -26,6 +26,8 @@ export 'src/scheduler/scheduler_result.dart';
 export 'src/scheduler/scheduler_engine.dart';
 export 'src/scheduler/greedy_scheduler.dart';
 
+export 'src/ai_scheduler/ai_schedule_explanation.dart';
 export 'src/ai_scheduler/ai_schedule_proposal.dart';
 export 'src/ai_scheduler/ai_scheduler_assistant.dart';
+export 'src/ai_scheduler/ai_scheduler_rule_engine.dart';
 export 'src/ai_scheduler/deterministic_ai_scheduler.dart';
