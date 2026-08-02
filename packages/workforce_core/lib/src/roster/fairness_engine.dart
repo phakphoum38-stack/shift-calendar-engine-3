@@ -14,8 +14,7 @@ final class RosterFairnessEngine {
     final ids = <String>{
       ...?employeeIds,
       for (final assignment in assignments) assignment.employeeId,
-    }.toList()
-      ..sort();
+    }.toList()..sort();
 
     final summaries = <EmployeeFairnessSummary>[];
 
