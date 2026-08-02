@@ -5,14 +5,24 @@ import 'package:workforce_core/workforce_core.dart'
         OrganizationRepository,
         TeamRepository;
 
+import '../core/network/api_client.dart';
+import '../core/network/api_configuration.dart';
 import '../domain/entities/app_settings.dart';
+import '../features/auth/application/auth_controller.dart';
+import '../features/auth/domain/auth_repository.dart';
+import '../features/auth/infrastructure/api_auth_repository.dart';
+import '../features/auth/infrastructure/secure_token_store.dart';
+import '../features/auth/infrastructure/token_store.dart';
 import '../domain/entities/schedule.dart';
 import '../domain/repositories/employee_repository.dart';
 import '../domain/repositories/schedule_repository.dart';
 import '../domain/repositories/settings_repository.dart';
 import '../domain/repositories/shift_template_repository.dart';
 import '../features/dashboard/application/dashboard_summary_service.dart';
+import '../features/employees/application/employee_application_service.dart';
+import '../features/employees/application/employee_controller.dart';
 import '../features/employees/application/employee_directory_controller.dart';
+import '../features/employees/infrastructure/api_employee_repository.dart';
 import '../features/employees/infrastructure/shared_preferences_employee_repository.dart';
 import '../features/foundation/infrastructure/memory_schedule_repository.dart';
 import '../features/foundation/infrastructure/memory_settings_repository.dart';
@@ -28,6 +38,8 @@ import '../features/reports/application/report_service.dart';
 import '../features/reports/domain/monthly_roster_report.dart';
 import '../features/reports/infrastructure/monthly_roster_pdf_service.dart';
 import '../features/reports/infrastructure/printing_report_output_gateway.dart';
+import '../features/roster/application/drive_roster_source_controller.dart';
+import '../features/roster/application/drive_roster_source_gateway.dart';
 import '../features/roster/application/roster_controller.dart';
 import '../features/roster/application/roster_editor_controller.dart';
 import '../features/settings/infrastructure/shared_preferences_settings_repository.dart';
@@ -46,9 +58,13 @@ class AppDependencies {
     BranchRepository? branchRepository,
     DepartmentRepository? departmentRepository,
     TeamRepository? teamRepository,
+    TokenStore? tokenStore,
+    ApiClient? apiClient,
+    AuthRepository? authRepository,
     MonthlyRosterReportMapper? monthlyRosterReportMapper,
     this.reportServiceOverride,
     ReportOutputGateway? reportOutputGateway,
+    DriveRosterSourceGateway? driveRosterSourceGateway,
     this.dashboardSummaryService = const DashboardSummaryService(),
   }) : scheduleRepository = scheduleRepository ?? MemoryScheduleRepository(),
        settingsRepository =
@@ -69,14 +85,46 @@ class AppDependencies {
        monthlyRosterReportMapper =
            monthlyRosterReportMapper ?? const MonthlyRosterReportMapper(),
        reportOutputGateway =
-           reportOutputGateway ?? const PrintingReportOutputGateway();
+           reportOutputGateway ?? const PrintingReportOutputGateway(),
+       driveRosterSourceGateway =
+           driveRosterSourceGateway ??
+           const UnconfiguredDriveRosterSourceGateway() {
+    final resolvedTokenStore = tokenStore ?? SecureTokenStore();
+
+    this.tokenStore = resolvedTokenStore;
+    this.apiClient =
+        apiClient ??
+        ApiClient(
+          configuration: ApiConfiguration.fromEnvironment(),
+          tokenStore: resolvedTokenStore,
+        );
+    this.authRepository =
+        authRepository ??
+        ApiAuthRepository(
+          apiClient: this.apiClient,
+          tokenStore: resolvedTokenStore,
+        );
+  }
 
   factory AppDependencies.production() {
+    final tokenStore = SecureTokenStore();
+    final apiClient = ApiClient(
+      configuration: ApiConfiguration.fromEnvironment(),
+      tokenStore: tokenStore,
+    );
+
     return AppDependencies(
       scheduleRepository: SharedPreferencesScheduleRepository(),
       settingsRepository: SharedPreferencesSettingsRepository(),
+      employeeRepository: ApiEmployeeRepository(apiClient: apiClient),
+      tokenStore: tokenStore,
+      apiClient: apiClient,
     );
   }
+
+  late final TokenStore tokenStore;
+  late final ApiClient apiClient;
+  late final AuthRepository authRepository;
 
   final ScheduleRepository scheduleRepository;
   final SettingsRepository settingsRepository;
@@ -89,11 +137,19 @@ class AppDependencies {
   final DashboardSummaryService dashboardSummaryService;
   final MonthlyRosterReportMapper monthlyRosterReportMapper;
   final ReportOutputGateway reportOutputGateway;
+  final DriveRosterSourceGateway driveRosterSourceGateway;
   final MonthlyRosterReportService? reportServiceOverride;
 
   MonthlyRosterReportService get monthlyRosterReportService =>
       reportServiceOverride ??
       MonthlyRosterPdfService(mapper: monthlyRosterReportMapper);
+
+  EmployeeApplicationService get employeeApplicationService =>
+      EmployeeApplicationService(repository: employeeRepository);
+
+  AuthController createAuthController() {
+    return AuthController(repository: authRepository);
+  }
 
   AppController createAppController() {
     return AppController(
@@ -115,6 +171,10 @@ class AppDependencies {
     );
   }
 
+  DriveRosterSourceController createDriveRosterSourceController() {
+    return DriveRosterSourceController(gateway: driveRosterSourceGateway);
+  }
+
   EmployeeDirectoryController createEmployeeDirectoryController(
     Schedule schedule,
   ) {
@@ -122,6 +182,14 @@ class AppDependencies {
       repository: employeeRepository,
       schedule: schedule,
     );
+  }
+
+  EmployeeApplicationService createEmployeeApplicationService() {
+    return EmployeeApplicationService(repository: employeeRepository);
+  }
+
+  EmployeeController createEmployeeController() {
+    return EmployeeController(service: createEmployeeApplicationService());
   }
 
   OrganizationManagementController createOrganizationManagementController() {

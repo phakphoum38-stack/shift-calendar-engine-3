@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../domain/entities/app_settings.dart';
+import '../features/auth/application/auth_controller.dart';
+import '../features/auth/application/auth_state.dart';
+import '../features/auth/presentation/login_screen.dart';
 import '../l10n/app_localizations.dart';
 import 'app_controller.dart';
 import 'app_dependencies.dart';
@@ -11,11 +14,13 @@ class ShiftCalendarEngineApp extends StatefulWidget {
   const ShiftCalendarEngineApp({
     required this.dependencies,
     this.controller,
+    this.authController,
     super.key,
   });
 
   final AppDependencies dependencies;
   final AppController? controller;
+  final AuthController? authController;
 
   @override
   State<ShiftCalendarEngineApp> createState() => _ShiftCalendarEngineAppState();
@@ -24,64 +29,113 @@ class ShiftCalendarEngineApp extends StatefulWidget {
 class _ShiftCalendarEngineAppState extends State<ShiftCalendarEngineApp> {
   late final AppController controller =
       widget.controller ?? widget.dependencies.createAppController();
+
+  late final AuthController authController =
+      widget.authController ?? widget.dependencies.createAuthController();
+
   late final bool ownsController = widget.controller == null;
+  late final bool ownsAuthController = widget.authController == null;
 
   @override
   void initState() {
     super.initState();
     controller.initialize();
+    authController.initialize();
   }
 
   @override
   void dispose() {
-    if (ownsController) controller.dispose();
+    if (ownsController) {
+      controller.dispose();
+    }
+
+    if (ownsAuthController) {
+      authController.dispose();
+    }
+
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) => ListenableBuilder(
-    listenable: controller,
-    builder: (context, _) {
-      final settings = controller.settings;
-      return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        locale: switch (settings.locale) {
-          LocalePreference.system => null,
-          LocalePreference.english => const Locale('en'),
-          LocalePreference.thai => const Locale('th'),
-        },
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
-        themeMode: switch (settings.theme) {
-          ThemePreference.system => ThemeMode.system,
-          ThemePreference.light => ThemeMode.light,
-          ThemePreference.dark => ThemeMode.dark,
-        },
-        theme: _theme(Brightness.light),
-        darkTheme: _theme(Brightness.dark),
-        home: controller.loading
-            ? const Scaffold(body: Center(child: CircularProgressIndicator()))
-            : AppShell(
-                controller: controller,
-                dashboardSummaryService:
-                    widget.dependencies.dashboardSummaryService,
-                rosterControllerFactory:
-                    widget.dependencies.createRosterController,
-                rosterEditorControllerFactory:
-                    widget.dependencies.createRosterEditorController,
-                employeeDirectoryControllerFactory:
-                    widget.dependencies.createEmployeeDirectoryController,
-                organizationManagementControllerFactory:
-                    widget.dependencies.createOrganizationManagementController,
-                shiftTemplateControllerFactory:
-                    widget.dependencies.createShiftTemplateController,
-                reportControllerFactory:
-                    widget.dependencies.createReportController,
-              ),
-      );
-    },
-  );
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: Listenable.merge([controller, authController]),
+      builder: (context, _) {
+        final settings = controller.settings;
+
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          locale: switch (settings.locale) {
+            LocalePreference.system => null,
+            LocalePreference.english => const Locale('en'),
+            LocalePreference.thai => const Locale('th'),
+          },
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
+          themeMode: switch (settings.theme) {
+            ThemePreference.system => ThemeMode.system,
+            ThemePreference.light => ThemeMode.light,
+            ThemePreference.dark => ThemeMode.dark,
+          },
+          theme: _theme(Brightness.light),
+          darkTheme: _theme(Brightness.dark),
+          home: _buildHome(),
+        );
+      },
+    );
+  }
+
+  Widget _buildHome() {
+    if (controller.loading ||
+        authController.state.status == AuthStatus.unknown) {
+      return const _StartupScreen();
+    }
+
+    if (!authController.state.isAuthenticated) {
+      return LoginScreen(controller: authController);
+    }
+
+    return AppShell(
+      controller: controller,
+      authController: authController,
+      dashboardSummaryService: widget.dependencies.dashboardSummaryService,
+      rosterControllerFactory: widget.dependencies.createRosterController,
+      rosterEditorControllerFactory:
+          widget.dependencies.createRosterEditorController,
+      driveRosterSourceControllerFactory:
+          widget.dependencies.createDriveRosterSourceController,
+      employeeDirectoryControllerFactory:
+          widget.dependencies.createEmployeeDirectoryController,
+      organizationManagementControllerFactory:
+          widget.dependencies.createOrganizationManagementController,
+      shiftTemplateControllerFactory:
+          widget.dependencies.createShiftTemplateController,
+      reportControllerFactory: widget.dependencies.createReportController,
+    );
+  }
+}
+
+class _StartupScreen extends StatelessWidget {
+  const _StartupScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 20),
+            Text(
+              'เธเธณเธฅเธฑเธเธ•เธฃเธงเธเธชเธญเธเธเธฒเธฃเน€เธเนเธฒเธชเธนเนเธฃเธฐเธเธ...',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 ThemeData _theme(Brightness brightness) {
@@ -89,10 +143,15 @@ ThemeData _theme(Brightness brightness) {
     seedColor: const Color(0xFF006B68),
     brightness: brightness,
   );
+
   return ThemeData(
     useMaterial3: true,
     colorScheme: scheme,
     scaffoldBackgroundColor: scheme.surfaceContainerLowest,
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: scheme.surfaceContainerLowest,
+    ),
     cardTheme: CardThemeData(
       elevation: 0,
       margin: EdgeInsets.zero,

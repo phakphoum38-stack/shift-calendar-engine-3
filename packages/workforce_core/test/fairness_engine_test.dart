@@ -54,7 +54,9 @@ void main() {
     expect(report.employeeSummaries, hasLength(2));
     expect(report.assignmentSpread, 1);
     expect(
-      report.employeeSummaries.singleWhere((value) => value.employeeId == 'e2').totalAssignments,
+      report.employeeSummaries
+          .singleWhere((value) => value.employeeId == 'e2')
+          .totalAssignments,
       0,
     );
   });

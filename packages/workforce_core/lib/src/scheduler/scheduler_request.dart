@@ -1,5 +1,4 @@
-import 'employee_availability.dart';
-import 'shift_assignment.dart';
+import '../roster/employee_availability.dart';
 
 final class SchedulerShiftSlot {
   SchedulerShiftSlot({
@@ -28,37 +27,28 @@ final class SchedulerShiftSlot {
   final DateTime endsAt;
   final String departmentId;
   final String location;
-
-  ShiftAssignment assignTo(String employeeId) {
-    return ShiftAssignment(
-      id: 'auto:$id:$employeeId',
-      employeeId: employeeId,
-      shiftCode: shiftCode,
-      startsAt: startsAt,
-      endsAt: endsAt,
-      departmentId: departmentId,
-      location: location,
-    );
-  }
 }
 
-final class RosterSchedulerRequest {
-  RosterSchedulerRequest({
+final class SchedulerRequest {
+  SchedulerRequest({
     required Iterable<String> employeeIds,
-    required Iterable<SchedulerShiftSlot> shifts,
-    this.existingAssignments = const [],
+    required Iterable<SchedulerShiftSlot> slots,
     this.timeWindows = const [],
   }) : employeeIds = List.unmodifiable(
-         employeeIds.map((value) => value.trim()).where((value) => value.isNotEmpty).toSet(),
+         employeeIds
+             .map((value) => value.trim())
+             .where((value) => value.isNotEmpty),
        ),
-       shifts = List.unmodifiable(shifts) {
+       slots = List.unmodifiable(slots) {
     if (this.employeeIds.isEmpty) {
-      throw ArgumentError('At least one employee is required.');
+      throw ArgumentError('employeeIds must not be empty');
+    }
+    if (this.employeeIds.toSet().length != this.employeeIds.length) {
+      throw ArgumentError('employeeIds must be unique');
     }
   }
 
   final List<String> employeeIds;
-  final List<SchedulerShiftSlot> shifts;
-  final List<ShiftAssignment> existingAssignments;
+  final List<SchedulerShiftSlot> slots;
   final List<EmployeeTimeWindow> timeWindows;
 }

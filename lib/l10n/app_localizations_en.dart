@@ -337,4 +337,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get inactive => 'Inactive';
+
+  @override
+  String get googleDrive => 'Google Drive';
+
+  @override
+  String get googleDriveDescription =>
+      'Choose the roster source to load from Google Drive.';
+
+  @override
+  String get openGoogleDrive => 'Google Drive';
+
+  @override
+  String get recentlyModified => 'Recently Modified';
+
+  @override
+  String get lastImported => 'Last Imported';
+
+  @override
+  String get loadCurrentSource => 'Load Current Source';
+
+  @override
+  String get noDriveRosterFiles =>
+      'No roster files have been loaded from Google Drive.';
+
+  @override
+  String get noLastImportedSource => 'No source has been imported yet.';
+
+  @override
+  String get googleDriveNotConfigured =>
+      'Google Drive is not configured. Add an OAuth-backed Drive gateway to connect an account.';
+
+  @override
+  String get googleDriveLoadFailed => 'Could not load the Google Drive source.';
+
+  @override
+  String get driveSourceLoaded => 'The current source was loaded.';
 }
