@@ -2,26 +2,27 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../domain/entities/schedule.dart';
+import '../features/ai_scheduler/presentation/ai_scheduler_page.dart';
 import '../features/auth/application/auth_controller.dart';
 import '../features/dashboard/application/dashboard_summary_service.dart';
 import '../features/dashboard/presentation/dashboard_page.dart';
+import '../features/employees/application/employee_directory_controller.dart';
 import '../features/employees/presentation/employees_page.dart';
 import '../features/exchange/presentation/exchange_page.dart';
 import '../features/organization/application/organization_management_controller.dart';
 import '../features/organization/presentation/organization_management_page.dart';
-import '../features/reports/presentation/reports_page.dart';
 import '../features/reports/application/report_controller.dart';
 import '../features/reports/domain/monthly_roster_report.dart';
+import '../features/reports/presentation/reports_page.dart';
+import '../features/roster/application/drive_roster_source_controller.dart';
 import '../features/roster/application/roster_controller.dart';
 import '../features/roster/application/roster_editor_controller.dart';
-import '../features/roster/application/drive_roster_source_controller.dart';
 import '../features/roster/presentation/roster_page.dart';
-import '../features/employees/application/employee_directory_controller.dart';
+import '../features/settings/presentation/settings_page.dart';
 import '../features/shift_templates/application/shift_template_controller.dart';
 import '../features/shift_templates/presentation/shift_templates_page.dart';
-import '../features/settings/presentation/settings_page.dart';
 import '../l10n/l10n.dart';
-import '../domain/entities/schedule.dart';
 import 'app_controller.dart';
 
 /// Adaptive application shell.
@@ -73,6 +74,10 @@ class _AppShellState extends State<AppShell> {
         icon: const Icon(Icons.dashboard_outlined),
         label: context.l10n.dashboard,
       ),
+      const NavigationDestination(
+        icon: Icon(Icons.auto_awesome_outlined),
+        label: 'AI Scheduler',
+      ),
       NavigationDestination(
         icon: const Icon(Icons.calendar_month_outlined),
         label: context.l10n.roster,
@@ -102,8 +107,9 @@ class _AppShellState extends State<AppShell> {
       DashboardPage(
         schedule: widget.controller.schedule,
         summaryService: widget.dashboardSummaryService,
-        openRoster: () => setState(() => selectedIndex = 1),
+        openRoster: () => setState(() => selectedIndex = 2),
       ),
+      AiSchedulerPage(onGenerate: _showSchedulerConnectionNotice),
       RosterPage(
         schedule: widget.controller.schedule,
         controllerFactory: widget.rosterControllerFactory,
@@ -173,6 +179,16 @@ class _AppShellState extends State<AppShell> {
                 ),
         );
       },
+    );
+  }
+
+  void _showSchedulerConnectionNotice() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'หน้า AI Scheduler พร้อมแล้ว กำลังเชื่อม Application Layer กับ Canonical Core',
+        ),
+      ),
     );
   }
 
