@@ -60,7 +60,8 @@ void main() {
         assignment('a2', 'e1', 12),
       ],
     );
-    final generate = () => const SchedulerApi().generate(request);
+
+    SchedulerExecution generate() => const SchedulerApi().generate(request);
 
     expect(generate, throwsA(isA<SchedulerInputException>()));
   });
