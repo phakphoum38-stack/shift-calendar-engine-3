@@ -24,7 +24,8 @@ void main() {
       ),
       details: const [
         AiScheduleExplanation(
-          type: AiScheduleExplanationType.summary,
+          code: 'balanced-proposal',
+          kind: AiScheduleExplanationKind.fairness,
           message: 'Balanced proposal',
         ),
       ],
