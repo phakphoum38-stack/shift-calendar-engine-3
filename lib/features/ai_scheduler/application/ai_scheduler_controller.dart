@@ -8,11 +8,11 @@ enum AiSchedulerStatus { idle, generating, ready, failure }
 
 final class AiSchedulerController extends ChangeNotifier {
   AiSchedulerController({
-    required AiSchedulerAssistant assistant,
+    required this.assistant,
     this.mapper = const AiScheduleProposalMapper(),
-  }) : _assistant = assistant;
+  });
 
-  final AiSchedulerAssistant _assistant;
+  final AiSchedulerAssistant assistant;
   final AiScheduleProposalMapper mapper;
 
   AiSchedulerStatus _status = AiSchedulerStatus.idle;
@@ -30,7 +30,7 @@ final class AiSchedulerController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final canonicalProposal = _assistant.propose(request);
+      final canonicalProposal = assistant.propose(request);
       _proposal = mapper.map(canonicalProposal);
       _status = AiSchedulerStatus.ready;
     } on Object catch (error) {
