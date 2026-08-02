@@ -1,4 +1,5 @@
 import '../roster/employee_availability.dart';
+import '../roster/shift_assignment.dart';
 
 final class SchedulerShiftSlot {
   SchedulerShiftSlot({
@@ -33,6 +34,7 @@ final class SchedulerRequest {
   SchedulerRequest({
     required Iterable<String> employeeIds,
     required Iterable<SchedulerShiftSlot> slots,
+    this.existingAssignments = const [],
     this.timeWindows = const [],
   }) : employeeIds = List.unmodifiable(
          employeeIds
@@ -46,9 +48,17 @@ final class SchedulerRequest {
     if (this.employeeIds.toSet().length != this.employeeIds.length) {
       throw ArgumentError('employeeIds must be unique');
     }
+    if (existingAssignments.any(
+      (assignment) => !this.employeeIds.contains(assignment.employeeId),
+    )) {
+      throw ArgumentError(
+        'existingAssignments must belong to employees in employeeIds',
+      );
+    }
   }
 
   final List<String> employeeIds;
   final List<SchedulerShiftSlot> slots;
+  final List<ShiftAssignment> existingAssignments;
   final List<EmployeeTimeWindow> timeWindows;
 }
