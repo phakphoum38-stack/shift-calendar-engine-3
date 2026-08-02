@@ -13,13 +13,26 @@ final class GreedyScheduler implements SchedulerEngine {
 
   @override
   SchedulerResult generate(SchedulerRequest request) {
-    final assignments = <ShiftAssignment>[];
+    final assignments = <ShiftAssignment>[
+      ...request.existingAssignments,
+    ];
     final unassignedSlotIds = <String>[];
     final loadByEmployee = <String, int>{
       for (final employeeId in request.employeeIds) employeeId: 0,
     };
+
+    for (final assignment in request.existingAssignments) {
+      if (loadByEmployee.containsKey(assignment.employeeId)) {
+        loadByEmployee[assignment.employeeId] =
+            loadByEmployee[assignment.employeeId]! + 1;
+      }
+    }
+
     final slots = List<SchedulerShiftSlot>.of(request.slots)
-      ..sort((a, b) => a.startsAt.compareTo(b.startsAt));
+      ..sort((a, b) {
+        final startComparison = a.startsAt.compareTo(b.startsAt);
+        return startComparison != 0 ? startComparison : a.id.compareTo(b.id);
+      });
 
     for (final slot in slots) {
       final candidates = List<String>.of(request.employeeIds)
@@ -32,19 +45,11 @@ final class GreedyScheduler implements SchedulerEngine {
 
       ShiftAssignment? selected;
       for (final employeeId in candidates) {
-        final candidate = ShiftAssignment(
-          id: '${slot.id}::$employeeId',
-          employeeId: employeeId,
-          shiftCode: slot.shiftCode,
-          startsAt: slot.startsAt,
-          endsAt: slot.endsAt,
-          departmentId: slot.departmentId,
-          location: slot.location,
+        final candidate = slot.assignTo(employeeId);
+        final validation = evaluationEngine.constraintEngine.validate(
+          [...assignments, candidate],
+          timeWindows: request.timeWindows,
         );
-        final validation = evaluationEngine.constraintEngine.validate([
-          ...assignments,
-          candidate,
-        ], timeWindows: request.timeWindows);
         if (validation.isValid) {
           selected = candidate;
           break;
