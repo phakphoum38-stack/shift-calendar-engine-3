@@ -2,7 +2,7 @@ import 'ai_schedule_proposal.dart';
 
 final class AiScheduleSimulation {
   AiScheduleSimulation({required Iterable<AiScheduleProposal> proposals})
-      : proposals = List.unmodifiable(proposals) {
+    : proposals = List.unmodifiable(proposals) {
     if (this.proposals.isEmpty) {
       throw ArgumentError.value(
         proposals,
@@ -19,10 +19,7 @@ final class AiScheduleSimulation {
     return ranked.first;
   }
 
-  static int _compare(
-    AiScheduleProposal left,
-    AiScheduleProposal right,
-  ) {
+  static int _compare(AiScheduleProposal left, AiScheduleProposal right) {
     final leftErrors = left.schedule.evaluation.validation.errors.length;
     final rightErrors = right.schedule.evaluation.validation.errors.length;
     final errorComparison = leftErrors.compareTo(rightErrors);
@@ -36,7 +33,8 @@ final class AiScheduleSimulation {
       return unassignedComparison;
     }
 
-    return right.schedule.evaluation.overallScore
-        .compareTo(left.schedule.evaluation.overallScore);
+    return right.schedule.evaluation.overallScore.compareTo(
+      left.schedule.evaluation.overallScore,
+    );
   }
 }
