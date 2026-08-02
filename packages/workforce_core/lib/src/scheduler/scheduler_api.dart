@@ -18,10 +18,7 @@ final class SchedulerInputException implements Exception {
 }
 
 final class SchedulerExecution {
-  const SchedulerExecution({
-    required this.result,
-    required this.validation,
-  });
+  const SchedulerExecution({required this.result, required this.validation});
 
   final SchedulerResult result;
   final RosterValidationResult validation;
@@ -61,9 +58,6 @@ final class SchedulerApi {
       ),
     );
 
-    return SchedulerExecution(
-      result: result,
-      validation: finalValidation,
-    );
+    return SchedulerExecution(result: result, validation: finalValidation);
   }
 }
