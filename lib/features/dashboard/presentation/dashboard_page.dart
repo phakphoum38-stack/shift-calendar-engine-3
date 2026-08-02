@@ -5,6 +5,7 @@ import '../../../design_system/enterprise_tokens.dart';
 import '../../../domain/entities/schedule.dart';
 import '../../../l10n/l10n.dart';
 import '../application/dashboard_summary_service.dart';
+import '../domain/dashboard_summary.dart';
 
 /// Responsive daily and monthly operational overview.
 class DashboardPage extends StatelessWidget {
@@ -79,7 +80,9 @@ class DashboardPage extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(child: _ScheduleCard(summary: summary, schedule: schedule)),
+              Expanded(
+                child: _ScheduleCard(summary: summary, schedule: schedule),
+              ),
               const SizedBox(width: EnterpriseSpacing.md),
               const Expanded(child: _AiSchedulerCard()),
             ],
