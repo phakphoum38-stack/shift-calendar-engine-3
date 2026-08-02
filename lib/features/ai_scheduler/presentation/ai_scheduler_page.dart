@@ -8,6 +8,8 @@ import '../application/ai_scheduler_view_data.dart';
 class AiSchedulerPage extends StatelessWidget {
   const AiSchedulerPage({
     this.proposal,
+    this.loading = false,
+    this.errorMessage,
     this.onGenerate,
     this.onPreview,
     this.onCompare,
@@ -17,6 +19,8 @@ class AiSchedulerPage extends StatelessWidget {
   });
 
   final AiSchedulerViewData? proposal;
+  final bool loading;
+  final String? errorMessage;
   final VoidCallback? onGenerate;
   final VoidCallback? onPreview;
   final VoidCallback? onCompare;
@@ -53,9 +57,14 @@ class AiSchedulerPage extends StatelessWidget {
               ],
             ),
             FilledButton.icon(
-              onPressed: onGenerate,
-              icon: const Icon(Icons.auto_awesome_rounded),
-              label: const Text('Generate proposal'),
+              onPressed: loading ? null : onGenerate,
+              icon: loading
+                  ? const SizedBox.square(
+                      dimension: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.auto_awesome_rounded),
+              label: Text(loading ? 'Generating...' : 'Generate proposal'),
             ),
           ],
         ),
@@ -78,8 +87,14 @@ class AiSchedulerPage extends StatelessWidget {
             ),
           ],
         ),
+        if (errorMessage != null) ...[
+          const SizedBox(height: EnterpriseSpacing.lg),
+          _ErrorCard(message: errorMessage!, onRetry: onGenerate),
+        ],
         const SizedBox(height: EnterpriseSpacing.lg),
-        if (currentProposal == null)
+        if (loading)
+          const _GeneratingCard()
+        else if (currentProposal == null)
           _EmptyProposal(onGenerate: onGenerate)
         else
           _ProposalWorkspace(
@@ -90,6 +105,78 @@ class AiSchedulerPage extends StatelessWidget {
             onReject: onReject,
           ),
       ],
+    );
+  }
+}
+
+class _GeneratingCard extends StatelessWidget {
+  const _GeneratingCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(EnterpriseSpacing.xl),
+        child: Column(
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: EnterpriseSpacing.lg),
+            Text(
+              'กำลังสร้างข้อเสนอตารางเวร',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: EnterpriseSpacing.sm),
+            const Text(
+              'Canonical Core กำลังตรวจ constraints, fairness และ conflicts',
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ErrorCard extends StatelessWidget {
+  const _ErrorCard({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback? onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(EnterpriseSpacing.lg),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(Icons.error_outline_rounded, color: scheme.error),
+            const SizedBox(width: EnterpriseSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'สร้างข้อเสนอไม่สำเร็จ',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: scheme.error,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: EnterpriseSpacing.xs),
+                  Text(message),
+                ],
+              ),
+            ),
+            const SizedBox(width: EnterpriseSpacing.md),
+            OutlinedButton(onPressed: onRetry, child: const Text('Retry')),
+          ],
+        ),
+      ),
     );
   }
 }
