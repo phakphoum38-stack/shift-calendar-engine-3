@@ -2,29 +2,20 @@ import 'package:test/test.dart';
 import 'package:workforce_core/workforce_core.dart';
 
 void main() {
-  test('canonical plugin reuses roster constraint validation', () {
-    final assignment = ShiftAssignment(
-      id: 'a1',
-      employeeId: 'e1',
-      shiftCode: 'M',
-      startsAt: DateTime.utc(2026, 8, 5, 8),
-      endsAt: DateTime.utc(2026, 8, 5, 16),
-    );
+  test('plugin engine aggregates extension violations', () {
     final engine = AiConstraintPluginEngine(
-      plugins: const [CanonicalConstraintPlugin()],
+      plugins: const [_TestPlugin(id: 'hospital.skill')],
     );
 
     final result = engine.evaluate(
-      AiConstraintContext(assignments: [assignment, assignment]),
+      AiConstraintContext(assignments: const []),
     );
 
     expect(result.isValid, isFalse);
+    expect(result.violations, hasLength(1));
     expect(
-      result.violations.any(
-        (violation) =>
-            violation.code == RosterViolationCode.duplicateAssignment,
-      ),
-      isTrue,
+      result.violations.single.code,
+      RosterViolationCode.outsideAvailability,
     );
   });
 
@@ -32,11 +23,29 @@ void main() {
     expect(
       () => AiConstraintPluginEngine(
         plugins: const [
-          CanonicalConstraintPlugin(),
-          CanonicalConstraintPlugin(),
+          _TestPlugin(id: 'hospital.skill'),
+          _TestPlugin(id: 'hospital.skill'),
         ],
       ),
       throwsArgumentError,
     );
   });
+}
+
+final class _TestPlugin implements AiConstraintPlugin {
+  const _TestPlugin({required this.id});
+
+  @override
+  final String id;
+
+  @override
+  Iterable<RosterViolation> evaluate(AiConstraintContext context) {
+    return const [
+      RosterViolation(
+        code: RosterViolationCode.outsideAvailability,
+        severity: RosterViolationSeverity.error,
+        message: 'Extension rule rejected the proposal.',
+      ),
+    ];
+  }
 }
