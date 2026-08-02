@@ -53,7 +53,8 @@ void main() {
     await tester.tap(find.text('Generate proposal').first);
     await tester.pump();
 
-    expect(find.textContaining('Unable to generate proposal'), findsOneWidget);
+    expect(find.text('สร้างข้อเสนอไม่สำเร็จ'), findsOneWidget);
+    expect(find.textContaining('generation failed'), findsOneWidget);
     expect(controller.proposal, isNull);
   });
 }
