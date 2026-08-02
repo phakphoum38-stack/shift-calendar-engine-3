@@ -1,4 +1,5 @@
 import '../roster/employee_availability.dart';
+import '../roster/shift_assignment.dart';
 
 final class SchedulerShiftSlot {
   SchedulerShiftSlot({
@@ -27,19 +28,34 @@ final class SchedulerShiftSlot {
   final DateTime endsAt;
   final String departmentId;
   final String location;
+
+  ShiftAssignment assignTo(String employeeId) {
+    return ShiftAssignment(
+      id: '$id::$employeeId',
+      employeeId: employeeId,
+      shiftCode: shiftCode,
+      startsAt: startsAt,
+      endsAt: endsAt,
+      departmentId: departmentId,
+      location: location,
+    );
+  }
 }
 
 final class SchedulerRequest {
   SchedulerRequest({
     required Iterable<String> employeeIds,
     required Iterable<SchedulerShiftSlot> slots,
-    this.timeWindows = const [],
+    Iterable<ShiftAssignment> existingAssignments = const [],
+    Iterable<EmployeeTimeWindow> timeWindows = const [],
   }) : employeeIds = List.unmodifiable(
          employeeIds
              .map((value) => value.trim())
              .where((value) => value.isNotEmpty),
        ),
-       slots = List.unmodifiable(slots) {
+       slots = List.unmodifiable(slots),
+       existingAssignments = List.unmodifiable(existingAssignments),
+       timeWindows = List.unmodifiable(timeWindows) {
     if (this.employeeIds.isEmpty) {
       throw ArgumentError('employeeIds must not be empty');
     }
@@ -50,5 +66,6 @@ final class SchedulerRequest {
 
   final List<String> employeeIds;
   final List<SchedulerShiftSlot> slots;
+  final List<ShiftAssignment> existingAssignments;
   final List<EmployeeTimeWindow> timeWindows;
 }

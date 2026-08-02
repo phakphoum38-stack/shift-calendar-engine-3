@@ -17,6 +17,9 @@ export 'src/roster/fairness_report.dart';
 export 'src/roster/fairness_engine.dart';
 export 'src/roster/evaluation_report.dart';
 export 'src/roster/evaluation_engine.dart';
+export 'src/roster/scheduler_request.dart' show RosterSchedulerRequest;
+export 'src/roster/scheduler_result.dart' show RosterSchedulerResult;
+export 'src/roster/greedy_scheduler.dart' show GreedyRosterScheduler;
 
 export 'src/scheduler/scheduler_request.dart';
 export 'src/scheduler/scheduler_result.dart';
