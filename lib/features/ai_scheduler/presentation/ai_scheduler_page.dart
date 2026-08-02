@@ -47,11 +47,11 @@ class AiSchedulerPage extends StatelessWidget {
     final currentProposal = proposal;
 
     return ListView(
-      padding: const EdgeInsets.all(EnterpriseSpacing.page),
+      padding: const EdgeInsets.all(EnterpriseSpacing.lg),
       children: [
         Wrap(
-          spacing: EnterpriseSpacing.medium,
-          runSpacing: EnterpriseSpacing.medium,
+          spacing: EnterpriseSpacing.md,
+          runSpacing: EnterpriseSpacing.md,
           alignment: WrapAlignment.spaceBetween,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
@@ -64,7 +64,7 @@ class AiSchedulerPage extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: EnterpriseSpacing.xSmall),
+                const SizedBox(height: EnterpriseSpacing.xs),
                 Text(
                   'สร้าง ตรวจสอบ และอนุมัติข้อเสนอตารางเวรอย่างปลอดภัย',
                   style: Theme.of(context).textTheme.bodyLarge,
@@ -78,29 +78,26 @@ class AiSchedulerPage extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: EnterpriseSpacing.large),
+        const SizedBox(height: EnterpriseSpacing.lg),
         const Wrap(
-          spacing: EnterpriseSpacing.small,
-          runSpacing: EnterpriseSpacing.small,
+          spacing: EnterpriseSpacing.sm,
+          runSpacing: EnterpriseSpacing.sm,
           children: [
             EnterpriseStatusChip(
-              icon: Icons.verified_user_outlined,
               label: 'Human approval required',
-              tone: EnterpriseStatusTone.info,
+              healthy: true,
             ),
             EnterpriseStatusChip(
-              icon: Icons.visibility_outlined,
               label: 'Explainable decisions',
-              tone: EnterpriseStatusTone.success,
+              healthy: true,
             ),
             EnterpriseStatusChip(
-              icon: Icons.lock_outline_rounded,
               label: 'No autonomous publishing',
-              tone: EnterpriseStatusTone.warning,
+              healthy: true,
             ),
           ],
         ),
-        const SizedBox(height: EnterpriseSpacing.large),
+        const SizedBox(height: EnterpriseSpacing.lg),
         if (currentProposal == null)
           _EmptyProposal(onGenerate: onGenerate)
         else
@@ -123,9 +120,9 @@ class _EmptyProposal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return EnterpriseCard(
+    return Card(
       child: Padding(
-        padding: const EdgeInsets.all(EnterpriseSpacing.xLarge),
+        padding: const EdgeInsets.all(EnterpriseSpacing.xl),
         child: Column(
           children: [
             Icon(
@@ -133,19 +130,19 @@ class _EmptyProposal extends StatelessWidget {
               size: 64,
               color: Theme.of(context).colorScheme.primary,
             ),
-            const SizedBox(height: EnterpriseSpacing.medium),
+            const SizedBox(height: EnterpriseSpacing.md),
             Text(
               'ยังไม่มีข้อเสนอตารางเวร',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
+                    fontWeight: FontWeight.w700,
+                  ),
             ),
-            const SizedBox(height: EnterpriseSpacing.small),
+            const SizedBox(height: EnterpriseSpacing.sm),
             const Text(
               'กด Generate เพื่อให้ AI สร้างข้อเสนอจากกฎและข้อมูลใน Canonical Core',
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: EnterpriseSpacing.large),
+            const SizedBox(height: EnterpriseSpacing.lg),
             FilledButton.icon(
               onPressed: onGenerate,
               icon: const Icon(Icons.auto_awesome_rounded),
@@ -185,8 +182,8 @@ class _ProposalWorkspace extends StatelessWidget {
           crossAxisCount: columns,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: EnterpriseSpacing.medium,
-          crossAxisSpacing: EnterpriseSpacing.medium,
+          mainAxisSpacing: EnterpriseSpacing.md,
+          crossAxisSpacing: EnterpriseSpacing.md,
           childAspectRatio: columns == 1 ? 2.5 : 1.8,
           children: [
             EnterpriseMetricCard(
@@ -206,20 +203,20 @@ class _ProposalWorkspace extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: EnterpriseSpacing.large),
-        EnterpriseCard(
+        const SizedBox(height: EnterpriseSpacing.lg),
+        Card(
           child: Padding(
-            padding: const EdgeInsets.all(EnterpriseSpacing.large),
+            padding: const EdgeInsets.all(EnterpriseSpacing.lg),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'Explanation',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+                        fontWeight: FontWeight.w700,
+                      ),
                 ),
-                const SizedBox(height: EnterpriseSpacing.medium),
+                const SizedBox(height: EnterpriseSpacing.md),
                 if (proposal.explanations.isEmpty)
                   const Text('ไม่มีคำอธิบายเพิ่มเติม')
                 else
@@ -233,10 +230,10 @@ class _ProposalWorkspace extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: EnterpriseSpacing.large),
+        const SizedBox(height: EnterpriseSpacing.lg),
         Wrap(
-          spacing: EnterpriseSpacing.small,
-          runSpacing: EnterpriseSpacing.small,
+          spacing: EnterpriseSpacing.sm,
+          runSpacing: EnterpriseSpacing.sm,
           children: [
             OutlinedButton.icon(
               onPressed: onPreview,
