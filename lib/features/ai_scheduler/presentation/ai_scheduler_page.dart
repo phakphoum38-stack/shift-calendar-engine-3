@@ -2,26 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../design_system/enterprise_components.dart';
 import '../../../design_system/enterprise_tokens.dart';
-
-/// Read-only presentation model for an AI-generated schedule proposal.
-///
-/// The application layer will map canonical workforce_core results into this
-/// model. This page intentionally contains no scheduling business logic.
-final class AiSchedulerPresentationModel {
-  const AiSchedulerPresentationModel({
-    required this.score,
-    required this.conflictCount,
-    required this.fairnessLabel,
-    required this.explanations,
-    required this.requiresApproval,
-  });
-
-  final int score;
-  final int conflictCount;
-  final String fairnessLabel;
-  final List<String> explanations;
-  final bool requiresApproval;
-}
+import '../application/ai_scheduler_view_data.dart';
 
 /// Enterprise AI scheduler workspace.
 class AiSchedulerPage extends StatelessWidget {
@@ -35,7 +16,7 @@ class AiSchedulerPage extends StatelessWidget {
     super.key,
   });
 
-  final AiSchedulerPresentationModel? proposal;
+  final AiSchedulerViewData? proposal;
   final VoidCallback? onGenerate;
   final VoidCallback? onPreview;
   final VoidCallback? onCompare;
@@ -134,8 +115,8 @@ class _EmptyProposal extends StatelessWidget {
             Text(
               'ยังไม่มีข้อเสนอตารางเวร',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+                fontWeight: FontWeight.w700,
+              ),
             ),
             const SizedBox(height: EnterpriseSpacing.sm),
             const Text(
@@ -164,7 +145,7 @@ class _ProposalWorkspace extends StatelessWidget {
     required this.onReject,
   });
 
-  final AiSchedulerPresentationModel proposal;
+  final AiSchedulerViewData proposal;
   final VoidCallback? onPreview;
   final VoidCallback? onCompare;
   final VoidCallback? onApprove;
@@ -173,7 +154,11 @@ class _ProposalWorkspace extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
-    final columns = width >= 1100 ? 3 : width >= 700 ? 2 : 1;
+    final columns = width >= 1100
+        ? 3
+        : width >= 700
+        ? 2
+        : 1;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -213,8 +198,8 @@ class _ProposalWorkspace extends StatelessWidget {
                 Text(
                   'Explanation',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 const SizedBox(height: EnterpriseSpacing.md),
                 if (proposal.explanations.isEmpty)
