@@ -15,7 +15,11 @@ void main() {
           employeeCode: 'E001',
           firstName: 'Ada',
           lastName: 'Lovelace',
-          department: Department(id: 'dep-1', code: 'RAD', name: 'Radiology'),
+          department: Department(
+            id: 'dep-1',
+            code: 'RAD',
+            name: 'Radiology',
+          ),
           position: 'Technologist',
         ),
       ]),
