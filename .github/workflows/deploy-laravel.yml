@@ -73,8 +73,7 @@ jobs:
           $ErrorActionPreference = 'Stop'
 
           $phpCandidates = @(
-            'C:\xempp-app\php\php.exe',
-            'C:\Xempp-app\php\php.exe',
+            'C:\xampp-app\php\php.exe',
             'C:\xampp\php\php.exe'
           )
 
