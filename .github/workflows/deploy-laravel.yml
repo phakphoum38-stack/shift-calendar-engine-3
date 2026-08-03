@@ -68,7 +68,7 @@ jobs:
         run: php artisan test
 
   deploy:
-    name: Deploy production
+    name: Deploy production to Windows
     needs: verify
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
@@ -78,81 +78,52 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Validate deployment secrets
+      - name: Validate deployment settings
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
         run: |
-          for name in DEPLOY_HOST DEPLOY_USER DEPLOY_PATH DEPLOY_SSH_KEY; do
-            if [ -z "${!name}" ]; then
-              echo "::error::$name is not configured"
-              exit 1
-            fi
-          done
+          test -n "$DEPLOY_HOST" || { echo "::error::DEPLOY_HOST is not configured"; exit 1; }
+          test -n "$DEPLOY_USER" || { echo "::error::DEPLOY_USER is not configured"; exit 1; }
+          test -n "$DEPLOY_PATH" || { echo "::error::DEPLOY_PATH is not configured"; exit 1; }
+          test -n "$DEPLOY_SSH_KEY" || { echo "::error::DEPLOY_SSH_KEY is not configured"; exit 1; }
 
-      - name: Configure SSH
-        env:
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
-          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+      - name: Prepare release files
         run: |
-          PORT="${DEPLOY_PORT:-22}"
-          install -m 700 -d ~/.ssh
-          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -p "$PORT" -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+          rm -rf release
+          mkdir release
+          cp -R backend/. release/
+          rm -f release/.env release/database/database.sqlite
+          rm -rf release/vendor release/node_modules
+          rm -rf release/storage/app/*
+          rm -rf release/storage/framework/cache/*
+          rm -rf release/storage/framework/sessions/*
+          rm -rf release/storage/framework/views/*
+          rm -rf release/storage/logs/*
 
       - name: Upload application files
-        env:
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
-        run: |
-          PORT="${DEPLOY_PORT:-22}"
-          ssh -p "$PORT" "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p '$DEPLOY_PATH'"
-          rsync -az --delete \
-            --exclude='.env' \
-            --exclude='database/database.sqlite' \
-            --exclude='storage/app/**' \
-            --exclude='storage/framework/cache/**' \
-            --exclude='storage/framework/sessions/**' \
-            --exclude='storage/framework/views/**' \
-            --exclude='storage/logs/**' \
-            --exclude='vendor/' \
-            --exclude='node_modules/' \
-            -e "ssh -p $PORT" \
-            backend/ "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/"
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: ${{ secrets.DEPLOY_PORT || 22 }}
+          source: "release/*,release/.*"
+          target: ${{ secrets.DEPLOY_PATH }}
+          strip_components: 1
+          overwrite: true
 
       - name: Install and activate release
+        uses: appleboy/ssh-action@v1
         env:
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
-        run: |
-          PORT="${DEPLOY_PORT:-22}"
-          ssh -p "$PORT" "$DEPLOY_USER@$DEPLOY_HOST" "DEPLOY_PATH='$DEPLOY_PATH' bash -s" <<'REMOTE'
-            set -euo pipefail
-            cd "$DEPLOY_PATH"
-
-            test -f .env || { echo 'Missing production .env'; exit 1; }
-
-            mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cache
-            composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
-
-            php artisan down --retry=60
-            trap 'php artisan up' EXIT
-
-            php artisan migrate --force
-            php artisan optimize:clear
-            php artisan config:cache
-            php artisan route:cache
-            php artisan view:cache
-            php artisan storage:link || true
-
-            php artisan up
-            trap - EXIT
-          REMOTE
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: ${{ secrets.DEPLOY_PORT || 22 }}
+          envs: DEPLOY_PATH
+          script: |
+            powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "Set-Location -LiteralPath $env:DEPLOY_PATH; if (-not (Test-Path .env)) { throw 'Missing production .env' }; New-Item -ItemType Directory -Force storage/framework/cache,storage/framework/sessions,storage/framework/views,storage/logs,bootstrap/cache | Out-Null; composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; php artisan down --retry=60; try { php artisan migrate --force; php artisan optimize:clear; php artisan config:cache; php artisan route:cache; php artisan view:cache; php artisan storage:link } finally { php artisan up }"
