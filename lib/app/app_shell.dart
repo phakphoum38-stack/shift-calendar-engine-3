@@ -6,7 +6,7 @@ import '../domain/entities/schedule.dart';
 import '../features/ai_scheduler/application/ai_scheduler_controller.dart';
 import '../features/ai_scheduler/application/ai_scheduler_request_provider.dart';
 import '../features/ai_scheduler/presentation/ai_scheduler_page.dart';
-import '../features/ai_scheduler/presentation/ai_scheduler_workspace.dart';
+import '../features/ai_scheduler/presentation/ai_scheduler_runtime.dart';
 import '../features/auth/application/auth_controller.dart';
 import '../features/dashboard/application/dashboard_summary_service.dart';
 import '../features/dashboard/presentation/dashboard_page.dart';
@@ -197,10 +197,11 @@ class _AppShellState extends State<AppShell> {
       return AiSchedulerPage(onGenerate: _showSchedulerConnectionNotice);
     }
 
-    return AiSchedulerWorkspace(
+    return AiSchedulerRuntime(
       controller: controller,
       requestProvider: requestProvider,
       schedule: widget.controller.schedule,
+      shiftTemplateControllerFactory: widget.shiftTemplateControllerFactory,
     );
   }
 
