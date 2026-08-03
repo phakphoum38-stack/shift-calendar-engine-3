@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -18,7 +19,7 @@ class AuthController extends Controller
             'device_name' => ['sometimes', 'string', 'max:100'],
         ]);
 
-        $user = \App\Models\User::query()
+        $user = User::query()
             ->where('email', $credentials['email'])
             ->first();
 
