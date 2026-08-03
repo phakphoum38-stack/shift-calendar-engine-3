@@ -60,8 +60,6 @@ jobs:
     timeout-minutes: 30
     env:
       DEPLOY_PATH: C:\Apps\shift-calendar-backend
-      PHP_EXE: C:\Xempp-app\php\php.exe
-      COMPOSER_EXE: C:\ProgramData\ComposerSetup\bin\composer.bat
 
     steps:
       - name: Checkout verified revision
@@ -69,15 +67,52 @@ jobs:
         with:
           clean: true
 
-      - name: Verify Windows deployment tools
+      - name: Detect Windows deployment tools
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
-          if (-not (Test-Path -LiteralPath $env:PHP_EXE)) { throw "PHP not found at $env:PHP_EXE" }
-          if (-not (Test-Path -LiteralPath $env:COMPOSER_EXE)) { throw "Composer not found at $env:COMPOSER_EXE" }
-          if (-not (Get-Command robocopy.exe -ErrorAction SilentlyContinue)) { throw 'robocopy.exe is required' }
-          & $env:PHP_EXE --version
-          & $env:COMPOSER_EXE --version
+
+          $phpCandidates = @(
+            'C:\xempp-app\php\php.exe',
+            'C:\Xempp-app\php\php.exe',
+            'C:\xampp\php\php.exe'
+          )
+
+          $composerCandidates = @(
+            'C:\ProgramData\ComposerSetup\bin\composer.bat',
+            'C:\ProgramData\ComposerSetup\bin\composer.exe',
+            'C:\Composer\composer.bat'
+          )
+
+          $php = $phpCandidates | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+          if (-not $php) {
+            $phpCommand = Get-Command php.exe -ErrorAction SilentlyContinue
+            if ($phpCommand) { $php = $phpCommand.Source }
+          }
+          if (-not $php) {
+            throw "PHP not found. Checked: $($phpCandidates -join ', ') and system PATH."
+          }
+
+          $composer = $composerCandidates | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+          if (-not $composer) {
+            $composerCommand = Get-Command composer.bat, composer.exe -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($composerCommand) { $composer = $composerCommand.Source }
+          }
+          if (-not $composer) {
+            throw "Composer not found. Checked: $($composerCandidates -join ', ') and system PATH."
+          }
+
+          if (-not (Get-Command robocopy.exe -ErrorAction SilentlyContinue)) {
+            throw 'robocopy.exe is required.'
+          }
+
+          "PHP_EXE=$php" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "COMPOSER_EXE=$composer" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+          & $php --version
+          & $composer --version
+          Write-Host "Using PHP: $php"
+          Write-Host "Using Composer: $composer"
 
       - name: Prepare deployment directory
         shell: powershell
@@ -145,7 +180,7 @@ jobs:
         if: always()
         shell: powershell
         run: |
-          if (Test-Path (Join-Path $env:DEPLOY_PATH 'artisan')) {
+          if ((Test-Path (Join-Path $env:DEPLOY_PATH 'artisan')) -and $env:PHP_EXE) {
             Set-Location -LiteralPath $env:DEPLOY_PATH
             & $env:PHP_EXE artisan up
           }
