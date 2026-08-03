@@ -22,4 +22,11 @@ final class AiScheduleDecision {
   int get evaluatedProposalCount => simulation.proposals.length;
 
   List<String> get explanations => selectedProposal.explanations;
+
+  AiScheduleDecision approve() {
+    return AiScheduleDecision(
+      simulation: simulation,
+      selectedProposal: selectedProposal.approve(),
+    );
+  }
 }
