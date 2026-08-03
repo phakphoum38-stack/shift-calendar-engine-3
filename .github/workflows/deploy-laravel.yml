@@ -60,7 +60,7 @@ jobs:
     timeout-minutes: 30
     env:
       DEPLOY_PATH: C:\Apps\shift-calendar-backend
-      PHP_EXE: C:\xampp\php\php.exe
+      PHP_EXE: C:\Xempp-app\php\php.exe
       COMPOSER_EXE: C:\ProgramData\ComposerSetup\bin\composer.bat
 
     steps:
