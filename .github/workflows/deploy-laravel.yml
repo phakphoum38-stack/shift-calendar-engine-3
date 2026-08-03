@@ -22,47 +22,31 @@ jobs:
     defaults:
       run:
         working-directory: backend
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
         with:
           php-version: "8.2"
           extensions: mbstring, dom, fileinfo, sqlite3, pdo_sqlite
           coverage: none
           tools: composer:v2
-
-      - name: Cache Composer packages
-        uses: actions/cache@v4
+      - uses: actions/cache@v4
         with:
           path: ~/.cache/composer/files
           key: ${{ runner.os }}-composer-${{ hashFiles('backend/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
-
-      - name: Install dependencies
-        run: composer install --no-interaction --prefer-dist --no-progress
-
-      - name: Prepare test environment
-        run: |
+      - run: composer install --no-interaction --prefer-dist --no-progress
+      - run: |
           cp .env.example .env
           php artisan key:generate
           mkdir -p database
           touch database/database.sqlite
-
-      - name: Check formatting
-        run: vendor/bin/pint --test
-
-      - name: Run migrations
-        env:
+      - run: vendor/bin/pint --test
+      - env:
           DB_CONNECTION: sqlite
           DB_DATABASE: database/database.sqlite
         run: php artisan migrate --force
-
-      - name: Run tests
-        env:
+      - env:
           DB_CONNECTION: sqlite
           DB_DATABASE: database/database.sqlite
         run: php artisan test
@@ -83,58 +67,62 @@ jobs:
         with:
           clean: true
 
-      - name: Configure Windows deployment tool paths
+      - name: Detect Windows deployment tools
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
 
-          $candidatePaths = @(
-            'C:\xampp\php',
-            'C:\ProgramData\ComposerSetup\bin',
-            'C:\Program Files\Composer',
-            'C:\Program Files\nodejs'
+          $phpCandidates = @(
+            'C:\xampp-app\php\php.exe',
+            'C:\xampp\php\php.exe'
           )
 
-          foreach ($candidate in $candidatePaths) {
-            if (Test-Path -LiteralPath $candidate) {
-              $candidate | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-              Write-Host "Added to runner PATH: $candidate"
-            }
-          }
+          $composerCandidates = @(
+            'C:\ProgramData\ComposerSetup\bin\composer.bat',
+            'C:\ProgramData\ComposerSetup\bin\composer.exe',
+            'C:\Composer\composer.bat'
+          )
 
-      - name: Verify Windows deployment tools
-        shell: powershell
-        run: |
-          $ErrorActionPreference = 'Stop'
-
-          $php = Get-Command php.exe -ErrorAction SilentlyContinue
+          $php = $phpCandidates | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
           if (-not $php) {
-            throw 'PHP was not found. Expected php.exe under C:\xampp\php or the Windows system PATH.'
+            $phpCommand = Get-Command php.exe -ErrorAction SilentlyContinue
+            if ($phpCommand) { $php = $phpCommand.Source }
+          }
+          if (-not $php) {
+            throw "PHP not found. Checked: $($phpCandidates -join ', ') and system PATH."
           }
 
-          $composer = Get-Command composer.bat -ErrorAction SilentlyContinue
+          $composer = $composerCandidates | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
           if (-not $composer) {
-            $composer = Get-Command composer.exe -ErrorAction SilentlyContinue
+            $composerCommand = Get-Command composer.bat, composer.exe -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($composerCommand) { $composer = $composerCommand.Source }
           }
           if (-not $composer) {
-            throw 'Composer was not found. Expected Composer under C:\ProgramData\ComposerSetup\bin or the Windows system PATH.'
+            throw "Composer not found. Checked: $($composerCandidates -join ', ') and system PATH."
           }
-
-          & $php.Source --version
-          & $composer.Source --version
 
           if (-not (Get-Command robocopy.exe -ErrorAction SilentlyContinue)) {
-            throw 'robocopy.exe is required on the self-hosted Windows runner.'
+            throw 'robocopy.exe is required.'
           }
+
+          "PHP_EXE=$php" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "COMPOSER_EXE=$composer" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+          & $php --version
+          & $composer --version
+          Write-Host "Using PHP: $php"
+          Write-Host "Using Composer: $composer"
 
       - name: Prepare deployment directory
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
           New-Item -ItemType Directory -Force -Path $env:DEPLOY_PATH | Out-Null
-          if (-not (Test-Path (Join-Path $env:DEPLOY_PATH '.env'))) {
-            throw "Missing production .env at $env:DEPLOY_PATH\.env"
-          }
+          New-Item -ItemType Directory -Force -Path (Join-Path $env:DEPLOY_PATH 'database') | Out-Null
+          $db = Join-Path $env:DEPLOY_PATH 'database\database.sqlite'
+          if (-not (Test-Path $db)) { New-Item -ItemType File -Path $db | Out-Null }
+          $envFile = Join-Path $env:DEPLOY_PATH '.env'
+          if (-not (Test-Path $envFile)) { throw "Missing production .env at $envFile" }
 
       - name: Enter maintenance mode
         shell: powershell
@@ -143,7 +131,7 @@ jobs:
           $artisan = Join-Path $env:DEPLOY_PATH 'artisan'
           if (Test-Path $artisan) {
             Push-Location $env:DEPLOY_PATH
-            try { php artisan down --retry=60 } finally { Pop-Location }
+            try { & $env:PHP_EXE artisan down --retry=60 } finally { Pop-Location }
           }
 
       - name: Synchronize application files
@@ -151,18 +139,10 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $source = Join-Path $env:GITHUB_WORKSPACE 'backend'
-          $destination = $env:DEPLOY_PATH
-
-          & robocopy.exe $source $destination /MIR /R:2 /W:2 /NFL /NDL /NP `
+          & robocopy.exe $source $env:DEPLOY_PATH /MIR /R:2 /W:2 /NFL /NDL /NP `
             /XF .env database.sqlite `
-            /XD vendor node_modules `
-                storage\app storage\framework\cache storage\framework\sessions `
-                storage\framework\views storage\logs
-
-          $code = $LASTEXITCODE
-          if ($code -ge 8) {
-            throw "Robocopy failed with exit code $code"
-          }
+            /XD vendor node_modules storage\app storage\framework\cache storage\framework\sessions storage\framework\views storage\logs
+          if ($LASTEXITCODE -ge 8) { throw "Robocopy failed with exit code $LASTEXITCODE" }
           $global:LASTEXITCODE = 0
 
       - name: Install and activate release
@@ -170,31 +150,36 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           Set-Location -LiteralPath $env:DEPLOY_PATH
+          New-Item -ItemType Directory -Force -Path 'storage\framework\cache','storage\framework\sessions','storage\framework\views','storage\logs','bootstrap\cache' | Out-Null
 
-          New-Item -ItemType Directory -Force -Path `
-            'storage\framework\cache', `
-            'storage\framework\sessions', `
-            'storage\framework\views', `
-            'storage\logs', `
-            'bootstrap\cache' | Out-Null
-
-          composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+          & $env:COMPOSER_EXE install --no-dev --no-interaction --prefer-dist --optimize-autoloader
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-          php artisan migrate --force
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $modules = & $env:PHP_EXE -m
+          $phpArgs = @()
+          if ($modules -notcontains 'pdo_sqlite') { $phpArgs += @('-d','extension=php_pdo_sqlite.dll') }
+          if ($modules -notcontains 'sqlite3') { $phpArgs += @('-d','extension=php_sqlite3.dll') }
 
-          php artisan optimize:clear
-          php artisan config:cache
-          php artisan route:cache
-          php artisan view:cache
-          php artisan storage:link
+          $envFile = Join-Path $env:DEPLOY_PATH '.env'
+          $envText = Get-Content -LiteralPath $envFile -Raw
+          if ($envText -match '(?m)^APP_KEY=\s*$') {
+            & $env:PHP_EXE @phpArgs artisan key:generate --force
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+
+          & $env:PHP_EXE @phpArgs artisan migrate --force
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & $env:PHP_EXE @phpArgs artisan optimize:clear
+          & $env:PHP_EXE @phpArgs artisan config:cache
+          & $env:PHP_EXE @phpArgs artisan route:cache
+          & $env:PHP_EXE @phpArgs artisan view:cache
+          & $env:PHP_EXE @phpArgs artisan storage:link
 
       - name: Leave maintenance mode
         if: always()
         shell: powershell
         run: |
-          if (Test-Path (Join-Path $env:DEPLOY_PATH 'artisan')) {
+          if ((Test-Path (Join-Path $env:DEPLOY_PATH 'artisan')) -and $env:PHP_EXE) {
             Set-Location -LiteralPath $env:DEPLOY_PATH
-            php artisan up
+            & $env:PHP_EXE artisan up
           }
