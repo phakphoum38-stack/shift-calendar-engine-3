@@ -16,4 +16,16 @@ final class AiScheduleProposal {
       List.unmodifiable(details.map((item) => item.message));
 
   bool get isComplete => schedule.isComplete;
+
+  AiScheduleProposal copyWith({bool? requiresApproval}) {
+    return AiScheduleProposal(
+      schedule: schedule,
+      details: details,
+      requiresApproval: requiresApproval ?? this.requiresApproval,
+    );
+  }
+
+  AiScheduleProposal approve() {
+    return copyWith(requiresApproval: false);
+  }
 }
