@@ -27,6 +27,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      API_BASE_URL: ${{ vars.API_BASE_URL }}
 
     steps:
       - name: Checkout repository
@@ -38,6 +40,21 @@ jobs:
           channel: stable
           cache: true
 
+      - name: Validate production API configuration
+        shell: bash
+        run: |
+          if [[ -z "${API_BASE_URL}" ]]; then
+            echo "::error title=Missing API_BASE_URL::Set Settings > Secrets and variables > Actions > Variables > API_BASE_URL to the public HTTPS backend origin."
+            exit 1
+          fi
+
+          if [[ ! "${API_BASE_URL}" =~ ^https:// ]]; then
+            echo "::error title=Invalid API_BASE_URL::GitHub Pages is HTTPS, so API_BASE_URL must start with https://"
+            exit 1
+          fi
+
+          echo "Using API origin: ${API_BASE_URL}"
+
       - name: Install dependencies
         run: flutter pub get
 
@@ -45,7 +62,11 @@ jobs:
         run: flutter gen-l10n
 
       - name: Build Flutter web
-        run: flutter build web --release --base-href "/shift-calendar-engine-3/"
+        run: >-
+          flutter build web
+          --release
+          --base-href "/shift-calendar-engine-3/"
+          --dart-define=API_BASE_URL="${API_BASE_URL}"
 
       - name: Add SPA fallback
         run: cp build/web/index.html build/web/404.html
