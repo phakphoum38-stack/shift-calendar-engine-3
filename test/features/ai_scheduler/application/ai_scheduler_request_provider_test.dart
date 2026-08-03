@@ -15,18 +15,12 @@ void main() {
           employeeCode: 'E001',
           firstName: 'Ada',
           lastName: 'Lovelace',
-          department: Department(
-            id: 'dep-1',
-            code: 'RAD',
-            name: 'Radiology',
-          ),
+          department: Department(id: 'dep-1', code: 'RAD', name: 'Radiology'),
           position: 'Technologist',
         ),
       ]),
     );
-    final provider = AiSchedulerRequestProvider(
-      employeeRepository: repository,
-    );
+    final provider = AiSchedulerRequestProvider(employeeRepository: repository);
 
     final request = await provider.build(
       requestedShifts: const [],
