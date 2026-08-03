@@ -68,62 +68,99 @@ jobs:
         run: php artisan test
 
   deploy:
-    name: Deploy production to Windows
+    name: Deploy production on self-hosted Windows
     needs: verify
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Windows, X64, shift-calendar-deploy]
     environment: production
+    timeout-minutes: 30
+    env:
+      DEPLOY_PATH: C:\Apps\shift-calendar-backend
 
     steps:
-      - name: Checkout repository
+      - name: Checkout verified revision
         uses: actions/checkout@v4
-
-      - name: Validate deployment settings
-        env:
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
-          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
-        run: |
-          test -n "$DEPLOY_HOST" || { echo "::error::DEPLOY_HOST is not configured"; exit 1; }
-          test -n "$DEPLOY_USER" || { echo "::error::DEPLOY_USER is not configured"; exit 1; }
-          test -n "$DEPLOY_PATH" || { echo "::error::DEPLOY_PATH is not configured"; exit 1; }
-          test -n "$DEPLOY_SSH_KEY" || { echo "::error::DEPLOY_SSH_KEY is not configured"; exit 1; }
-
-      - name: Prepare release files
-        run: |
-          rm -rf release
-          mkdir release
-          cp -R backend/. release/
-          rm -f release/.env release/database/database.sqlite
-          rm -rf release/vendor release/node_modules
-          rm -rf release/storage/app/*
-          rm -rf release/storage/framework/cache/*
-          rm -rf release/storage/framework/sessions/*
-          rm -rf release/storage/framework/views/*
-          rm -rf release/storage/logs/*
-
-      - name: Upload application files
-        uses: appleboy/scp-action@v1
         with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          port: ${{ secrets.DEPLOY_PORT || 22 }}
-          source: "release/*,release/.*"
-          target: ${{ secrets.DEPLOY_PATH }}
-          strip_components: 1
-          overwrite: true
+          clean: true
+
+      - name: Verify Windows deployment tools
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          php --version
+          composer --version
+          if (-not (Get-Command robocopy.exe -ErrorAction SilentlyContinue)) {
+            throw 'robocopy.exe is required on the self-hosted Windows runner.'
+          }
+
+      - name: Prepare deployment directory
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force -Path $env:DEPLOY_PATH | Out-Null
+          if (-not (Test-Path (Join-Path $env:DEPLOY_PATH '.env'))) {
+            throw "Missing production .env at $env:DEPLOY_PATH\.env"
+          }
+
+      - name: Enter maintenance mode
+        shell: powershell
+        continue-on-error: true
+        run: |
+          $artisan = Join-Path $env:DEPLOY_PATH 'artisan'
+          if (Test-Path $artisan) {
+            Push-Location $env:DEPLOY_PATH
+            try { php artisan down --retry=60 } finally { Pop-Location }
+          }
+
+      - name: Synchronize application files
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $source = Join-Path $env:GITHUB_WORKSPACE 'backend'
+          $destination = $env:DEPLOY_PATH
+
+          & robocopy.exe $source $destination /MIR /R:2 /W:2 /NFL /NDL /NP `
+            /XF .env database.sqlite `
+            /XD vendor node_modules `
+                storage\app storage\framework\cache storage\framework\sessions `
+                storage\framework\views storage\logs
+
+          $code = $LASTEXITCODE
+          if ($code -ge 8) {
+            throw "Robocopy failed with exit code $code"
+          }
+          $global:LASTEXITCODE = 0
 
       - name: Install and activate release
-        uses: appleboy/ssh-action@v1
-        env:
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          port: ${{ secrets.DEPLOY_PORT || 22 }}
-          envs: DEPLOY_PATH
-          script: |
-            powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "Set-Location -LiteralPath $env:DEPLOY_PATH; if (-not (Test-Path .env)) { throw 'Missing production .env' }; New-Item -ItemType Directory -Force storage/framework/cache,storage/framework/sessions,storage/framework/views,storage/logs,bootstrap/cache | Out-Null; composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; php artisan down --retry=60; try { php artisan migrate --force; php artisan optimize:clear; php artisan config:cache; php artisan route:cache; php artisan view:cache; php artisan storage:link } finally { php artisan up }"
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Set-Location -LiteralPath $env:DEPLOY_PATH
+
+          New-Item -ItemType Directory -Force -Path `
+            'storage\framework\cache', `
+            'storage\framework\sessions', `
+            'storage\framework\views', `
+            'storage\logs', `
+            'bootstrap\cache' | Out-Null
+
+          composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+          php artisan migrate --force
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+          php artisan optimize:clear
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+          php artisan storage:link
+
+      - name: Leave maintenance mode
+        if: always()
+        shell: powershell
+        run: |
+          if (Test-Path (Join-Path $env:DEPLOY_PATH 'artisan')) {
+            Set-Location -LiteralPath $env:DEPLOY_PATH
+            php artisan up
+          }
