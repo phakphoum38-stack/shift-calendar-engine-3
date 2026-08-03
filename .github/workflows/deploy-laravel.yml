@@ -1,0 +1,166 @@
+name: Deploy Laravel Backend
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "backend/**"
+      - ".github/workflows/deploy-laravel.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: laravel-production
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Verify Laravel backend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: mbstring, dom, fileinfo, sqlite3, pdo_sqlite
+          coverage: none
+          tools: composer:v2
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer/files
+          key: ${{ runner.os }}-composer-${{ hashFiles('backend/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Prepare test environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          mkdir -p database
+          touch database/database.sqlite
+
+      - name: Check formatting
+        run: vendor/bin/pint --test
+
+      - name: Run migrations
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: database/database.sqlite
+        run: php artisan migrate --force
+
+      - name: Run tests
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: database/database.sqlite
+        run: php artisan test
+
+  deploy:
+    name: Deploy production on self-hosted Windows
+    needs: verify
+    if: github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, Windows, X64, shift-calendar-deploy]
+    environment: production
+    timeout-minutes: 30
+    env:
+      DEPLOY_PATH: C:\Apps\shift-calendar-backend
+
+    steps:
+      - name: Checkout verified revision
+        uses: actions/checkout@v4
+        with:
+          clean: true
+
+      - name: Verify Windows deployment tools
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          php --version
+          composer --version
+          if (-not (Get-Command robocopy.exe -ErrorAction SilentlyContinue)) {
+            throw 'robocopy.exe is required on the self-hosted Windows runner.'
+          }
+
+      - name: Prepare deployment directory
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force -Path $env:DEPLOY_PATH | Out-Null
+          if (-not (Test-Path (Join-Path $env:DEPLOY_PATH '.env'))) {
+            throw "Missing production .env at $env:DEPLOY_PATH\.env"
+          }
+
+      - name: Enter maintenance mode
+        shell: powershell
+        continue-on-error: true
+        run: |
+          $artisan = Join-Path $env:DEPLOY_PATH 'artisan'
+          if (Test-Path $artisan) {
+            Push-Location $env:DEPLOY_PATH
+            try { php artisan down --retry=60 } finally { Pop-Location }
+          }
+
+      - name: Synchronize application files
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $source = Join-Path $env:GITHUB_WORKSPACE 'backend'
+          $destination = $env:DEPLOY_PATH
+
+          & robocopy.exe $source $destination /MIR /R:2 /W:2 /NFL /NDL /NP `
+            /XF .env database.sqlite `
+            /XD vendor node_modules `
+                storage\app storage\framework\cache storage\framework\sessions `
+                storage\framework\views storage\logs
+
+          $code = $LASTEXITCODE
+          if ($code -ge 8) {
+            throw "Robocopy failed with exit code $code"
+          }
+          $global:LASTEXITCODE = 0
+
+      - name: Install and activate release
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Set-Location -LiteralPath $env:DEPLOY_PATH
+
+          New-Item -ItemType Directory -Force -Path `
+            'storage\framework\cache', `
+            'storage\framework\sessions', `
+            'storage\framework\views', `
+            'storage\logs', `
+            'bootstrap\cache' | Out-Null
+
+          composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+          php artisan migrate --force
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+          php artisan optimize:clear
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+          php artisan storage:link
+
+      - name: Leave maintenance mode
+        if: always()
+        shell: powershell
+        run: |
+          if (Test-Path (Join-Path $env:DEPLOY_PATH 'artisan')) {
+            Set-Location -LiteralPath $env:DEPLOY_PATH
+            php artisan up
+          }
