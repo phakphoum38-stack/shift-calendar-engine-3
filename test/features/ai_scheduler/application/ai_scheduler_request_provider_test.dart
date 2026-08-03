@@ -49,7 +49,11 @@ void main() {
       ),
       throwsA(
         isA<AiSchedulerRequestLoadException>()
-            .having((error) => error.message, 'message', 'Unable to load employees')
+            .having(
+              (error) => error.message,
+              'message',
+              'Unable to load employees',
+            )
             .having((error) => error.cause, 'cause', same(cause)),
       ),
     );
