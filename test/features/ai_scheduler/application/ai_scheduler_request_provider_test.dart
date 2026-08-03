@@ -42,21 +42,16 @@ void main() {
       ),
     );
 
-    await expectLater(
-      provider.build(
+    try {
+      await provider.build(
         requestedShifts: const [],
         schedule: Schedule(id: 'schedule-1', name: 'August'),
-      ),
-      throwsA(
-        isA<AiSchedulerRequestLoadException>()
-            .having(
-              (error) => error.message,
-              'message',
-              'Unable to load employees',
-            )
-            .having((error) => error.cause, 'cause', same(cause)),
-      ),
-    );
+      );
+      fail('Expected AiSchedulerRequestLoadException');
+    } on AiSchedulerRequestLoadException catch (error) {
+      expect(error.message, 'Unable to load employees');
+      expect(error.cause, same(cause));
+    }
   });
 }
 
