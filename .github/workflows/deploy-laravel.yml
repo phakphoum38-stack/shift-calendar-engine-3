@@ -83,12 +83,46 @@ jobs:
         with:
           clean: true
 
+      - name: Configure Windows deployment tool paths
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          $candidatePaths = @(
+            'C:\xampp\php',
+            'C:\ProgramData\ComposerSetup\bin',
+            'C:\Program Files\Composer',
+            'C:\Program Files\nodejs'
+          )
+
+          foreach ($candidate in $candidatePaths) {
+            if (Test-Path -LiteralPath $candidate) {
+              $candidate | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+              Write-Host "Added to runner PATH: $candidate"
+            }
+          }
+
       - name: Verify Windows deployment tools
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
-          php --version
-          composer --version
+
+          $php = Get-Command php.exe -ErrorAction SilentlyContinue
+          if (-not $php) {
+            throw 'PHP was not found. Expected php.exe under C:\xampp\php or the Windows system PATH.'
+          }
+
+          $composer = Get-Command composer.bat -ErrorAction SilentlyContinue
+          if (-not $composer) {
+            $composer = Get-Command composer.exe -ErrorAction SilentlyContinue
+          }
+          if (-not $composer) {
+            throw 'Composer was not found. Expected Composer under C:\ProgramData\ComposerSetup\bin or the Windows system PATH.'
+          }
+
+          & $php.Source --version
+          & $composer.Source --version
+
           if (-not (Get-Command robocopy.exe -ErrorAction SilentlyContinue)) {
             throw 'robocopy.exe is required on the self-hosted Windows runner.'
           }
