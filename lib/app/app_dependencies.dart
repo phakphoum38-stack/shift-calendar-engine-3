@@ -34,12 +34,13 @@ import '../features/roster/application/drive_roster_source_controller.dart';
 import '../features/roster/application/drive_roster_source_gateway.dart';
 import '../features/roster/application/roster_controller.dart';
 import '../features/roster/application/roster_editor_controller.dart';
+import '../features/roster/infrastructure/google_drive_roster_source_gateway.dart';
 import '../features/settings/infrastructure/shared_preferences_settings_repository.dart';
 import '../features/shift_templates/application/shift_template_controller.dart';
 import '../features/shift_templates/infrastructure/shared_preferences_shift_template_repository.dart';
 import 'app_controller.dart';
 
-/// Flutter-only composition root. No Laravel or remote API is required.
+/// Flutter-only composition root. No Laravel or remote application API is required.
 class AppDependencies {
   AppDependencies({
     ScheduleRepository? scheduleRepository,
@@ -84,6 +85,7 @@ class AppDependencies {
       scheduleRepository: SharedPreferencesScheduleRepository(),
       settingsRepository: SharedPreferencesSettingsRepository(),
       employeeRepository: SharedPreferencesEmployeeRepository(),
+      driveRosterSourceGateway: GoogleDriveRosterSourceGateway(),
     );
   }
 
