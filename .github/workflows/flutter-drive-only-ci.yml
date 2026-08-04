@@ -53,7 +53,10 @@ jobs:
         run: flutter pub get
 
       - name: Check formatting
-        run: dart format --output=none --set-exit-if-changed .
+        run: |
+          dart format .
+          git diff --check
+          git diff --exit-code
 
       - name: Analyze
         run: flutter analyze
