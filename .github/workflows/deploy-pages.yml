@@ -31,6 +31,8 @@ jobs:
     timeout-minutes: 25
     env:
       API_BASE_URL: ${{ vars.API_BASE_URL || 'https://articles-teachers-african-enjoyed.trycloudflare.com' }}
+      GOOGLE_WEB_CLIENT_ID: ${{ secrets.GOOGLE_WEB_CLIENT_ID || vars.GOOGLE_WEB_CLIENT_ID }}
+      GOOGLE_SERVER_CLIENT_ID: ${{ secrets.GOOGLE_SERVER_CLIENT_ID || vars.GOOGLE_SERVER_CLIENT_ID }}
 
     steps:
       - name: Checkout repository
@@ -42,14 +44,20 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Validate API origin
+      - name: Validate deployment configuration
         shell: bash
         run: |
           if [[ ! "${API_BASE_URL}" =~ ^https:// ]]; then
             echo "::error title=Invalid API_BASE_URL::GitHub Pages requires an HTTPS API origin."
             exit 1
           fi
-          echo "Using API origin: ${API_BASE_URL}"
+
+          if [[ -z "${GOOGLE_WEB_CLIENT_ID}" ]]; then
+            echo "::error title=Missing GOOGLE_WEB_CLIENT_ID::Add GOOGLE_WEB_CLIENT_ID in repository Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+
+          echo "API origin and Google OAuth configuration are present."
 
       - name: Install dependencies
         run: flutter pub get
@@ -63,6 +71,8 @@ jobs:
           --release
           --base-href "/shift-calendar-engine-3/"
           --dart-define=API_BASE_URL="${API_BASE_URL}"
+          --dart-define=GOOGLE_CLIENT_ID="${GOOGLE_WEB_CLIENT_ID}"
+          --dart-define=GOOGLE_SERVER_CLIENT_ID="${GOOGLE_SERVER_CLIENT_ID}"
 
       - name: Add SPA fallback
         run: cp build/web/index.html build/web/404.html
