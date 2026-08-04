@@ -49,7 +49,8 @@ class GoogleDriveRosterSourceGateway implements DriveRosterSourceGateway {
           pageSize: 100,
           pageToken: pageToken,
           spaces: 'drive',
-          fields: 'nextPageToken,files(id,name,mimeType,modifiedTime,createdTime)',
+          $fields:
+              'nextPageToken,files(id,name,mimeType,modifiedTime,createdTime)',
         );
 
         for (final file in response.files ?? const <drive.File>[]) {
@@ -60,7 +61,7 @@ class GoogleDriveRosterSourceGateway implements DriveRosterSourceGateway {
         }
 
         pageToken = response.nextPageToken;
-      } while (pageToken != null && pageToken!.isNotEmpty);
+      } while (pageToken != null && pageToken.isNotEmpty);
 
       return List<DriveRosterSource>.unmodifiable(sources);
     });
@@ -106,8 +107,8 @@ class GoogleDriveRosterSourceGateway implements DriveRosterSourceGateway {
         throw const DriveRosterSourceException('google_drive_invalid_source');
       }
 
-      final media = metadata.mimeType ==
-              'application/vnd.google-apps.spreadsheet'
+      final media =
+          metadata.mimeType == 'application/vnd.google-apps.spreadsheet'
           ? await api.files.export(
               source.id,
               'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -121,7 +122,6 @@ class GoogleDriveRosterSourceGateway implements DriveRosterSourceGateway {
         throw const DriveRosterSourceException('google_drive_download_failed');
       }
 
-      // Consume the stream so Drive access and download failures surface here.
       await media.stream.fold<int>(0, (length, chunk) => length + chunk.length);
     });
 
@@ -194,14 +194,16 @@ class GoogleDriveRosterSourceGateway implements DriveRosterSourceGateway {
   }
 
   DateTime _rosterMonthFromName(String name, DateTime fallback) {
-    final yearFirst = RegExp(r'(?<!\d)(25\d{2}|20\d{2})[-_ .](0?[1-9]|1[0-2])(?!\d)')
-        .firstMatch(name);
+    final yearFirst = RegExp(
+      r'(?<!\d)(25\d{2}|20\d{2})[-_ .](0?[1-9]|1[0-2])(?!\d)',
+    ).firstMatch(name);
     if (yearFirst != null) {
       return _normalizedMonth(yearFirst.group(1)!, yearFirst.group(2)!);
     }
 
-    final monthFirst = RegExp(r'(?<!\d)(0?[1-9]|1[0-2])[-_ .](25\d{2}|20\d{2})(?!\d)')
-        .firstMatch(name);
+    final monthFirst = RegExp(
+      r'(?<!\d)(0?[1-9]|1[0-2])[-_ .](25\d{2}|20\d{2})(?!\d)',
+    ).firstMatch(name);
     if (monthFirst != null) {
       return _normalizedMonth(monthFirst.group(2)!, monthFirst.group(1)!);
     }
