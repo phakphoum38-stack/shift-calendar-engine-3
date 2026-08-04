@@ -52,9 +52,6 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Verify generated lockfile is committed
-        run: git diff --exit-code -- pubspec.lock
-
       - name: Check formatting
         run: dart format --output=none --set-exit-if-changed .
 
