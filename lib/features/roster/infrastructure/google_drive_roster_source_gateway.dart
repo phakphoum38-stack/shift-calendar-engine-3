@@ -107,16 +107,18 @@ class GoogleDriveRosterSourceGateway implements DriveRosterSourceGateway {
         throw const DriveRosterSourceException('google_drive_invalid_source');
       }
 
-      final media =
-          metadata.mimeType == 'application/vnd.google-apps.spreadsheet'
-          ? await api.files.export(
-              source.id,
-              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            )
-          : await api.files.get(
-              source.id,
-              downloadOptions: drive.DownloadOptions.fullMedia,
-            );
+      final Object media;
+      if (metadata.mimeType == 'application/vnd.google-apps.spreadsheet') {
+        media = await api.files.export(
+          source.id,
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        );
+      } else {
+        media = await api.files.get(
+          source.id,
+          downloadOptions: drive.DownloadOptions.fullMedia,
+        );
+      }
 
       if (media is! drive.Media) {
         throw const DriveRosterSourceException('google_drive_download_failed');
