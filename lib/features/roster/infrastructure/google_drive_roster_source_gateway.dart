@@ -19,8 +19,9 @@ class GoogleDriveRosterSourceGateway implements DriveRosterSourceGateway {
   GoogleDriveRosterSourceGateway({
     GoogleSignIn? googleSignIn,
     this.googleClientId = const String.fromEnvironment('GOOGLE_CLIENT_ID'),
-    this.googleServerClientId =
-        const String.fromEnvironment('GOOGLE_SERVER_CLIENT_ID'),
+    this.googleServerClientId = const String.fromEnvironment(
+      'GOOGLE_SERVER_CLIENT_ID',
+    ),
   }) : _googleSignIn = googleSignIn ?? GoogleSignIn.instance;
 
   static const List<String> _scopes = <String>[
