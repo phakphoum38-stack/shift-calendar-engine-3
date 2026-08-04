@@ -1,0 +1,65 @@
+name: Flutter Drive-only CI
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "lib/**"
+      - "test/**"
+      - "packages/**"
+      - "pubspec.yaml"
+      - "pubspec.lock"
+      - ".github/workflows/flutter-drive-only-ci.yml"
+  push:
+    branches: [feature/flutter-drive-only]
+    paths:
+      - "lib/**"
+      - "test/**"
+      - "packages/**"
+      - "pubspec.yaml"
+      - "pubspec.lock"
+      - ".github/workflows/flutter-drive-only-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: flutter-drive-only-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Format, analyze, and test
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Show tool versions
+        run: |
+          flutter --version
+          dart --version
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Verify generated lockfile is committed
+        run: git diff --exit-code -- pubspec.lock
+
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Run tests
+        run: flutter test --no-pub
