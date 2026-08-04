@@ -8,6 +8,7 @@ on:
       - "lib/**"
       - "web/**"
       - "assets/**"
+      - "packages/**"
       - "pubspec.yaml"
       - "pubspec.lock"
       - "l10n.yaml"
@@ -25,10 +26,11 @@ concurrency:
 
 jobs:
   build:
+    name: Build Flutter web
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     env:
-      API_BASE_URL: https://articles-teachers-african-enjoyed.trycloudflare.com
+      API_BASE_URL: ${{ vars.API_BASE_URL || 'https://articles-teachers-african-enjoyed.trycloudflare.com' }}
 
     steps:
       - name: Checkout repository
@@ -40,7 +42,7 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Validate temporary API origin
+      - name: Validate API origin
         shell: bash
         run: |
           if [[ ! "${API_BASE_URL}" =~ ^https:// ]]; then
@@ -74,6 +76,7 @@ jobs:
           path: build/web
 
   deploy:
+    name: Deploy GitHub Pages
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 10
