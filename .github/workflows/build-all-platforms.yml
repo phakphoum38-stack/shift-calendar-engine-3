@@ -72,7 +72,7 @@ jobs:
       - run: flutter pub get
       - run: flutter gen-l10n
       - run: flutter build web --release
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: web-release
           path: build/web
@@ -96,7 +96,7 @@ jobs:
       - run: flutter pub get
       - run: flutter gen-l10n
       - run: flutter build apk --release
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: android-apk-release
           path: build/app/outputs/flutter-apk/app-release.apk
@@ -121,7 +121,7 @@ jobs:
       - run: flutter pub get
       - run: flutter gen-l10n
       - run: flutter build linux --release
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: linux-release
           path: build/linux/x64/release/bundle
@@ -142,7 +142,7 @@ jobs:
       - run: flutter pub get
       - run: flutter gen-l10n
       - run: flutter build windows --release
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: windows-release
           path: build/windows/x64/runner/Release
@@ -165,7 +165,7 @@ jobs:
       - run: flutter build macos --release
       - name: Package macOS application
         run: ditto -c -k --sequesterRsrc --keepParent build/macos/Build/Products/Release/*.app macos-release.zip
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: macos-release
           path: macos-release.zip
@@ -190,7 +190,7 @@ jobs:
           mkdir -p Payload
           cp -R build/ios/iphoneos/Runner.app Payload/
           zip -r ios-unsigned.ipa Payload
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: ios-unsigned-release
           path: ios-unsigned.ipa
