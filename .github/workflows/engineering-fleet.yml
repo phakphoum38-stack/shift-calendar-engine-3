@@ -58,7 +58,7 @@ jobs:
       - run: flutter pub get
       - run: flutter gen-l10n
       - run: flutter test --coverage
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: app-coverage
           path: coverage/lcov.info
@@ -115,7 +115,7 @@ jobs:
       - run: flutter pub get
       - run: flutter gen-l10n
       - run: flutter build web --release
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: web-release
           path: build/web
@@ -135,7 +135,7 @@ jobs:
       - run: flutter pub get
       - run: flutter gen-l10n
       - run: flutter build apk --release
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: android-apk-release
           path: build/app/outputs/flutter-apk/app-release.apk
@@ -158,7 +158,7 @@ jobs:
       - run: flutter pub get
       - run: flutter gen-l10n
       - run: flutter build linux --release
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: linux-release
           path: build/linux/x64/release/bundle
@@ -179,7 +179,7 @@ jobs:
       - run: flutter pub get
       - run: flutter gen-l10n
       - run: flutter build windows --release
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: windows-release
           path: build/windows/x64/runner/Release
