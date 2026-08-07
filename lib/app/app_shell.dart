@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 
 import '../domain/entities/schedule.dart';
 import '../features/ai_scheduler/presentation/ai_scheduler_page.dart';
-import '../features/auth/application/auth_controller.dart';
 import '../features/dashboard/application/dashboard_summary_service.dart';
 import '../features/dashboard/presentation/dashboard_page.dart';
 import '../features/employees/application/employee_directory_controller.dart';
@@ -25,11 +24,10 @@ import '../features/shift_templates/presentation/shift_templates_page.dart';
 import '../l10n/l10n.dart';
 import 'app_controller.dart';
 
-/// Adaptive application shell.
+/// Adaptive application shell for the Flutter-only version.
 class AppShell extends StatefulWidget {
   const AppShell({
     required this.controller,
-    required this.authController,
     required this.dashboardSummaryService,
     required this.rosterControllerFactory,
     required this.rosterEditorControllerFactory,
@@ -42,7 +40,6 @@ class AppShell extends StatefulWidget {
   });
 
   final AppController controller;
-  final AuthController authController;
   final DashboardSummaryService dashboardSummaryService;
   final RosterController Function(Schedule schedule) rosterControllerFactory;
   final RosterEditorController Function(Schedule schedule)
@@ -103,6 +100,7 @@ class _AppShellState extends State<AppShell> {
         label: context.l10n.settings,
       ),
     ];
+
     final pages = [
       DashboardPage(
         schedule: widget.controller.schedule,
@@ -136,16 +134,20 @@ class _AppShellState extends State<AppShell> {
         openShiftTemplates: _openShiftTemplates,
       ),
     ];
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final wide = constraints.maxWidth >= 840;
         final body = IndexedStack(index: selectedIndex, children: pages);
+
         return Scaffold(
           appBar: AppBar(
             title: Text(context.l10n.appTitle),
-            actions: [
-              _AccountMenu(authController: widget.authController),
-              const SizedBox(width: 8),
+            actions: const [
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Center(child: Text('Local + Drive')),
+              ),
             ],
           ),
           body: wide
@@ -186,7 +188,7 @@ class _AppShellState extends State<AppShell> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text(
-          'หน้า AI Scheduler พร้อมแล้ว กำลังเชื่อม Application Layer กับ Canonical Core',
+          'AI Scheduler ใช้ Application Layer และ Canonical Core ภายใน Flutter',
         ),
       ),
     );
@@ -202,143 +204,5 @@ class _AppShellState extends State<AppShell> {
         ),
       ),
     );
-  }
-}
-
-enum _AccountAction { logout }
-
-class _AccountMenu extends StatelessWidget {
-  const _AccountMenu({required this.authController});
-
-  final AuthController authController;
-
-  @override
-  Widget build(BuildContext context) {
-    final session = authController.state.session;
-    final user = session?.user;
-    final loading = authController.state.loading;
-
-    return PopupMenuButton<_AccountAction>(
-      tooltip: 'บัญชีผู้ใช้',
-      enabled: !loading,
-      onSelected: (action) async {
-        switch (action) {
-          case _AccountAction.logout:
-            final confirmed = await _confirmLogout(context);
-
-            if (!confirmed || !context.mounted) {
-              return;
-            }
-
-            await authController.logout();
-        }
-      },
-      itemBuilder: (context) {
-        return [
-          PopupMenuItem<_AccountAction>(
-            enabled: false,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minWidth: 220),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    user?.name.isNotEmpty == true ? user!.name : 'ผู้ใช้งาน',
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    user?.email ?? '',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const PopupMenuDivider(),
-          const PopupMenuItem<_AccountAction>(
-            value: _AccountAction.logout,
-            child: ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: Icon(Icons.logout_rounded),
-              title: Text('ออกจากระบบ'),
-            ),
-          ),
-        ];
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CircleAvatar(
-              child: loading
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(_initials(user?.name)),
-            ),
-            const SizedBox(width: 8),
-            if (MediaQuery.sizeOf(context).width >= 720)
-              Text(user?.name.isNotEmpty == true ? user!.name : 'บัญชี'),
-            const Icon(Icons.arrow_drop_down),
-          ],
-        ),
-      ),
-    );
-  }
-
-  String _initials(String? name) {
-    final normalized = name?.trim() ?? '';
-
-    if (normalized.isEmpty) {
-      return '?';
-    }
-
-    final parts = normalized
-        .split(RegExp(r'\s+'))
-        .where((part) => part.isNotEmpty)
-        .toList(growable: false);
-
-    if (parts.length == 1) {
-      return parts.first.substring(0, 1).toUpperCase();
-    }
-
-    return '${parts.first.substring(0, 1)}'
-            '${parts.last.substring(0, 1)}'
-        .toUpperCase();
-  }
-
-  Future<bool> _confirmLogout(BuildContext context) async {
-    final result = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          icon: const Icon(Icons.logout_rounded),
-          title: const Text('ออกจากระบบ'),
-          content: const Text('ต้องการออกจากระบบบนอุปกรณ์นี้หรือไม่'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
-              child: const Text('ยกเลิก'),
-            ),
-            FilledButton(
-              onPressed: () {
-                Navigator.of(context).pop(true);
-              },
-              child: const Text('ออกจากระบบ'),
-            ),
-          ],
-        );
-      },
-    );
-
-    return result ?? false;
   }
 }

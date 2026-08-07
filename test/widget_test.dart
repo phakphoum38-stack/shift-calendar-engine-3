@@ -3,12 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shift_calendar_engine/app/app.dart';
 import 'package:shift_calendar_engine/app/app_controller.dart';
 import 'package:shift_calendar_engine/app/app_dependencies.dart';
-import 'package:shift_calendar_engine/core/result/result.dart';
 import 'package:shift_calendar_engine/domain/entities/app_settings.dart';
-import 'package:shift_calendar_engine/features/auth/application/auth_controller.dart';
-import 'package:shift_calendar_engine/features/auth/application/auth_state.dart';
-import 'package:shift_calendar_engine/features/auth/domain/auth_repository.dart';
-import 'package:shift_calendar_engine/features/auth/domain/auth_session.dart';
 import 'package:shift_calendar_engine/features/foundation/infrastructure/memory_schedule_repository.dart';
 import 'package:shift_calendar_engine/features/foundation/infrastructure/memory_settings_repository.dart';
 
@@ -19,12 +14,8 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final authController = _authenticatedAuthController();
-    addTearDown(authController.dispose);
-
     await tester.pumpWidget(
       ShiftCalendarEngineApp(
-        authController: authController,
         dependencies: AppDependencies(
           settingsRepository: MemorySettingsRepository(
             initialSettings: const AppSettings(locale: LocalePreference.thai),
@@ -45,12 +36,8 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final authController = _authenticatedAuthController();
-    addTearDown(authController.dispose);
-
     await tester.pumpWidget(
       ShiftCalendarEngineApp(
-        authController: authController,
         dependencies: AppDependencies(
           settingsRepository: MemorySettingsRepository(
             initialSettings: const AppSettings(
@@ -86,15 +73,11 @@ void main() {
       settingsRepository: settingsRepository,
     );
 
-    final authController = _authenticatedAuthController();
-
     addTearDown(controller.dispose);
-    addTearDown(authController.dispose);
 
     await tester.pumpWidget(
       ShiftCalendarEngineApp(
         controller: controller,
-        authController: authController,
         dependencies: AppDependencies(
           scheduleRepository: scheduleRepository,
           settingsRepository: settingsRepository,
@@ -115,59 +98,4 @@ void main() {
     expect(controller.settings.demoMode, isTrue);
     expect(controller.schedule.assignments, hasLength(1));
   });
-}
-
-AuthController _authenticatedAuthController() {
-  return AuthController(
-    repository: const _FakeAuthRepository(),
-    initialState: const AuthState(
-      status: AuthStatus.authenticated,
-      session: AuthSession(
-        tokenType: 'Bearer',
-        accessToken: 'test-token',
-        abilities: <String>['*'],
-        user: AuthUser(
-          id: 'test-user',
-          name: 'Test User',
-          email: 'test@example.com',
-        ),
-      ),
-    ),
-  );
-}
-
-class _FakeAuthRepository implements AuthRepository {
-  const _FakeAuthRepository();
-
-  @override
-  Future<Result<AuthSession>> login({
-    required String email,
-    required String password,
-    required String deviceName,
-  }) async {
-    return const Success<AuthSession>(
-      AuthSession(
-        tokenType: 'Bearer',
-        accessToken: 'test-token',
-        abilities: <String>['*'],
-        user: AuthUser(
-          id: 'test-user',
-          name: 'Test User',
-          email: 'test@example.com',
-        ),
-      ),
-    );
-  }
-
-  @override
-  Future<Result<AuthUser>> currentUser() async {
-    return const Success<AuthUser>(
-      AuthUser(id: 'test-user', name: 'Test User', email: 'test@example.com'),
-    );
-  }
-
-  @override
-  Future<Result<void>> logout() async {
-    return const Success<void>(null);
-  }
 }

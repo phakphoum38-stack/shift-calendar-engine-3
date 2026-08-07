@@ -5,14 +5,7 @@ import 'package:workforce_core/workforce_core.dart'
         OrganizationRepository,
         TeamRepository;
 
-import '../core/network/api_client.dart';
-import '../core/network/api_configuration.dart';
 import '../domain/entities/app_settings.dart';
-import '../features/auth/application/auth_controller.dart';
-import '../features/auth/domain/auth_repository.dart';
-import '../features/auth/infrastructure/api_auth_repository.dart';
-import '../features/auth/infrastructure/secure_token_store.dart';
-import '../features/auth/infrastructure/token_store.dart';
 import '../domain/entities/schedule.dart';
 import '../domain/repositories/employee_repository.dart';
 import '../domain/repositories/schedule_repository.dart';
@@ -22,7 +15,6 @@ import '../features/dashboard/application/dashboard_summary_service.dart';
 import '../features/employees/application/employee_application_service.dart';
 import '../features/employees/application/employee_controller.dart';
 import '../features/employees/application/employee_directory_controller.dart';
-import '../features/employees/infrastructure/api_employee_repository.dart';
 import '../features/employees/infrastructure/shared_preferences_employee_repository.dart';
 import '../features/foundation/infrastructure/memory_schedule_repository.dart';
 import '../features/foundation/infrastructure/memory_settings_repository.dart';
@@ -42,12 +34,13 @@ import '../features/roster/application/drive_roster_source_controller.dart';
 import '../features/roster/application/drive_roster_source_gateway.dart';
 import '../features/roster/application/roster_controller.dart';
 import '../features/roster/application/roster_editor_controller.dart';
+import '../features/roster/infrastructure/google_drive_roster_source_gateway.dart';
 import '../features/settings/infrastructure/shared_preferences_settings_repository.dart';
 import '../features/shift_templates/application/shift_template_controller.dart';
 import '../features/shift_templates/infrastructure/shared_preferences_shift_template_repository.dart';
 import 'app_controller.dart';
 
-/// Explicit composition root for all production dependencies.
+/// Flutter-only composition root. No Laravel or remote application API is required.
 class AppDependencies {
   AppDependencies({
     ScheduleRepository? scheduleRepository,
@@ -58,9 +51,6 @@ class AppDependencies {
     BranchRepository? branchRepository,
     DepartmentRepository? departmentRepository,
     TeamRepository? teamRepository,
-    TokenStore? tokenStore,
-    ApiClient? apiClient,
-    AuthRepository? authRepository,
     MonthlyRosterReportMapper? monthlyRosterReportMapper,
     this.reportServiceOverride,
     ReportOutputGateway? reportOutputGateway,
@@ -88,43 +78,16 @@ class AppDependencies {
            reportOutputGateway ?? const PrintingReportOutputGateway(),
        driveRosterSourceGateway =
            driveRosterSourceGateway ??
-           const UnconfiguredDriveRosterSourceGateway() {
-    final resolvedTokenStore = tokenStore ?? SecureTokenStore();
-
-    this.tokenStore = resolvedTokenStore;
-    this.apiClient =
-        apiClient ??
-        ApiClient(
-          configuration: ApiConfiguration.fromEnvironment(),
-          tokenStore: resolvedTokenStore,
-        );
-    this.authRepository =
-        authRepository ??
-        ApiAuthRepository(
-          apiClient: this.apiClient,
-          tokenStore: resolvedTokenStore,
-        );
-  }
+           const UnconfiguredDriveRosterSourceGateway();
 
   factory AppDependencies.production() {
-    final tokenStore = SecureTokenStore();
-    final apiClient = ApiClient(
-      configuration: ApiConfiguration.fromEnvironment(),
-      tokenStore: tokenStore,
-    );
-
     return AppDependencies(
       scheduleRepository: SharedPreferencesScheduleRepository(),
       settingsRepository: SharedPreferencesSettingsRepository(),
-      employeeRepository: ApiEmployeeRepository(apiClient: apiClient),
-      tokenStore: tokenStore,
-      apiClient: apiClient,
+      employeeRepository: SharedPreferencesEmployeeRepository(),
+      driveRosterSourceGateway: GoogleDriveRosterSourceGateway(),
     );
   }
-
-  late final TokenStore tokenStore;
-  late final ApiClient apiClient;
-  late final AuthRepository authRepository;
 
   final ScheduleRepository scheduleRepository;
   final SettingsRepository settingsRepository;
@@ -146,10 +109,6 @@ class AppDependencies {
 
   EmployeeApplicationService get employeeApplicationService =>
       EmployeeApplicationService(repository: employeeRepository);
-
-  AuthController createAuthController() {
-    return AuthController(repository: authRepository);
-  }
 
   AppController createAppController() {
     return AppController(
