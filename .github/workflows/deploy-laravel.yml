@@ -30,7 +30,7 @@ jobs:
           extensions: mbstring, dom, fileinfo, sqlite3, pdo_sqlite
           coverage: none
           tools: composer:v2
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ~/.cache/composer/files
           key: ${{ runner.os }}-composer-${{ hashFiles('backend/composer.lock') }}
