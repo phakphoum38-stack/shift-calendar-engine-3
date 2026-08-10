@@ -6,3 +6,8 @@ f99812da7ce7bf23997f1a67273022784010a243:lib/features/employees/infrastructure/s
 662c22d0e252aaff7f8028de464951ab442559d7:lib/features/organization/infrastructure/organization_repository_bundle.dart:generic-api-key:28
 662c22d0e252aaff7f8028de464951ab442559d7:lib/features/organization/infrastructure/organization_repository_bundle.dart:generic-api-key:36
 b51f3952229c732dbd0ea17456f66c61f0f09c24:lib/features/organization/infrastructure/organization_storage_migrator.dart:generic-api-key:40
+
+# Same public organization namespace literals as introduced in an earlier history commit.
+94deffc681fffc0ef42ff46a187957d80e43380e:lib/features/organization/infrastructure/organization_storage_migrator.dart:generic-api-key:40
+94deffc681fffc0ef42ff46a187957d80e43380e:lib/features/organization/infrastructure/organization_repository_bundle.dart:generic-api-key:33
+94deffc681fffc0ef42ff46a187957d80e43380e:lib/features/organization/infrastructure/organization_repository_bundle.dart:generic-api-key:41
